@@ -1,0 +1,22 @@
+
+---
+title: "Algorithms for Quantitative Pedology: a toolkit for digital soil morphometrics"
+output: html_document
+---
+
+```{r setup, echo=FALSE, results='hide'}
+# options for knitr
+library(knitr)
+opts_chunk$set(message=FALSE, warning=FALSE, background='#F7F7F7', dpi=100, fig.align='center', dev='CairoPNG', dev.args=list(pointsize=10), tidy=TRUE)
+
+# options for R session
+options(width=100, stringsAsFactors=FALSE)
+```
+
+
+D.E. Beaudette, P. Roudier, J.M. Skovlin
+
+## Abstract
+
+## Introduction
+
