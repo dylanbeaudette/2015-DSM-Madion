@@ -1,4 +1,4 @@
-Aggregate representation of soil horizons
+Aggregate representation of genetic soil horizons via proportional-odds logistic regression.
 
 D.E. Beaudette, P. Roudier, J.M. Skovlin
 
