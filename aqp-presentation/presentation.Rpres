@@ -1,15 +1,25 @@
----
-title: 'Algorithms for Quantitative Pedology: a toolkit for digital soil morphometrics'
-output: 
-  ioslides_presentation:
-    transition: faster
 
----
+<!-- 
+ideas:
+http://landeco2point0.wordpress.com/2013/11/07/r-studio-and-presentations-and-git-oh-my/
+http://rstudio-pubs-static.s3.amazonaws.com/27777_55697c3a476640caa0ad2099fe914ae5.html
+-->
+
 
 ```{r setup, echo=FALSE, results='hide'}
 library(knitr)
 opts_chunk$set(message=FALSE, warning=FALSE, dpi=120, fig.align='center', dev='CairoPNG', dev.args=list(pointsize=10), tidy=TRUE, tidy.opts=list(width.cutoff=100), cache=TRUE)
 ```
+
+
+Algorithms for Quantitative Pedology: a toolkit for digital soil morphometrics
+========================================================
+author: Dylan Beaudette (USDA-NRCS Sonora, CA)
+date: October 7, 2014
+transition: none
+width: 1024
+height: 800
+css: custom.css
 
 ```{r make-repeatable, tidy=FALSE, echo=FALSE}
 # load libraries

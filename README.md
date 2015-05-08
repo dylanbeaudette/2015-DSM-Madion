@@ -48,8 +48,8 @@ documentation are fairly complete.
 1. May 4 thru 8:
  * decide on what to keep / remove in hz-prob paper
  * decide on what to emphasize in the AQP paper
- * decide on what platform to use for presentations / papers
- * decide on revision control method
+ * decide on what platform to use for presentations [.Rpres or .Rmd?] / papers [markdown / pandoc]
+ * decide on revision control method [github]
  * outline both presentation slides
 
 2. May 11 thru 15:
