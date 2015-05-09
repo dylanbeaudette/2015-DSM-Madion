@@ -46,26 +46,25 @@ documentation are fairly complete.
 # Plans
 
 1. May 4 thru 8:
- * decide on what to keep / remove in hz-prob paper
- * decide on what to emphasize in the AQP paper
- * decide on what platform to use for presentations [.Rpres or .Rmd?] / papers [markdown / pandoc]
- * decide on revision control method [github]
- * outline both presentation slides
+  [x] outine hz-prob presentation [done]
+  [] outline AQP presentation []
+  [] decide on what platform to use for presentations (.Rpres or .Rmd?) / papers (markdown / pandoc)
+  [] decide on revision control method [github]
 
 2. May 11 thru 15:
- * draft presentations done
- * collect references for both papers (bibtex?)
- * outline both papers
- * figures for both papers
+  * draft presentations done
+  * collect references for both papers (bibtex?)
+  * outline both papers
+  * figures for both papers
 
 3. May 18 thru 22:
- * finish presentations
- * 50% goal for both papers
+  * finish presentations
+  * 50% goal for both papers
 
 4. May 25 thru 29:
- * finish both papers
- * proof presentations / final adjustments
- * testing
+  * finish both papers
+  * proof presentations / final adjustments
+  * testing
 
 
 # Suggestions / Notes:
