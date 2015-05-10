@@ -47,7 +47,7 @@ documentation are fairly complete.
 
 1. May 4 thru 8:
   * [x] outine hz-prob presentation [done]
-  * [] outline AQP presentation
+  * [x] outline AQP presentation
   * [x] decide on what platform to use for presentations (.Rpres or .Rmd?) / papers (markdown / pandoc)
   * [x] decide on revision control method (github)
 
