@@ -23,3 +23,9 @@ output: ioslides_presentation
 4. model limitations (e.g. minimum sample size, ... ?)
 5. more realistic estimates of SE (incorporation of correlation structure via GEE)
 6. other uses of model coefficients
+
+## Examples
+1. loafercreek-- large sample size, fairly simple horizonation
+2. amador or similar, smaller sample size
+3. complex horizonation, ... ?
+4. NZ soils data ... ?

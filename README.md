@@ -46,25 +46,25 @@ documentation are fairly complete.
 # Plans
 
 1. May 4 thru 8:
-  [x] outine hz-prob presentation [done]
-  [] outline AQP presentation []
-  [] decide on what platform to use for presentations (.Rpres or .Rmd?) / papers (markdown / pandoc)
-  [] decide on revision control method [github]
+  * [x] outine hz-prob presentation [done]
+  * [] outline AQP presentation
+  * [x] decide on what platform to use for presentations (.Rpres or .Rmd?) / papers (markdown / pandoc)
+  * [x] decide on revision control method (github)
 
 2. May 11 thru 15:
-  * draft presentations done
-  * collect references for both papers (bibtex?)
-  * outline both papers
-  * figures for both papers
+  * [] draft presentations done
+  * [] collect references for both papers (bibtex?)
+  * [] outline both papers
+  * [] figures for both papers
 
 3. May 18 thru 22:
-  * finish presentations
-  * 50% goal for both papers
+  * [] finish presentations
+  * [] 50% goal for both papers
 
 4. May 25 thru 29:
-  * finish both papers
-  * proof presentations / final adjustments
-  * testing
+  * [] finish both papers
+  * [] proof presentations / final adjustments
+  * [] testing
 
 
 # Suggestions / Notes:
@@ -85,6 +85,5 @@ will accept it. If not, perhaps we can try using a variant of Markdown
 that can deal with references. This looks promising:
 
 http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html
-
 
 Wow. That is a lot to do.
