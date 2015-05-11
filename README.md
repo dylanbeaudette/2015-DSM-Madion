@@ -48,7 +48,7 @@ documentation are fairly complete.
 1. May 4 thru 8:
   * [x] outine hz-prob presentation [done]
   * [x] outline AQP presentation
-  * [x] decide on what platform to use for presentations (.Rpres or .Rmd?) / papers (markdown / pandoc)
+  * [x] decide on what platform to use for presentations (.Rpres) / papers (markdown / pandoc)
   * [x] decide on revision control method (github)
 
 2. May 11 thru 15:
@@ -70,7 +70,7 @@ documentation are fairly complete.
 # Suggestions / Notes:
 
  1. While not ideal, I have been fairly happy with the RSudio
-presentation format-- after significant adjustments to the default
+presentation format (.Rpres)-- after significant adjustments to the default
 style. However, this only makes sense if we are going to include R
 code in our presentations. If not-- well, beamer would be fine.
 
@@ -79,9 +79,7 @@ SVN repo, it could be that I need to update my password. If we can get
 this working I am fine with using this or a related repo for our
 presentations / papers.
 
- 3. I am waiting to hear back from Alfred on acceptable formats for
-paper submission-- LaTeX would be ideal, but I am doubtful that they
-will accept it. If not, perhaps we can try using a variant of Markdown
+ 3. Word is the requiured submission format, therefore we should probably try using a variant of Markdown
 that can deal with references. This looks promising:
 
 http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html

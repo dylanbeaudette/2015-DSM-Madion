@@ -1,25 +1,36 @@
-
-<!-- 
-ideas:
-http://landeco2point0.wordpress.com/2013/11/07/r-studio-and-presentations-and-git-oh-my/
-http://rstudio-pubs-static.s3.amazonaws.com/27777_55697c3a476640caa0ad2099fe914ae5.html
--->
-
-
 ```{r setup, echo=FALSE, results='hide'}
-library(knitr)
+library(knitr, quietly = TRUE)
 opts_chunk$set(message=FALSE, warning=FALSE, dpi=120, fig.align='center', dev='CairoPNG', dev.args=list(pointsize=10), tidy=TRUE, tidy.opts=list(width.cutoff=100), cache=TRUE)
 ```
 
 
 Algorithms for Quantitative Pedology: a toolkit for digital soil morphometrics
 ========================================================
-author: Dylan Beaudette (USDA-NRCS Sonora, CA)
+author: D.E. Beaudette, P. Rouder, J.M. Skovlin
 date: October 7, 2014
 transition: none
 width: 1024
 height: 800
 css: custom.css
+
+
+## Main Ideas
+1. framework and vocabulary for soil data modeling
+2. specialized data structures to accommodate **most** soil information (soilDB companion package)
+3. data vizualization via. sketches
+4. re-sampling via slicing / slabbing and related vizualization
+5. numerical classification
+6. extensible (examples in companion sharpshootR package)
+
+## Digital Soil Morphometrics Examples
+1. ML profile generation
+2. profile-level aggregate / stock estimation
+3. continuous-representation of data collected from genetic horizons (e.g. depth-function estimation)
+4. TODO: coalate recent work and find some more!
+5. Pierre: any recent work examples?
+6. scavenge from AQP website
+
+
 
 ```{r make-repeatable, tidy=FALSE, echo=FALSE}
 # load libraries
