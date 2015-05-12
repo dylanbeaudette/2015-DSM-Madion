@@ -1,7 +1,11 @@
 
 ---
-title: "Algorithms for Quantitative Pedology: a toolkit for digital soil morphometrics"
-output: html_document
+title: 'Algorithms for Quantitative Pedology: a toolkit for digital soil morphometrics'
+author: D.E. Beaudette, P. Roudier, J.M. Skovlin
+output:
+  html_document:
+    theme: journal
+    number_sections: true
 ---
 
 ```{r setup, echo=FALSE, results='hide'}
@@ -14,9 +18,25 @@ options(width=100, stringsAsFactors=FALSE)
 ```
 
 
-D.E. Beaudette, P. Roudier, J.M. Skovlin
+# Abstract
 
-## Abstract
+Soil profiles are sampled and characterized according to horizons. The horizonation of the soil profile can be systematic, genetic of functional, and results in datasets that are rather complex in nature, associating elements such as geographical location of the profile, depth support of the sampled horizons, and observations associated either with the soil profile and the individual horizons. The high dimensionality of soil profile data can make the analysis and visualization tasks difficult. 
+The `aqp` (algorithms for quantitative pedology) package was designed to support data-driven approaches to common soils-related tasks such as visualization, aggregation, and classification of soil profile collections. Functions in the aqp package have been successfully applied to studies involving several thousand soil profiles. The stable version of the aqp package is hosted by CRAN (http://cran.r-project.org/web/packages/aqp), and the development version is hosted by R-Forge (http://aqp.r-forge.r-project.org).
 
-## Introduction
+# Introduction
+
+## The R statistical environment
+
+## Philosophy of the AQP package
+
+# Capabilities
+
+## Organising soil profile data
+
+## Visualising soil profile data
+
+## Analysing soil profile data
+
+# Conclusions
+
 
