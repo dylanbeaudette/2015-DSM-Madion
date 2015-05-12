@@ -10,16 +10,16 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="289.73407mm"
+   width="260.0188mm"
    height="254.0463mm"
-   viewBox="0 0 1026.6168 900.16403"
+   viewBox="0 0 921.32647 900.16403"
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="mvo-soil-montage.svg"
-   inkscape:export-filename="C:\Users\Dylan.Beaudette\Desktop\New folder\mvo-soil-montage.png"
-   inkscape:export-xdpi="87.669998"
-   inkscape:export-ydpi="87.669998">
+   inkscape:export-filename="E:\working_copies\2015-DSM-Madison\mvo-montage\mvo-soil-montage.png"
+   inkscape:export-xdpi="119.97813"
+   inkscape:export-ydpi="119.97813">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -30,8 +30,8 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.7"
-     inkscape:cx="631.68262"
-     inkscape:cy="403.76316"
+     inkscape:cx="506.38808"
+     inkscape:cy="546.94987"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -60,87 +60,78 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(1020.6018,-184.6019)">
+     transform="translate(1012.6018,-184.60193)">
     <image
-       sodipodi:absref="C:\Users\Dylan.Beaudette\Desktop\New folder\p4.jpg"
+       sodipodi:absref="E:\working_copies\2015-DSM-Madison\mvo-montage\p4.jpg"
        xlink:href="p4.jpg"
-       width="115.54695"
-       height="900"
-       preserveAspectRatio="none"
+       y="184.68393"
+       x="-782.18256"
        id="image3344"
-       x="-793.08209"
-       y="184.68393" />
+       preserveAspectRatio="none"
+       height="900"
+       width="115.54695" />
     <image
-       sodipodi:absref="C:\Users\Dylan.Beaudette\Desktop\New folder\p1.jpg"
+       sodipodi:absref="E:\working_copies\2015-DSM-Madison\mvo-montage\p1.jpg"
        xlink:href="p1.jpg"
-       width="112.5"
-       height="900"
-       preserveAspectRatio="none"
+       y="184.68393"
+       x="-318.78394"
        id="image3355"
-       x="-676.27515"
-       y="184.68393" />
+       preserveAspectRatio="none"
+       height="900"
+       width="112.5" />
     <image
-       sodipodi:absref="C:\Users\Dylan.Beaudette\Desktop\New folder\p2.jpg"
+       sodipodi:absref="E:\working_copies\2015-DSM-Madison\mvo-montage\p2.jpg"
        xlink:href="p2.jpg"
-       width="112.36749"
-       height="900"
-       preserveAspectRatio="none"
+       y="184.68393"
+       x="-433.65997"
        id="image3366"
-       x="-906.70959"
-       y="184.68393" />
+       preserveAspectRatio="none"
+       height="900"
+       width="112.36749" />
     <image
-       sodipodi:absref="C:\Users\Dylan.Beaudette\Desktop\New folder\p3.jpg"
+       sodipodi:absref="E:\working_copies\2015-DSM-Madison\mvo-montage\p3.jpg"
        xlink:href="p3.jpg"
-       width="112.63219"
-       height="900"
-       preserveAspectRatio="none"
+       y="184.68393"
+       x="-1012.6018"
        id="image3377"
-       x="-1020.6018"
-       y="184.68393" />
+       preserveAspectRatio="none"
+       height="900"
+       width="112.63219" />
     <image
-       sodipodi:absref="C:\Users\Dylan.Beaudette\Desktop\New folder\p5.jpg"
+       sodipodi:absref="E:\working_copies\2015-DSM-Madison\mvo-montage\p5.jpg"
        xlink:href="p5.jpg"
-       width="112.5"
-       height="900"
-       preserveAspectRatio="none"
+       y="184.68393"
+       x="-664.12701"
        id="image3388"
-       x="-562.51514"
-       y="184.68393" />
+       preserveAspectRatio="none"
+       height="900"
+       width="112.5" />
     <image
-       sodipodi:absref="C:\Users\Dylan.Beaudette\Desktop\New folder\p6.jpg"
+       sodipodi:absref="E:\working_copies\2015-DSM-Madison\mvo-montage\p6.jpg"
        xlink:href="p6.jpg"
-       width="112.5"
-       height="900"
-       preserveAspectRatio="none"
+       y="184.68393"
+       x="-203.77539"
        id="image3399"
-       x="-448.75513"
-       y="184.68393" />
-    <image
-       sodipodi:absref="C:\Users\Dylan.Beaudette\Desktop\New folder\p7.jpg"
-       xlink:href="p7.jpg"
-       width="112.77"
+       preserveAspectRatio="none"
        height="900"
-       preserveAspectRatio="none"
-       id="image3410"
-       x="-106.75507"
-       y="184.68393" />
+       width="112.5" />
     <image
-       sodipodi:absref="C:\Users\Dylan.Beaudette\Desktop\New folder\p8.jpg"
+       sodipodi:absref="E:\working_copies\2015-DSM-Madison\mvo-montage\p8.jpg"
        xlink:href="p8.jpg"
-       width="112.77"
-       height="900.16406"
-       preserveAspectRatio="none"
+       y="184.6019"
+       x="-897.46106"
        id="image3421"
-       x="-220.7851"
-       y="184.6019" />
-    <image
-       sodipodi:absref="C:\Users\Dylan.Beaudette\Desktop\New folder\p10.jpg"
-       xlink:href="p10.jpg"
-       width="112.95"
-       height="900.07031"
        preserveAspectRatio="none"
+       height="900.16406"
+       width="112.77" />
+    <image
+       sodipodi:absref="E:\working_copies\2015-DSM-Madison\mvo-montage\p10.jpg"
+       xlink:href="p10.jpg"
+       y="184.64877"
+       x="-549.11847"
        id="image3443"
-       x="-334.99512"
-       y="184.64877" />
+       preserveAspectRatio="none"
+       height="900.07031"
+       width="112.95" />
   </g>
 </svg>

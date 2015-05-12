@@ -176,3 +176,9 @@ pip-log.txt
 .mr.developer.cfg
 .Rproj.user
 2015-DSM-Madison.Rproj
+*.RData
+*.rdb
+*.rdx
+presentation-cache
+presentation-figure
+
