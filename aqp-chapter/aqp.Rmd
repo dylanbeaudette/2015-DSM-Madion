@@ -33,10 +33,13 @@ The `aqp` (algorithms for quantitative pedology) package was designed to support
 
 ## Organising soil profile data
 
+Soil profile data is complex by nature. 
+
 ## Visualising soil profile data
 
 ## Analysing soil profile data
 
 # Conclusions
 
+The `aqp` package for R provides soil scientists with a comprehensive platform to develop digital soil morphometrics methods on digital collection of soil profile data. Due to its nature, the package allows to leverage the very rich ecosystem of available methods in R. 
 
