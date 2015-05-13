@@ -13,6 +13,7 @@ library(rms)
 library(plyr)
 library(reshape)
 library(scales)
+library(cluster)
 
 # load sample data
 data(loafercreek, package = 'soilDB')
@@ -26,7 +27,7 @@ hz.designation.by.median.depths <- names(sort(tapply(loafercreek$mid, loafercree
 
 ## generalize horizon names using REGEX rules
 n <- c('A','BA','Bt1','Bt2','Bt3','Cr','R')
-p <- c('^A$|Ad|Ap|^ABt$','AB$|BA$|Bw', 'Bt1$|^Bt$','^Bt2$','^Bt3|^Bt4|CBt$|BCt$|2Bt|2CB$|^C$','Cr','R')
+p <- c('^A$|Ad|Ap|^ABt$','AB$|BA$|Bw', 'Bt1$|^Bt$|^B$','^Bt2$','^Bt3|^Bt4|CBt$|BCt$|2Bt|2CB$|^C$','Cr','R')
 loafercreek$genhz <- generalize.hz(loafercreek$hzname, n, p)
 
 # remove non-matching generalized horizon names
@@ -53,8 +54,8 @@ a.slab <- slab(loafercreek, ~ genhz, cpm=1)
 # convert to long-format for plotting
 a.slab.long <- melt(a.slab, id.vars='top', measure.vars=hz.names)
 
-# remove P(hz) < 1%
-a.slab.long$value[which(a.slab.long$value < 0.01)] <- NA
+# remove P(hz) < 0.1%
+a.slab.long$value[which(a.slab.long$value < 0.001)] <- NA
 
 # proportional-odds logistics regression: fits well, ignore standard errors
 # using sliced data properly weights observations... but creates optimistic SE
@@ -76,12 +77,59 @@ p$top <- slice.vect
 # melt to long format for plotting
 p.long <- melt(p, id.vars='top', measure.vars=hz.names)
 
-# remove P(hz) < 1%
-p.long$value[which(p.long$value < 0.01)] <- NA
+# remove P(hz) < 0.1%
+p.long$value[which(p.long$value < 0.001)] <- NA
 
 # combine sliced data / predictions
 g <- make.groups(slab = a.slab.long, PO.model = p.long)
-g$which <- factor(g$which, labels=c('direct aggregation', 'PO-logistic regression'))
+g$which <- factor(g$which, labels=c('empirical probabilities', 'PO-logistic regression'))
+
+# extract ML-horizon boundaries 
+a.ml <- get.ml.hz(a.slab, hz.names)
+p.ml <- get.ml.hz(p, hz.names)
+
+# generate ordering vector of loafrcreek based on GHL similarity
+a.slab.id <- slab(loafercreek, peiid ~ genhz, cpm=1)
+depths(a.slab.id) <- peiid ~ top + bottom
+d <- profile_compare(a.slab.id, vars=hz.names, max_d=100, k=0)
+h <- diana(d)
+
+# Shannon's H index for po-lr model, computed by depth-slice
+shannon.h <- apply(p[, hz.names], 1, function(i) -sum(i*log(i)))
+
+# generate NA-free values/predictions for Brier Score calc
+s.sub <- horizons(s)[, c('genhz', 'hzdept')]
+p.s  <- data.frame(predict(l.genhz, s.sub, type='fitted.ind'))
+
+# re-name, rms model output give funky names
+names(p.s) <- hz.names
+
+# combine original data + predictions
+p.s <- cbind(s.sub, p.s)
+
+# eval Brier Score by gen hz
+# note that predictions at any given depth slice will always be the same
+p.bs <- ddply(p.s, 'genhz', function(x.i) {
+  # save the gen hz probabilities into new df
+  x.pr <- x.i[, hz.names]
+  # init new matrix to store most-likely gen hz class
+  m <- matrix(0, ncol=ncol(x.pr), nrow=nrow(x.pr))
+  # same structure as x.pr
+  dimnames(m)[[2]] <- names(x.pr)
+  # set appropriate genhz to 1
+  for(i in 1:nrow(x.i)) {
+    ml.hz.i <- x.i$genhz[i]
+    m[i, ml.hz.i] <- 1
+    }
+  # compute bs for this gen hz
+  bs <- sum((x.pr - m)^2, na.rm=TRUE) / nrow(x.pr)
+  })
+
+# fix names
+names(p.bs) <- c('genhz', 'brier.score')
+
+# remove NAs from table
+p.bs <- na.omit(p.bs)
 ```
 
 
@@ -98,9 +146,8 @@ D.E. Beaudette, P. Rouder, J.M. Skovlin
 <span style="color: white; font-size:50%;">This document is based on `aqp` version `r utils::packageDescription("aqp", field="Version")` and `soilDB` version `r utils::packageDescription("soilDB", field="Version")``.</span>
 
 
-Describing soil morphology in aggregate is hard.
+Describing soil morphology in aggregate is hard
 ========================================================
-<span class="oneliner">Can we do better than selecting a "representative pedon" from a collection?</span>
 ![alt text](static-figures/mvo-soil-montage-narrow.jpg)
 
 - hz depths / designations: overlap, consistency, frequency
@@ -108,60 +155,66 @@ Describing soil morphology in aggregate is hard.
 - transition and infrequent horizons: BA, AB, BCt, etc.
 - lumpers vs. spliters: <span style="font-size:75%; font-stretch: condensed;">A-Bt1-Bt2-R</span> vs. <span style="font-size:75%; font-stretch: condensed;">A1-A2-AB-Bt1-Bt2-Bt3-Cr-R</span>
 
-Yes, aggregation over generalized horizon labels.
+<span class="oneliner">can we do better than selecting a "representative pedon" from a collection?</span>
+
+
+Aggregation over generalized horizon labels
 ========================================================
-<span class="oneliner">generalized horizon labels are expert-guided "micro-correlation" decisions</span>
 ![alt text](static-figures/genhz-sketch.png)
 
 
 1. determine the core concept: e.g. **A-Bt1-Bt2-Bt3-Cr-R**
 2. assess existing data, relevant management or scientific needs
-2. aggregate mechanically or by model, in AQP terminology:
- - correlate &#8594;&nbsp; slice() &#8594;&nbsp; slab() &#8594;&nbsp; ML profile
- - correlate &#8594;&nbsp; slice() &#8594;&nbsp; model &#8594;&nbsp; ML profile 
+3. assign generalized horizon labels (GHL)
+4. aggregate over GHL, in R / AQP syntax:
+ - empirical: slice() &#8594;&nbsp; slab() &#8594;&nbsp; probability depth-functions
+ - model-based:  slice() &#8594;&nbsp; orm() &#8594;&nbsp; probability model
+5. determine most-likely horizonation
 
+<span class="oneliner">generalized horizon labels are expert-guided, "micro-correlation" decisions</span>
 
 
 ========================================================
 Examples using 54 profiles correlated to Loafercreek soil series
 - fine-loamy, mixed, superactive, thermic ultic haploxeralfs
-- foothills of the Sierra Nevada Mountains, MLRA 18
-- recreation, range, vinyards, low-density residential
+- extent: foothills of the Sierra Nevada Mountains, MLRA 18
+- uses: recreation, range, vineyard, low-density residential
 ```{r plot-sample-data, echo=FALSE, fig.width=10, fig.height=6}
 # plot generalized horizons via color, sorted by depth
 par(mar=c(0,0,0,0))
-plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, print.id=FALSE, name='', plot.depth.axis=FALSE)
-legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
+plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, print.id=FALSE, name='', plot.depth.axis=FALSE, plot.order=h$order)
+legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2, pt.cex=4)
 ```
 
-correlate
+
+assignment of GHL, using expert knowledge
 ========================================================
 
-```{r plot-sample-data-zoom, echo=FALSE, fig.width=10, fig.height=6}
+```{r plot-sample-data-zoom, echo=FALSE, fig.width=10, fig.height=7}
 # plot generalized horizons via color, sorted by depth
 loafercreek$genhz.soil_color <- cols[match(loafercreek$genhz, hz.names)]
 par(mar=c(0,0,1,0))
 plot(loafercreek[1:25,], color='genhz.soil_color', name='', print.id=FALSE, plot.depth.axis=FALSE, n=32, max.depth=60)
-legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.85)
+legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.85, pt.cex=4)
 ```
 
 
-slice
+slice(): resample along 1-cm increments
 ========================================================
 
-```{r slice-data-1, echo=FALSE, fig.width=10, fig.height=6}
+```{r slice-data-1, echo=FALSE, fig.width=10, fig.height=7}
 
 # graphical check: profiles 1:15, top 25 slices
 par(mar=c(0,0,1,0))
 plot(s[1:25, 1:60], color='genhz.soil_color', name='', print.id=FALSE, plot.depth.axis=FALSE, n=32)
-legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.85)
+legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.85, pt.cex=4)
 ```
 
 
-slab
+slab(): slice-wise probability calculation
 ========================================================
 
-```{r slice-data-2, echo=FALSE, fig.width=10, fig.height=6}
+```{r slice-data-2, echo=FALSE, fig.width=10, fig.height=7}
 # compute horizon proportions
 s.depths <- c(1,10,25,40,50,55)
 s.hz.prop <- sapply(s.depths, function(i) { prop.table(table(s[, i]$genhz)) })
@@ -170,7 +223,7 @@ s.hz.prop[] <- sprintf("%.2f", round(s.hz.prop, 2))
 # graphical check: profiles 1:15, top 25 slices
 par(mar=c(0,0,1,0))
 plot(s[1:25, 1:60], color='genhz.soil_color', name='', print.id=FALSE, plot.depth.axis=FALSE, n=32)
-legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.85)
+legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.85, pt.cex=4)
 rect(xleft=0.5, xright=25.5, ybottom=s.depths+1, ytop=s.depths, lwd=2, border='black', lend=2)
 text(x=26, y=s.depths+0.5, labels=s.hz.prop[1, ], adj = 0, cex=1.5, font=2, col=cols[1])
 text(x=28, y=s.depths+0.5, labels=s.hz.prop[2, ], adj = 0, cex=1.5, font=2, col=cols[2])
@@ -178,39 +231,40 @@ text(x=30, y=s.depths+0.5, labels=s.hz.prop[3, ], adj = 0, cex=1.5, font=2, col=
 text(x=32, y=s.depths+0.5, labels=s.hz.prop[4, ], adj = 0, cex=1.5, font=2, col=cols[4])
 ```
 
-
-empirical probability depth-functions
+slice() and fit PO-logistic regression model
 ========================================================
 
-```{r slab-prob-depth-functions, echo=FALSE, fig.width=10, fig.height=8}
-xyplot(top ~ value, groups=variable, data=a.slab.long, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=2), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), asp=1.5, panel=function(...) {
-	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
-	panel.xyplot(...)
-})
+```{r slice-and-fit-1, echo=FALSE, fig.width=10, fig.height=7}
+# graphical check: profiles 1:15, top 25 slices
+par(mar=c(0,0,1,0))
+plot(s[1:25, 1:60], color='genhz.soil_color', name='', print.id=FALSE, plot.depth.axis=FALSE, n=32)
+legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.85, pt.cex=4)
+lines(27 + (7*p$A), p$top, col=cols[1], lwd=3)
+lines(27 + (7*p$BA), p$top, col=cols[2], lwd=3)
+lines(27 + (7*p$Bt1), p$top, col=cols[3], lwd=3)
+lines(27 + (7*p$Bt2), p$top, col=cols[4], lwd=3)
 ```
 
 
 
-
-Proportional-Odds Logistic Regression
+GHL probability depth-functions / model
 ========================================================
 
-```{r PO-proportions, echo=FALSE, fig.width=10, fig.height=8}
-xyplot(top ~ value, groups=variable, data=p.long, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=2), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), asp=1.5, panel=function(...) {
-  panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
-	panel.xyplot(...)
-})
-```
-
-
-Proportional-Odds Logistic Regression
-========================================================
-
-```{r compare-proportions, echo=FALSE, fig.width=12, fig.height=9}
-xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=2), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), asp=1.5, panel=function(...) {
+```{r compare-proportions, echo=FALSE, fig.width=10, fig.height=7}
+xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=2), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1), layout.heights=list(strip=1.5)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(par.strip.text=list(cex=1.5), bg=grey(0.85)), asp=1.5, panel=function(...) {
   panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
   panel.xyplot(...)
 })
+
+# xyplot(top ~ value, groups=variable, data=a.slab.long, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=2), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), asp=1.5, panel=function(...) {
+#   panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
+#   panel.xyplot(...)
+# })
+# 
+# xyplot(top ~ value, groups=variable, data=p.long, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=2), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), asp=1.5, panel=function(...) {
+#   panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
+# 	panel.xyplot(...)
+# })
 #  xyplot(top ~ value | variable, groups=which, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(columns=2, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(superpose.line=list(lwd=c(2,3), lty=1, col=c('DarkRed','RoyalBlue'))), layout=c(7,1), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1, tick.number=4)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), panel=function(...) {
 #   panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
 #   panel.xyplot(...)
@@ -218,13 +272,110 @@ xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), 
 ```
 
 
+Quantifying uncertainty
+========================================================
+```{r hmmm-2, echo=FALSE, fig.width=10, fig.height=7}
+### BUG: knitr ignores grid.pars=list(fontfamily="mono") in trellis.par.set
 
+# # copy our predictions and adjust GHL labels to include brier scores
+# p.long.copy <- p.long 
+# # larger values -> predictions are less consistently correct
+# # merge BS with genhz labels
+# lab.text <- sprintf("%-6s %.3f", p.bs$genhz, p.bs$brier.score)
+# p.long.copy$variable <- factor(p.long.copy$variable, labels=lab.text)
+
+p.1 <- xyplot(top ~ value, groups=variable, data=p.long, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=2), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability | Shannon H index', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), asp=1.5, panel=function(...) {
+  panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
+  panel.xyplot(...)
+})
+
+p.1 + as.layer(xyplot(0:150 ~ shannon.h, type='l', lty=2, lwd=2, col='black'))
+```
+
+
+Most likely horizonation
+========================================================
+```{r plot-ml-hz, echo=FALSE, fig.width=10, fig.height=7}
+# plot generalized horizons via color, sorted by depth
+par(mar=c(0,0,0,0))
+plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, print.id=FALSE, name='', plot.depth.axis=FALSE, plot.order=h$order, n=length(loafercreek)+3)
+l.text <- paste0(hz.names, '\n', round(p.bs$brier.score, 2))
+legend('bottom', legend=l.text, col=cols, pch=15, bty='n', horiz=TRUE, cex=2, pt.cex=5, title='Brier Scores')
+rect(xleft=length(loafercreek)+1.5, ytop=a.ml$top, xright=length(loafercreek)+3.5, ybottom=a.ml$bottom, lend=1, col=cols[-2])
+text(x=length(loafercreek)+4, y=with(a.ml, (top+bottom)/2), labels=a.ml$hz, cex=2, font=2, adj=0)
+```
+
+
+Model Diagnostics
 ========================================================
 
+```
+                        Model Likelihood               Discrimination    Rank Discrim.    
+                              Ratio Test                      Indexes          Indexes    
+Obs          5996    LR chi2    12104.33    R2                  0.892    rho     0.942    
+
+          Coef     S.E.   Wald Z Pr(>|Z|)
+y>=BA      -1.3076 0.1001 -13.06 <0.0001 
+y>=Bt1     -2.0056 0.1043 -19.24 <0.0001 
+y>=Bt2     -6.1505 0.1911 -32.18 <0.0001 
+y>=Bt3     -9.8848 0.2401 -41.17 <0.0001 
+y>=Cr     -12.3874 0.2518 -49.20 <0.0001 
+y>=R      -15.1682 0.2655 -57.14 <0.0001 
+hzdept      0.2244 0.0072  30.97 <0.0001 
+hzdept'    -0.2383 0.0370  -6.45 <0.0001 
+hzdept''    0.3297 0.1238   2.66 0.0078  
+hzdept'''   0.7363 0.3211   2.29 0.0219  
+```
 
 
 ========================================================
+```{r model-robustness, fig.width=10, fig.height=7, echo=FALSE, eval=TRUE}
+# encapsulate model fitting / prediction within a single function
+f.test <- function(s.i, slice.vect, hz.names) {
+  # fit model to a subset of the original data
+	l.genhz <- try(orm(genhz ~ rcs(hzdept), data=horizons(s.i)))
+	
+	# sometimes the subset doesn't permit model fitting, in that case return NULL
+	if(inherits(l.genhz, 'try-error'))
+		return(list(predictions=NULL, model.disc.index=NULL))
+	
+	# otherwise generate predictions
+	p <- data.frame(predict(l.genhz, data.frame(hzdept=slice.vect), type='fitted.ind'))
+	names(p) <- hz.names
+	p$top <- slice.vect
+	p.long <- melt(p, id.vars='top', measure.vars=hz.names)
+	mdi <- l.genhz$stats['R2']
+	return(list(predictions=p.long, model.disc.index=mdi))
+}
 
+# init an empty list
+n.reps <- 250
+l.res <- list()
+
+## TODO: it would be nice to evaluate the model at each iteration using
+##       those observations that were left out
+# loop a bunch of times, re-fitting the model to a subset of only 25 profiles
+for(i in 1:n.reps) {
+	len.vect <- 1:length(loafercreek)
+	s.idx <- sample(len.vect, size=25, replace=FALSE)
+	# s.left.out.idx <- setdiff(len.vect, s.idx)
+	l.res[[paste('rep.', i, sep='')]] <- f.test(s[s.idx, ], slice.vect, hz.names)
+}
+
+# convert the result from a list into a data.frame, and remove very small probs.
+d.res <- ldply(l.res, function(i) i$prediction)
+d.res$value[which(d.res$value < 0.01)] <- NA
+
+# extract model discrimination index
+res.mdi <- unlist(sapply(l.res, function(i) i$model.disc.index))
+
+# plot with transparency
+xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.05))), layout=c(7,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1, tick.number=4)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
+	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
+	panel.xyplot(...)
+})
+
+```
 
 
 
