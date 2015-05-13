@@ -93,7 +93,7 @@ Most likely horizonation
 <img src="presentation-figure/plot-ml-hz-1.png" title="plot of chunk plot-ml-hz" alt="plot of chunk plot-ml-hz" style="display: block; margin: auto;" />
 
 
-Model Diagnostics
+Model diagnostics and coefficients
 ========================================================
 
 ```
@@ -115,8 +115,9 @@ hzdept'''   0.7363 0.3211   2.29 0.0219
 ```
 
 
+Model stability
 ========================================================
-<img src="presentation-figure/model-robustness-1.png" title="plot of chunk model-robustness" alt="plot of chunk model-robustness" style="display: block; margin: auto;" />
+![alt text](static-figures/model-robustness.png)
 
 
 
