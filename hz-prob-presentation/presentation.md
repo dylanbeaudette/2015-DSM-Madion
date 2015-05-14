@@ -24,12 +24,12 @@ class: smaller
   - explain "lumpers vs splitters"
   
   - I would put even more emphasis on the first slide that morphological description has a lot to do w/ the observer (*in its larger sense*): not only to draw boundaries and qualify an hz, but also in where the pit hyas been dug (horizontal variations)
-"morphology is in the eye of the beholder" which makes a strong point for NOT picking one actual profile in particular, but rather hope the "white noise" will level itself out if we aggregate over a collection of N profiles
-  - is it "Aggregation over generalized horizon labels" or "Aggregation OF generalized horizon labels"
+  - "morphology is in the eye of the beholder" which makes a strong point for NOT picking one actual profile in particular, but rather hope the "white noise" will level itself out if we aggregate over a collection of N profiles
+  - is it "Aggregation over generalized horizon labels" or "Aggregation OF generalized horizon labels" (over)
   
   - I would say a short word about PO-logistic regression model, eg you start with the empirical stuf, show the result (which usually has "steps") then from there you say we can generalise using a model of this empirical aggregation (rather than doing these in pararllel)
 
-  - I'd add a quick word about Brier scores and our friend Shannon too
+
   
 
 
@@ -60,6 +60,20 @@ Aggregation over generalized horizon labels
 <span class="oneliner">generalized horizon labels are expert-guided, "micro-correlation" decisions</span>
 
 
+Quick detour, definitions
+========================================================
+## proportional-odds logistic regression
+... get from RMS book ...
+
+## Brier scores
+... descriptor of how well a set of probabilities describe an actual outcome
+$$ BS = 1/N \sum{ ( f_{t} - o_{t} )^{2}  }  $$
+
+## Shannon's H index
+... quantification of diversity among species, or in this case, estimates of class-wise probability
+$$ H = -\sum{p_{i} * ln(p_{i})}  $$
+
+
 ========================================================
 Examples using 54 profiles correlated to Loafercreek soil series
 - fine-loamy, mixed, superactive, thermic ultic haploxeralfs
@@ -85,11 +99,15 @@ slab(): slice-wise probability calculation
 
 <img src="presentation-figure/slice-data-2-1.png" title="plot of chunk slice-data-2" alt="plot of chunk slice-data-2" style="display: block; margin: auto;" />
 
+<span class="oneliner">results are interpretable and directly tied to the original data, but over-fit</span>
+
+
 slice() and fit PO-logistic regression model
 ========================================================
 
 <img src="presentation-figure/slice-and-fit-1-1.png" title="plot of chunk slice-and-fit-1" alt="plot of chunk slice-and-fit-1" style="display: block; margin: auto;" />
 
+<span class="oneliner">proportional-odds logistic regression generalizes the process</span>
 
 
 GHL probability depth-functions / model
@@ -116,15 +134,20 @@ Most likely horizonation
 
 Conclusions
 ========================================================
-class: smaller
 ![alt text](static-figures/mvo-soil-montage-extra-narrow.jpg)
 
 1. ML profile, aggregation, overlap -> horizon transitions
-2. simulation from model
-3. ...
-4. remaining issues:
-  * model limitations (e.g. minimum sample size, ... ?)
-  * more realistic estimates of SE (incorporation of correlation structure via GEE)
-  * pedogenic interpreation of model coefficients?
+2. soil series defined by ML profile and GHL-agg. properties
+3. lots of data, might as well use it
+
+
+
+Conclusions
+========================================================
+## Remaning Issues
+* simulation from model
+* model limitations (e.g. minimum sample size, ... ?)
+* more realistic estimates of SE (incorporation of correlation structure via GEE)
+* pedogenic interpreation of model coefficients?
 
 
