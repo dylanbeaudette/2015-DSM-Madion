@@ -1,20 +1,6 @@
-```{r setup, echo=FALSE, results='hide', message=FALSE, warning=FALSE}
-library(knitr, quietly = TRUE)
-opts_chunk$set(message=FALSE, warning=FALSE, dpi=120, fig.align='center', dev='CairoPNG', dev.args=list(pointsize=10), tidy=TRUE, tidy.opts=list(width.cutoff=100), cache=TRUE)
-```
 
-```{r packages-data-pre-processing, tidy=FALSE, echo=FALSE}
-# load libraries
-library(aqp)
-library(soilDB)
-library(sharpshootR)
-library(lattice)
-library(plyr)
-library(Hmisc)
 
-# set options 
-options(width=100, stringsAsFactors=FALSE)
-```
+
 
 Algorithms for Quantitative Pedology: a toolkit for digital soil morphometrics
 ========================================================
@@ -27,7 +13,7 @@ D.E. Beaudette, P. Rouder, J.M. Skovlin
 
 
 <br><br><br><br><br><br><br><br>
-<span style="color: white; font-size:50%;">This document is based on `aqp` version `r utils::packageDescription("aqp", field="Version")` </span>
+<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-7 </span>
 
 
 Outline
@@ -91,17 +77,19 @@ SoilProfileCollection Objects
 ========================================================
 <span class="oneliner">custom datatype to store/access hierarchy of soil profile information</span>
 
-```{r SPC-1, echo=FALSE}
-# sample dataset, extracted from NASIS
-library(soilDB)
-data(loafercreek)
-str(loafercreek, 2)
+
+```
+Formal class 'SoilProfileCollection' [package "aqp"] with 7 slots
+  ..@ idcol     : chr "peiid"
+  ..@ depthcols : chr [1:2] "hzdept" "hzdepb"
+  ..@ metadata  :'data.frame':	1 obs. of  1 variable:
+  ..@ horizons  :'data.frame':	308 obs. of  34 variables:
+  ..@ site      :'data.frame':	54 obs. of  59 variables:
+  ..@ sp        :Formal class 'SpatialPoints' [package "sp"] with 3 slots
+  ..@ diagnostic:'data.frame':	177 obs. of  4 variables:
 ```
 
-```{r SPC-2, fig.width=10, fig.height=4, echo=FALSE}
-par(mar=c(0,0,0,0))
-plot(loafercreek[1:10, ], name='hzname', print.id=FALSE, cex.names=0.8, axis.line.offset=-4, max.depth=150)
-```
+<img src="presentation-figure/SPC-2-1.png" title="plot of chunk SPC-2" alt="plot of chunk SPC-2" style="display: block; margin: auto;" />
 
 
 SoilProfileCollection Objects
@@ -118,16 +106,18 @@ id, top, bottom, name, group
 ```
 
 Converting `data.frame` &#8594; `SoilProfileCollection`:
-```{r SPC-3, eval=FALSE}
-x <- read.csv(file=...)
+
+```r
+x <- read.csv(file = ...)
 # promote to SoilProfileCollection
 depths(x) <- id ~ top + bottom
-# move "site data" into @site
-site(x) <- ~ group
+# move 'site data' into @site
+site(x) <- ~group
 ```
 
 Functions that return `SoilProfileCollection`:
-```{r SPC-4, eval=FALSE}
+
+```r
 x <- fetchOSD()
 x <- fetchKSSL()
 x <- fetchPedonPC()
@@ -143,7 +133,8 @@ SoilProfileCollection Objects
 class: small-code
 
 - <span style="font-size: 80%;">object inspection</span>
-```{r SPC-functions-1, eval=FALSE, tidy=FALSE}
+
+```r
 idname(sp4) # pedon ID name
 horizonDepths(sp4) # colum names containing top and bottom depths
 depth_units(sp4) # defaults to 'cm'
@@ -152,7 +143,8 @@ profile_id(sp4) # vector of profile IDs
 ```
 
 - <span style="font-size: 80%;">overloads to common functions</span>
-```{r SPC-functions-2, eval=FALSE, tidy=FALSE}
+
+```r
 length(sp4) # number of profiles in the collection
 nrow(sp4) # number of horizons in the collection
 names(sp4) # column names from site and horizon data
@@ -162,7 +154,8 @@ sp4[i, j] # get profile "i", horizon "j"
 ```
 
 - <span style="font-size: 80%;">getting / setting of components</span>
-```{r SPC-functions-3, eval=FALSE, tidy=FALSE}
+
+```r
 horizons(sp4) # get / set horizon data
 site(sp4)  # get / set site data
 diagnostic_hz(sp4) # get / set diagnostic horizons
@@ -171,7 +164,8 @@ coordinates(sp4) # get / set coordinates
 ```
 
 - <span style="font-size: 80%;">coercion to `SpatialPointsDataFrame` or `data.frame`</span>
-```{r SPC-functions-4, eval=FALSE, tidy=FALSE}
+
+```r
 as(sp4, 'SpatialPointsDataFrame')
 as(sp4, 'data.frame')
 ```
@@ -214,24 +208,29 @@ class: small-code
 <span class="oneliner">how about some examples</span>
 
 - simulating data to feed / test models
-```{r sim-intro, eval=FALSE, tidy=FALSE}
+
+```r
 sim(SPC, n=10, hz.sd=2)
 random_profile(id, n=c(3, 4, 5), min_thick=5, max_thick=30, n_prop=5)
 ```
 - profile sketches ordered by meaningful gradient
-```{r plotSPC-intro, eval=FALSE, tidy=FALSE}
+
+```r
 plot(SPC, plot.order=new.order)
 ```
 - applying functions by profile
-```{r profileApply-intro, eval=FALSE, tidy=FALSE}
+
+```r
 profileApply(SPC, <function>)
 ```
 - "slicing": depth-wise alignment and extraction of data
-```{r slice-intro, eval=FALSE, tidy=FALSE}
+
+```r
 slice(SPC, 0:50 ~ sand + silt + clay)
 ```
 - aggregating by "slab": group / depth-wise summaries
-```{r slab-intro, eval=FALSE, tidy=FALSE}
+
+```r
 # assuming no NA
 slab(SPC, ~ sand + silt + clay, slab.fun=mean)
 slab(SPC, ~ sand + silt + clay, slab.structure=c(0,10), slab.fun=mean)
@@ -243,7 +242,8 @@ Simulated Data: Horizon Depths and Designations
 ========================================================
 class: small-code
 
-```{r simulate-profiles-1, eval=FALSE, tidy=FALSE}
+
+```r
 # source data are a single profile description of the Morley series as a data.frame
 depths(b) <- id ~ top + bottom
 # convert horizon colors into RGB
@@ -265,7 +265,8 @@ Simulated Data: Physical Properties
 class: small-code
 <span class="oneliner">simulation based on a [random walk](http://en.wikipedia.org/wiki/Random_walk)-- similar to highly stratified soils</span>
 
-```{r simulate-profiles-2, tidy=FALSE, fig.width=8, fig.height=4}
+
+```r
 # implicit loop via plyr::ldply, result is a data.frame
 d <- ldply(1:10, random_profile, n=c(6, 7, 8), n_prop=1, method='random_walk')
 # promote to SoilProfileCollection and plot
@@ -273,6 +274,8 @@ depths(d) <- id ~ top + bottom
 par(mar=c(0,0,3,0))
 plot(d, color='p1', axis.line.offset=-4, max.depth=150)
 ```
+
+<img src="presentation-figure/simulate-profiles-2-1.png" title="plot of chunk simulate-profiles-2" alt="plot of chunk simulate-profiles-2" style="display: block; margin: auto;" />
 
 <span class="link-to-details">&#8594;&nbsp;[random_profile() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/random_profile.html)</span>
 
@@ -282,7 +285,8 @@ Simulated Data: Physical Properties
 class: small-code
 <span class="oneliner">simulation based on the [logistic power peak](http://www.sciencedirect.com/science/article/pii/S0016706111002163) function-- more realistic anisotropy</span>
 
-```{r simulate-profiles-3, tidy=FALSE, fig.width=8, fig.height=4}
+
+```r
 # implicit loop via plyr::ldply, result is a data.frame
 d <- ldply(1:10, random_profile, n=c(6, 7, 8), n_prop=1, method='LPP', 
 lpp.a=5, lpp.b=10, lpp.d=5, lpp.e=5, lpp.u=25)
@@ -291,6 +295,8 @@ depths(d) <- id ~ top + bottom
 par(mar=c(0,0,3,0))
 plot(d, color='p1', axis.line.offset=-4, max.depth=150)
 ```
+
+<img src="presentation-figure/simulate-profiles-3-1.png" title="plot of chunk simulate-profiles-3" alt="plot of chunk simulate-profiles-3" style="display: block; margin: auto;" />
 
 <span class="link-to-details">&#8594;&nbsp;[random_profile() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/random_profile.html)</span>
 
@@ -301,11 +307,23 @@ Magnesic Soils of California
 class: small-code
 <span class="oneliner">data From [McGahan et al.](https://www.soils.org/publications/sssaj/abstracts/73/6/2087)</span>
 
-```{r magnesic-soils-1, tidy=FALSE}
+
+```r
 # load sample dataset, comes with aqp package
 data(sp4)
 # inspect first 4 rows x 12 columns
 sp4[1:4, 1:12]
+```
+
+```
+      id name top bottom   K   Mg  Ca CEC_7 ex_Ca_to_Mg sand silt clay
+1 colusa    A   0      3 0.3 25.7 9.0  23.0        0.35   46   33   21
+2 colusa  ABt   3      8 0.2 23.7 5.6  21.4        0.23   42   31   27
+3 colusa  Bt1   8     30 0.1 23.2 1.9  23.7        0.08   40   28   32
+4 colusa  Bt2  30     42 0.1 44.3 0.3  43.0        0.01   27   18   55
+```
+
+```r
 # upgrade to SoilProfileCollection
 depths(sp4) <- id ~ top + bottom
 
@@ -332,7 +350,8 @@ Magnesic Soils of California
 ========================================================
 class: small-code
 
-```{r magnesic-soils-2, tidy=FALSE, fig.width=8, fig.height=4}
+
+```r
 # plot the data using our new order based on Ca:Mg
 par(mar=c(4,0,3,0))
 plot(sp4, name='name', color='ex_Ca_to_Mg', plot.order=new.order, cex.name=0.75, id.style='side', axis.line.offset=-4,)
@@ -342,6 +361,8 @@ axis(1, at=1:length(sp4), labels=round(sp4$wt.mean.ca.to.mg, 3), cex.axis=1)
 mtext(1, line=2.25, text='Horizon Thickness Weighted Mean Ex. Ca:Mg', cex=1)
 ```
 
+<img src="presentation-figure/magnesic-soils-2-1.png" title="plot of chunk magnesic-soils-2" alt="plot of chunk magnesic-soils-2" style="display: block; margin: auto;" />
+
 <span class="link-to-details">&#8594;&nbsp;[sp4 sample data set](http://aqp.r-forge.r-project.org/aqp-html-manual/sp4.html)</span>
 
 
@@ -350,7 +371,8 @@ Summarize Clay vs Depth by Geology
 ========================================================
 class: small-code
 
-```{r ca630-geol-clay, tidy=FALSE, eval=FALSE}
+
+```r
 pedons <- fetchNASIS()
 # ... details on generalization of geologic classes ommitted ...
 # aggregate by major geologic type, default slab.fun = hdquantile

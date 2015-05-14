@@ -24,3 +24,4 @@
 2. amador or similar, smaller sample size
 3. complex horizonation, ... ?
 4. NZ soils data ... ?
+

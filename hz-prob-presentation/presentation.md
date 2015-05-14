@@ -17,6 +17,22 @@ D.E. Beaudette, P. Rouder, J.M. Skovlin
 <span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-7 and `soilDB` version 1.5-5`.</span>
 
 
+TODO
+========================================================
+class: smaller
+## Concepts to address
+  - explain "lumpers vs splitters"
+  
+  - I would put even more emphasis on the first slide that morphological description has a lot to do w/ the observer (*in its larger sense*): not only to draw boundaries and qualify an hz, but also in where the pit hyas been dug (horizontal variations)
+"morphology is in the eye of the beholder" which makes a strong point for NOT picking one actual profile in particular, but rather hope the "white noise" will level itself out if we aggregate over a collection of N profiles
+  - is it "Aggregation over generalized horizon labels" or "Aggregation OF generalized horizon labels"
+  
+  - I would say a short word about PO-logistic regression model, eg you start with the empirical stuf, show the result (which usually has "steps") then from there you say we can generalise using a model of this empirical aggregation (rather than doing these in pararllel)
+
+  - I'd add a quick word about Brier scores and our friend Shannon too
+  
+
+
 Describing soil morphology in aggregate is hard
 ========================================================
 ![alt text](static-figures/mvo-soil-montage-narrow.jpg)

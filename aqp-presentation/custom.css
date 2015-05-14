@@ -17,7 +17,7 @@
 .reveal .oneliner {
   font-style: italic; 
   font-size:75%; 
-  color: SlateGray;
+  color: #25679E;
 }
 
 .reveal h1 { 
@@ -68,8 +68,8 @@
   text-align: left;
 }
 
-.reveal small {
-	font-size: 0.85em;
+.reveal .smaller {
+	font-size: 85%;
 }
 
 .reveal .small-code pre code {
