@@ -181,4 +181,5 @@ pip-log.txt
 *.rdx
 presentation-cache
 presentation-figure
-
+presentation_files
+*.js
