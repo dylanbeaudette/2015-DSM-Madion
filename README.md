@@ -52,9 +52,9 @@ documentation are fairly complete.
   * [x] decide on revision control method (github)
 
 2. May 11 thru 15:
-  * [] draft presentations done:
-    * [] hz-prob
-    * [] AQP
+  * [x] draft presentations done:
+    * [x] hz-prob
+    * [x] AQP
   * [] collect references for both papers (bibtex?)
   * [] outline both papers
   * [] figures for both papers

@@ -130,6 +130,25 @@ names(p.bs) <- c('genhz', 'brier.score')
 
 # remove NAs from table
 p.bs <- na.omit(p.bs)
+
+## mix GHL colors using weights derrived from predicted probabilities
+# convert color vector into RGB->HSV space
+cols.rgb <- col2rgb(cols)
+cols.hsv <- rgb2hsv(cols.rgb)
+
+# make room for mixed color, one for each slice
+p.s$mixed.color <- NA
+
+# along each slice, mix colors and save back to DF
+for(i in seq_along(p.s$hzdept)) {
+  # get the probabilities for this slice, use as weights
+  p.i <- unlist(p.s[i, hz.names])
+  # weights * color vector in HSV-space
+  hsv.i <- sweep(cols.hsv, 2, p.i, '*')
+  # compute weighted-mean for this slice
+  wt.mean.hsv <- rowSums(hsv.i) / sum(p.i)
+  p.s$mixed.color[i] <- do.call('hsv', as.list(wt.mean.hsv))
+}
 ```
 
 
@@ -339,9 +358,14 @@ Most likely horizonation
 # plot generalized horizons via color, sorted by depth
 par(mar=c(0,0,0,0))
 plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, print.id=FALSE, name='', plot.depth.axis=FALSE, plot.order=h$order, n=length(loafercreek)+3)
-legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2, pt.cex=5, title='Generalized Horizon Labels')
-rect(xleft=length(loafercreek)+1.5, ytop=a.ml$top, xright=length(loafercreek)+3.5, ybottom=a.ml$bottom, lend=1, col=cols[-2])
+
+rect(xleft=length(loafercreek)+1.5, ytop=p.s$hzdept, xright=length(loafercreek)+3.5, ybottom=p.s$hzdept+1, lend=1, border=NA, col=p.s$mixed.color)
+rect(xleft=length(loafercreek)+1.5, ytop=a.ml$top, xright=length(loafercreek)+3.5, ybottom=a.ml$bottom, lend=1)
+
 text(x=length(loafercreek)+4, y=with(a.ml, (top+bottom)/2), labels=a.ml$hz, cex=2, font=2, adj=0)
+
+l.text <- paste0(hz.names[-2], '\n', a.ml$top, '--', a.ml$bottom)
+legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2, pt.cex=5, title='Generalized Horizon Labels')
 ```
 
 
