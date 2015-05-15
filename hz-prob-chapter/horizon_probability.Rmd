@@ -49,6 +49,7 @@ Published soil survey reports typically describe soils in terms of *aggregate* i
 
 We demonstrate two possible methods for aggregating a collection of soil profiles into "synthetic profiles"; describing depth-wise probability functions for each genetic horizon. Both methods rely on an expert-guided description of generalized horizon designation (e.g. horizon designations that are deemed representative) along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. Specialized classes for soil profile collections and depth-slicing algorithms are implemented in the [aqp](http://cran.at.r-project.org/web/packages/aqp/index.html) package for R [C&G reference here].
 
+* examples: http://www.stat.ufl.edu/~aa/ordinal/R_examples.pdf
 
 ### Issues to be resolved
 * estimation of confidence intervals via GAMM ? [ideas here](http://www.fromthebottomoftheheap.net/2014/06/16/simultaneous-confidence-intervals-for-derivatives/)
