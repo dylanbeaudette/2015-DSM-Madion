@@ -11,6 +11,7 @@ width: 1024
 height: 800
 css: custom.css
 
+
 D.E. Beaudette, P. Rouder, J.M. Skovlin
 
 <br><br><br><br><br><br><br><br>
@@ -52,26 +53,29 @@ class: smaller
 
 ## proportional-odds (PO) logistic regression
 $$P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
-Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accomodate non-linearity.
+Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accommodate non-linearity.
 
 ## Shannon Entropy (H index)
 $$ H = -\sum_{i=1}^{n}{p_{i} * ln(p_{i})}  $$
-$H$ is an index of uncertainy associated with predicted probabilities, $\mathbf{p}$, of encountering horizons $i$ through $n$ at some depth. Larger values suggest **more** confusion.
+$H$ is an index of uncertainty associated with predicted probabilities, $\mathbf{p}$, of encountering horizons $i$ through $n$ at some depth. Larger values suggest **more** confusion.
 
 ## Brier scores
 $$ B = \frac{1}{n} \sum_{i=1}^{n}{ ( p_{i} - y_{i} )^{2}  }  $$
 $B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and horizons, $\mathbf{y}$, over depth-slices $i$ through $n$ associated with a specific horizon. Larger values suggest **less** agreement between probabilities and observed horizon labels.
 
-<span class="oneliner">I will be defining "horizon" shortly...</span>
-
-
 
 ========================================================
+class: smaller
+
 Examples using 54 profiles correlated to Loafercreek soil series
-- fine-loamy, mixed, superactive, thermic ultic haploxeralfs
+
+- fine-loamy, mixed, super-active, thermic ultic haploxeralfs
 - extent: foothills of the Sierra Nevada Mountains, MLRA 18
 - uses: recreation, range, vineyard, low-density residential
 <img src="presentation-figure/plot-sample-data-1.png" title="plot of chunk plot-sample-data" alt="plot of chunk plot-sample-data" style="display: block; margin: auto;" />
+
+<span class="oneliner">colors represent generalized horizon labels (GHL)</span>
+
 
 
 Assignment of GHL: expert knowledge + data
@@ -79,11 +83,15 @@ Assignment of GHL: expert knowledge + data
 
 <img src="presentation-figure/plot-sample-data-zoom-1.png" title="plot of chunk plot-sample-data-zoom" alt="plot of chunk plot-sample-data-zoom" style="display: block; margin: auto;" />
 
+<span class="oneliner">colors represent generalized horizon labels (GHL)</span>
+
 
 slice(): resample along 1-cm increments
 ========================================================
 
 <img src="presentation-figure/slice-data-1-1.png" title="plot of chunk slice-data-1" alt="plot of chunk slice-data-1" style="display: block; margin: auto;" />
+
+<span class="oneliner">colors represent generalized horizon labels (GHL)</span>
 
 
 slab(): slice-wise probability calculation
@@ -111,7 +119,7 @@ GHL probability depth-functions / model
 
 Quantifying uncertainty
 ========================================================
-<img src="presentation-figure/hmmm-2-1.png" title="plot of chunk hmmm-2" alt="plot of chunk hmmm-2" style="display: block; margin: auto;" />
+<img src="presentation-figure/shannon-1.png" title="plot of chunk shannon" alt="plot of chunk shannon" style="display: block; margin: auto;" />
 
 
 Quantifying uncertainty
@@ -124,22 +132,41 @@ Most likely horizonation
 <img src="presentation-figure/plot-ml-hz-1.png" title="plot of chunk plot-ml-hz" alt="plot of chunk plot-ml-hz" style="display: block; margin: auto;" />
 
 
-Conclusions
+Conclusions: aggregate soil morphology
 ========================================================
+class: smaller
+left: 40%
+
+<img src="presentation-figure/ml-hz-conclusions-1.png" title="plot of chunk ml-hz-conclusions" alt="plot of chunk ml-hz-conclusions" style="display: block; margin: auto;" />
+
+***
+
+- fact: sampling by **genetic horizon** will continue to be important
+- we can do better than picking a single, **representative profile**
+- soil series **defined** by GHL rules, PO-LR model, and properties aggregated by GHL
+- variability between descriptions **smoothed** as sample size increases-- *given thoughtful correlation*
+- continuous **depth-functions** of genetic, or diagnostic horizons
+- most-likely horizonation, based on depth-function crossings
+- quantitative estimates of uncertainty: Brier scores, Shannon Entropy, etc.
+
+
+
+Conclusions: further work
+========================================================
+class: smaller
+
 ![alt text](static-figures/mvo-soil-montage-extra-narrow.jpg)
 
-1. ML profile, aggregation, overlap -> horizon transitions
-2. soil series defined by ML profile and GHL-agg. properties
-3. lots of data, might as well use it
+- simulation of likely profile "sketches" from model
+- minimum sample sizes, model diagnostics, etc.
+- more realistic estimates of SE, e.g. correlation structure via GEE
+- pedogenic interpretation of model coefficients
+- management of GHL (mico-correlation decisions)
+- ???
 
-
-
-Conclusions
-========================================================
-## Remaning Issues
-* simulation from model
-* model limitations (e.g. minimum sample size, ... ?)
-* more realistic estimates of SE (incorporation of correlation structure via GEE)
-* pedogenic interpreation of model coefficients?
-
-
+<br><br>
+<center>
+Thank You!
+<hr>
+http://aqp.r-forge.r-project.org
+</center>

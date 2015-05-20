@@ -149,6 +149,8 @@ for(i in seq_along(p.s$hzdept)) {
   wt.mean.hsv <- rowSums(hsv.i) / sum(p.i)
   p.s$mixed.color[i] <- do.call('hsv', as.list(wt.mean.hsv))
 }
+
+
 ```
 
 
@@ -158,6 +160,7 @@ transition: none
 width: 1024
 height: 800
 css: custom.css
+
 
 D.E. Beaudette, P. Rouder, J.M. Skovlin
 
@@ -200,23 +203,23 @@ class: smaller
 
 ## proportional-odds (PO) logistic regression
 $$P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
-Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accomodate non-linearity.
+Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accommodate non-linearity.
 
 ## Shannon Entropy (H index)
 $$ H = -\sum_{i=1}^{n}{p_{i} * ln(p_{i})}  $$
-$H$ is an index of uncertainy associated with predicted probabilities, $\mathbf{p}$, of encountering horizons $i$ through $n$ at some depth. Larger values suggest **more** confusion.
+$H$ is an index of uncertainty associated with predicted probabilities, $\mathbf{p}$, of encountering horizons $i$ through $n$ at some depth. Larger values suggest **more** confusion.
 
 ## Brier scores
 $$ B = \frac{1}{n} \sum_{i=1}^{n}{ ( p_{i} - y_{i} )^{2}  }  $$
 $B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and horizons, $\mathbf{y}$, over depth-slices $i$ through $n$ associated with a specific horizon. Larger values suggest **less** agreement between probabilities and observed horizon labels.
 
-<span class="oneliner">I will be defining "horizon" shortly...</span>
-
-
 
 ========================================================
+class: smaller
+
 Examples using 54 profiles correlated to Loafercreek soil series
-- fine-loamy, mixed, superactive, thermic ultic haploxeralfs
+
+- fine-loamy, mixed, super-active, thermic ultic haploxeralfs
 - extent: foothills of the Sierra Nevada Mountains, MLRA 18
 - uses: recreation, range, vineyard, low-density residential
 ```{r plot-sample-data, echo=FALSE, fig.width=10, fig.height=6}
@@ -225,6 +228,9 @@ par(mar=c(0,0,0,0))
 plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, print.id=FALSE, name='', plot.depth.axis=FALSE, plot.order=h$order)
 legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2, pt.cex=4)
 ```
+
+<span class="oneliner">colors represent generalized horizon labels (GHL)</span>
+
 
 
 Assignment of GHL: expert knowledge + data
@@ -238,6 +244,8 @@ plot(loafercreek[1:25,], color='genhz.soil_color', name='', print.id=FALSE, plot
 legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.85, pt.cex=4)
 ```
 
+<span class="oneliner">colors represent generalized horizon labels (GHL)</span>
+
 
 slice(): resample along 1-cm increments
 ========================================================
@@ -249,6 +257,8 @@ par(mar=c(0,0,1,0))
 plot(s[1:25, 1:60], color='genhz.soil_color', name='', print.id=FALSE, plot.depth.axis=FALSE, n=32)
 legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.85, pt.cex=4)
 ```
+
+<span class="oneliner">colors represent generalized horizon labels (GHL)</span>
 
 
 slab(): slice-wise probability calculation
@@ -319,7 +329,7 @@ xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), 
 
 Quantifying uncertainty
 ========================================================
-```{r hmmm-2, echo=FALSE, fig.width=10, fig.height=7}
+```{r shannon, echo=FALSE, fig.width=10, fig.height=7}
 ### BUG: knitr ignores grid.pars=list(fontfamily="mono") in trellis.par.set
 
 # copy our predictions and adjust GHL labels to include brier scores
@@ -355,27 +365,51 @@ rect(xleft=length(loafercreek)+1.5, ytop=a.ml$top, xright=length(loafercreek)+3.
 
 text(x=length(loafercreek)+4, y=with(a.ml, (top+bottom)/2), labels=a.ml$hz, cex=2, font=2, adj=0)
 
-l.text <- paste0(hz.names[-2], '\n', a.ml$top, '--', a.ml$bottom)
+# l.text <- paste0(hz.names[-2], '\n', a.ml$top, '--', a.ml$bottom)
 legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2, pt.cex=5, title='Generalized Horizon Labels')
 ```
 
 
-Conclusions
+Conclusions: aggregate soil morphology
 ========================================================
+class: smaller
+left: 40%
+
+```{r ml-hz-conclusions, echo=FALSE, fig.width=6, fig.height=12}
+p.1 <- xyplot(top ~ value, groups=variable, data=p.long, type='l', ylim=c(155, -5), xlim=c(-0.1,1.4), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.5), ylab=list('Depth (cm)', cex=1.5), main='Loafercreek')
+
+p.1 + latticeExtra::layer(panel.rect(xleft=1.05, ytop=p.s$hzdept, xright=1.175, ybottom=p.s$hzdept+1, lend=1, border=NA, col=p.s$mixed.color)) + latticeExtra::layer(panel.rect(xleft=1.05, ytop=a.ml$top, xright=1.175, ybottom=a.ml$bottom, lend=1, lwd=2)) + latticeExtra::layer(panel.text(x=1.2, y=with(a.ml, (top+bottom)/2), labels=a.ml$hz, cex=1.5, font=2, adj=0))
+
+```
+
+***
+
+- fact: sampling by **genetic horizon** will continue to be important
+- we can do better than picking a single, **representative profile**
+- soil series **defined** by GHL rules, PO-LR model, and properties aggregated by GHL
+- variability between descriptions **smoothed** as sample size increases-- *given thoughtful correlation*
+- continuous **depth-functions** of genetic, or diagnostic horizons
+- most-likely horizonation, based on depth-function crossings
+- quantitative estimates of uncertainty: Brier scores, Shannon Entropy, etc.
+
+
+
+Conclusions: further work
+========================================================
+class: smaller
+
 ![alt text](static-figures/mvo-soil-montage-extra-narrow.jpg)
 
-1. ML profile, aggregation, overlap -> horizon transitions
-2. soil series defined by ML profile and GHL-agg. properties
-3. lots of data, might as well use it
+- simulation of likely profile "sketches" from model
+- minimum sample sizes, model diagnostics, etc.
+- more realistic estimates of SE, e.g. correlation structure via GEE
+- pedogenic interpretation of model coefficients
+- management of GHL (mico-correlation decisions)
+- ???
 
-
-
-Conclusions
-========================================================
-## Remaning Issues
-* simulation from model
-* model limitations (e.g. minimum sample size, ... ?)
-* more realistic estimates of SE (incorporation of correlation structure via GEE)
-* pedogenic interpreation of model coefficients?
-
-
+<br><br>
+<center>
+Thank You!
+<hr>
+http://aqp.r-forge.r-project.org
+</center>
