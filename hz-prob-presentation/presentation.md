@@ -146,8 +146,8 @@ left: 40%
 - soil series **defined** by GHL rules, PO-LR model, and properties aggregated by GHL
 - variability between descriptions **smoothed** as sample size increases-- *given thoughtful correlation*
 - continuous **depth-functions** of genetic, or diagnostic horizons
-- most-likely horizonation, based on depth-function crossings
-- quantitative estimates of uncertainty: Brier scores, Shannon Entropy, etc.
+- **most-likely** horizonation, based on depth-function crossings
+- quantitative estimates of **uncertainty**: Brier scores, Shannon Entropy, etc.
 
 
 
