@@ -165,36 +165,6 @@ D.E. Beaudette, P. Rouder, J.M. Skovlin
 <span style="color: white; font-size:50%;">This document is based on `aqp` version `r utils::packageDescription("aqp", field="Version")` and `soilDB` version `r utils::packageDescription("soilDB", field="Version")``.</span>
 
 
-TODO
-========================================================
-class: smaller
-## Concepts to address
-  - explain "lumpers vs splitters"
-  
-  - I would put even more emphasis on the first slide that morphological description has a lot to do w/ the observer (*in its larger sense*): not only to draw boundaries and qualify an hz, but also in where the pit hyas been dug (horizontal variations)
-  - "morphology is in the eye of the beholder" which makes a strong point for NOT picking one actual profile in particular, but rather hope the "white noise" will level itself out if we aggregate over a collection of N profiles
-
-
-
-Quick detour: definitions
-========================================================
-class: smaller
-
-## proportional-odds logistic regression
-$$P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
-$P[Y \geq j | X]$ is the probability of encountering horizon $j$, conditioned by depth, $X$, based on an intercept for every possible horizon, $\alpha_{j}$, and single coefficient, $\beta$. RCS basis functions accomodate non-linear relationships between $X$ and $P$.
-
-## Shannon Entropy (H index)
-$$ H = -\sum_{i=1}^{n}{p_{i} * ln(p_{i})}  $$
-$H$ is an index of uncertainy associated with the probabilities, $\mathbf{p}$, of encountering horizons $i$ through $n$ at some depth. Larger values suggest **more** confusion (less information).
-
-## Brier scores
-$$ B = \frac{1}{n} \sum_{i=1}^{n}{ ( p_{i} - y_{i} )^{2}  }  $$
-$B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and horizons, $\mathbf{y}$, over depth-slices $i$ through $n$ associated with a specific horizon. Larger values suggest **less** agreement between probabilities and observed horizon labels.
-
-<span class="oneliner">I will be defining "horizon" shortly...</span>
-
-
 
 Describing soil morphology in aggregate is hard
 ========================================================
@@ -221,6 +191,27 @@ Aggregation over generalized horizon labels
 5. determine most-likely horizonation
 
 <span class="oneliner">generalized horizon labels are expert-guided, "micro-correlation" decisions</span>
+
+
+
+Quick detour: definitions
+========================================================
+class: smaller
+
+## proportional-odds (PO) logistic regression
+$$P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
+Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accomodate non-linearity.
+
+## Shannon Entropy (H index)
+$$ H = -\sum_{i=1}^{n}{p_{i} * ln(p_{i})}  $$
+$H$ is an index of uncertainy associated with predicted probabilities, $\mathbf{p}$, of encountering horizons $i$ through $n$ at some depth. Larger values suggest **more** confusion.
+
+## Brier scores
+$$ B = \frac{1}{n} \sum_{i=1}^{n}{ ( p_{i} - y_{i} )^{2}  }  $$
+$B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and horizons, $\mathbf{y}$, over depth-slices $i$ through $n$ associated with a specific horizon. Larger values suggest **less** agreement between probabilities and observed horizon labels.
+
+<span class="oneliner">I will be defining "horizon" shortly...</span>
+
 
 
 ========================================================
