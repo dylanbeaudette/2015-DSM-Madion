@@ -23,7 +23,7 @@ width: 1024
 height: 800
 css: custom.css
 
-D.E. Beaudette, P. Rouder, J.M. Skovlin
+D.E. Beaudette, P. Roudier, J.M. Skovlin
 
 
 <br><br><br><br><br><br><br><br>
@@ -35,6 +35,7 @@ Outline
 class: smaller
 
 ## Main Ideas
+
 1. framework and vocabulary for soil data modeling
 2. specialized data structures to accommodate **most** soil information (soilDB companion package)
 3. data vizualization via. sketches
@@ -43,6 +44,7 @@ class: smaller
 6. extensible (examples in companion sharpshootR package)
 
 ## Digital Soil Morphometrics Examples
+
 1. ML profile generation
 2. profile-level aggregate / stock estimation
 3. continuous-representation of data collected from genetic horizons (e.g. depth-function estimation)
