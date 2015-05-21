@@ -60,7 +60,9 @@ documentation are fairly complete.
   * [] figures for both papers
 
 3. May 18 thru 22:
-  * [] finish presentations
+  * [] finish presentations:
+    * [x] hz-prob
+    * [] AQP
   * [] 50% goal for both papers
 
 4. May 25 thru 29:

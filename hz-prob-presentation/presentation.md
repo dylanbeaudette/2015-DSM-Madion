@@ -15,7 +15,7 @@ css: custom.css
 D.E. Beaudette, P. Rouder, J.M. Skovlin
 
 <br><br><br><br><br><br><br><br>
-<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-7 and `soilDB` version 1.5-5`.</span>
+<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-8 and `soilDB` version 1.5-5`.</span>
 
 
 
@@ -56,7 +56,7 @@ $$P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
 Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accommodate non-linearity.
 
 ## Shannon Entropy (H index)
-$$ H = -\sum_{i=1}^{n}{p_{i} * ln(p_{i})}  $$
+$$ H = -\sum_{i=1}^{n}{p_{i} * log_{n}(p_{i})}  $$
 $H$ is an index of uncertainty associated with predicted probabilities, $\mathbf{p}$, of encountering horizons $i$ through $n$ at some depth. Larger values suggest **more** confusion.
 
 ## Brier scores

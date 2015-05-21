@@ -14,6 +14,7 @@ library(plyr)
 library(reshape)
 library(scales)
 library(cluster)
+library(colorspace)
 
 # load sample data
 data(loafercreek, package = 'soilDB')
@@ -95,7 +96,9 @@ d <- profile_compare(a.slab.id, vars=hz.names, max_d=100, k=0)
 h <- diana(d)
 
 # Shannon's H index for po-lr model, computed by depth-slice
-shannon.h <- apply(p[, hz.names], 1, function(i) -sum(i*log(i)))
+# using a log base of length(hz.names) constrains the value to 0--1
+shannon.h <- apply(p[, hz.names], 1, function(i) -sum(i*log(i, base = length(hz.names))))
+
 
 # generate NA-free values/predictions for Brier Score calc
 s.sub <- horizons(s)[, c('genhz', 'hzdept')]
@@ -132,10 +135,12 @@ names(p.bs) <- c('genhz', 'brier.score')
 p.bs <- na.omit(p.bs)
 
 ## mix GHL colors using weights derrived from predicted probabilities
+## TODO: would another color space make more sense?
 # convert color vector into RGB->HSV space
 cols.rgb <- col2rgb(cols)
 cols.hsv <- rgb2hsv(cols.rgb)
-
+# cols.lab <- t(as(RGB(t(cols.rgb)/255), 'sRGB')@coords)
+  
 # make room for mixed color, one for each slice
 p.s$mixed.color <- NA
 
@@ -145,9 +150,13 @@ for(i in seq_along(p.s$hzdept)) {
   p.i <- unlist(p.s[i, hz.names])
   # weights * color vector in HSV-space
   hsv.i <- sweep(cols.hsv, 2, p.i, '*')
+  # lab.i <- sweep(cols.lab, 2, p.i, '*')
   # compute weighted-mean for this slice
   wt.mean.hsv <- rowSums(hsv.i) / sum(p.i)
+  ## wt.mean.lab <- rowSums(lab.i) / sum(p.i)
+  # convert color coords -> color for plotting
   p.s$mixed.color[i] <- do.call('hsv', as.list(wt.mean.hsv))
+  # p.s$mixed.color[i] <- rgb(as(do.call('sRGB', as.list(wt.mean.lab)), 'RGB')@coords)
 }
 
 
@@ -206,7 +215,7 @@ $$P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
 Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accommodate non-linearity.
 
 ## Shannon Entropy (H index)
-$$ H = -\sum_{i=1}^{n}{p_{i} * ln(p_{i})}  $$
+$$ H = -\sum_{i=1}^{n}{p_{i} * log_{n}(p_{i})}  $$
 $H$ is an index of uncertainty associated with predicted probabilities, $\mathbf{p}$, of encountering horizons $i$ through $n$ at some depth. Larger values suggest **more** confusion.
 
 ## Brier scores
