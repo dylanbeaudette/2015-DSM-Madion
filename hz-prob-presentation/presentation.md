@@ -64,6 +64,19 @@ $$ B = \frac{1}{n} \sum_{i=1}^{n}{ ( p_{i} - y_{i} )^{2}  }  $$
 $B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and horizons, $\mathbf{y}$, over depth-slices $i$ through $n$ associated with a specific horizon. Larger values suggest **less** agreement between probabilities and observed horizon labels.
 
 
+
+========================================================
+class: smaller
+
+Examples using 54 profiles correlated to Loafercreek soil series
+
+- fine-loamy, mixed, super-active, thermic ultic haploxeralfs
+- extent: foothills of the Sierra Nevada Mountains, MLRA 18
+- uses: recreation, range, vineyard, low-density residential
+
+![alt text](static-figures/loafercreek-landscapes.jpg)
+
+
 ========================================================
 class: smaller
 
