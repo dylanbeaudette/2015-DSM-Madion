@@ -422,16 +422,13 @@ Conclusions: further work
 ========================================================
 class: smaller
 
-![alt text](static-figures/mvo-soil-montage-extra-narrow.jpg)
+![alt text](static-figures/mvo-soil-montage-narrow.jpg)
 
-- simulation of likely profile "sketches" from model
 - minimum sample sizes, model diagnostics, etc.
 - more realistic estimates of SE, e.g. correlation structure via GEE
 - pedogenic interpretation of model coefficients
-- management of GHL (mico-correlation decisions)
-- ???
 
-<br><br>
+
 <center>
 Thank You!
 <hr>

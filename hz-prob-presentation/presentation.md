@@ -15,7 +15,7 @@ css: custom.css
 D.E. Beaudette, P. Roudier, J.M. Skovlin
 
 <br><br><br><br><br><br><br><br>
-<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-3 and `soilDB` version 1.5-2`.</span>
+<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-8 and `soilDB` version 1.5-5`.</span>
 
 
 
@@ -85,7 +85,7 @@ Examples using 54 profiles correlated to Loafercreek soil series
 - fine-loamy, mixed, super-active, thermic ultic haploxeralfs
 - extent: foothills of the Sierra Nevada Mountains, MLRA 18
 - uses: recreation, range, vineyard, low-density residential
-<img src="presentation-figure/plot-sample-data.png" title="plot of chunk plot-sample-data" alt="plot of chunk plot-sample-data" style="display: block; margin: auto;" />
+<img src="presentation-figure/plot-sample-data-1.png" title="plot of chunk plot-sample-data" alt="plot of chunk plot-sample-data" style="display: block; margin: auto;" />
 
 <span class="oneliner">colors represent generalized horizon labels (GHL)</span>
 
@@ -94,7 +94,7 @@ Examples using 54 profiles correlated to Loafercreek soil series
 Assignment of GHL: expert knowledge + data
 ========================================================
 
-<img src="presentation-figure/plot-sample-data-zoom.png" title="plot of chunk plot-sample-data-zoom" alt="plot of chunk plot-sample-data-zoom" style="display: block; margin: auto;" />
+<img src="presentation-figure/plot-sample-data-zoom-1.png" title="plot of chunk plot-sample-data-zoom" alt="plot of chunk plot-sample-data-zoom" style="display: block; margin: auto;" />
 
 <span class="oneliner">colors represent generalized horizon labels (GHL)</span>
 
@@ -102,7 +102,7 @@ Assignment of GHL: expert knowledge + data
 slice(): resample along 1-cm increments
 ========================================================
 
-<img src="presentation-figure/slice-data-1.png" title="plot of chunk slice-data-1" alt="plot of chunk slice-data-1" style="display: block; margin: auto;" />
+<img src="presentation-figure/slice-data-1-1.png" title="plot of chunk slice-data-1" alt="plot of chunk slice-data-1" style="display: block; margin: auto;" />
 
 <span class="oneliner">colors represent generalized horizon labels (GHL)</span>
 
@@ -110,7 +110,7 @@ slice(): resample along 1-cm increments
 slab(): slice-wise probability calculation
 ========================================================
 
-<img src="presentation-figure/slice-data-2.png" title="plot of chunk slice-data-2" alt="plot of chunk slice-data-2" style="display: block; margin: auto;" />
+<img src="presentation-figure/slice-data-2-1.png" title="plot of chunk slice-data-2" alt="plot of chunk slice-data-2" style="display: block; margin: auto;" />
 
 <span class="oneliner">results are interpretable and directly tied to the original data, but over-fit</span>
 
@@ -118,7 +118,7 @@ slab(): slice-wise probability calculation
 slice() and fit PO-logistic regression model
 ========================================================
 
-<img src="presentation-figure/slice-and-fit-1.png" title="plot of chunk slice-and-fit-1" alt="plot of chunk slice-and-fit-1" style="display: block; margin: auto;" />
+<img src="presentation-figure/slice-and-fit-1-1.png" title="plot of chunk slice-and-fit-1" alt="plot of chunk slice-and-fit-1" style="display: block; margin: auto;" />
 
 <span class="oneliner">proportional-odds logistic regression generalizes the process</span>
 
@@ -126,13 +126,13 @@ slice() and fit PO-logistic regression model
 GHL probability depth-functions / model
 ========================================================
 
-<img src="presentation-figure/compare-proportions.png" title="plot of chunk compare-proportions" alt="plot of chunk compare-proportions" style="display: block; margin: auto;" />
+<img src="presentation-figure/compare-proportions-1.png" title="plot of chunk compare-proportions" alt="plot of chunk compare-proportions" style="display: block; margin: auto;" />
 
 
 
 Quantifying uncertainty
 ========================================================
-<img src="presentation-figure/shannon.png" title="plot of chunk shannon" alt="plot of chunk shannon" style="display: block; margin: auto;" />
+<img src="presentation-figure/shannon-1.png" title="plot of chunk shannon" alt="plot of chunk shannon" style="display: block; margin: auto;" />
 
 
 Quantifying uncertainty
@@ -142,7 +142,7 @@ Quantifying uncertainty
 
 Most likely horizonation
 ========================================================
-<img src="presentation-figure/plot-ml-hz.png" title="plot of chunk plot-ml-hz" alt="plot of chunk plot-ml-hz" style="display: block; margin: auto;" />
+<img src="presentation-figure/plot-ml-hz-1.png" title="plot of chunk plot-ml-hz" alt="plot of chunk plot-ml-hz" style="display: block; margin: auto;" />
 
 
 Conclusions: aggregate soil morphology
@@ -150,7 +150,7 @@ Conclusions: aggregate soil morphology
 class: smaller
 left: 40%
 
-<img src="presentation-figure/ml-hz-conclusions.png" title="plot of chunk ml-hz-conclusions" alt="plot of chunk ml-hz-conclusions" style="display: block; margin: auto;" />
+<img src="presentation-figure/ml-hz-conclusions-1.png" title="plot of chunk ml-hz-conclusions" alt="plot of chunk ml-hz-conclusions" style="display: block; margin: auto;" />
 
 ***
 
@@ -168,16 +168,13 @@ Conclusions: further work
 ========================================================
 class: smaller
 
-![alt text](static-figures/mvo-soil-montage-extra-narrow.jpg)
+![alt text](static-figures/mvo-soil-montage-narrow.jpg)
 
-- simulation of likely profile "sketches" from model
 - minimum sample sizes, model diagnostics, etc.
 - more realistic estimates of SE, e.g. correlation structure via GEE
 - pedogenic interpretation of model coefficients
-- management of GHL (mico-correlation decisions)
-- ???
 
-<br><br>
+
 <center>
 Thank You!
 <hr>
