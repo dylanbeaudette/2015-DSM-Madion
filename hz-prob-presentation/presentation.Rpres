@@ -16,6 +16,8 @@ library(scales)
 library(cluster)
 library(colorspace)
 
+# just a comment
+
 # load sample data
 data(loafercreek, package = 'soilDB')
 
