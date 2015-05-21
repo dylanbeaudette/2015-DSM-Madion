@@ -120,7 +120,7 @@ Once a set of generalized horizons have been determined (```r c('A','BA','Bt1','
 ```{r generalize-hz-names, fig.width=15, fig.height=4}
 ## generalize horizon names using REGEX rules
 n <- c('A','BA','Bt1','Bt2','Bt3','Cr','R')
-p <- c('^A$|Ad|Ap|^ABt$','AB$|BA$|Bw', 'Bt1$|^Bt$','^Bt2$','^Bt3|^Bt4|CBt$|BCt$|2Bt|2CB$|^C$','Cr','R')
+p <- c('^A$|Ad|Ap|^ABt$','AB$|BA$|Bw', 'Bt1$|^Bt$|^B$','^Bt2$','^Bt3|^Bt4|CBt$|BCt$|2Bt|2CB$|^C$','Cr','R')
 loafercreek$genhz <- generalize.hz(loafercreek$hzname, n, p)
 
 # check unclassified names
@@ -245,7 +245,7 @@ a.1.ml <- get.ml.hz(a.1, hz.names)
 p.ml <- get.ml.hz(p, hz.names)
 
 # add hz-boundaries by slicing vs. PO model
-p.1 + layer(panel.text(x=1, y=a.1.ml$top[-1], label=expression(symbol("\254")), col='blue', cex=1)) + layer(panel.text(x=1, y=p.ml$top[-1], label=expression(symbol("\254")), col='red', cex=1))
+p.1 + latticeExtra::layer(panel.text(x=1, y=a.1.ml$top[-1], label=expression(symbol("\254")), col='blue', cex=1)) + latticeExtra::layer(panel.text(x=1, y=p.ml$top[-1], label=expression(symbol("\254")), col='red', cex=1))
 
 # plot via groups with lines
 print(p.2)
@@ -307,15 +307,6 @@ p.2 + p.3
 ```
  
 
-### Simulation from GHL Probabilities
-```{r simulation-from-model, fig.width=10, fig.height=5}
-# simulate GHL at each depth-slice, using probabilities from PO-model
-p.sim <- apply(p, 1, function(i) sample(hz.names, size = 10, replace = TRUE, prob = i[hz.names]))
-
-# check... not quite right, too much noise in the predictions
-t(p.sim)[1:10, ]
-```
-
 
 ### Model Stability
 PO-model stability was evaluated by repeatedly re-fitting a model to 25 randomly sampled profiles (out of 53 total), 250 times. Predictions from the 250 models were then combined and visualized below. ML horizon boundaries were derived from these data by evaluating the 5th-50th-95th percentiles of ML horizon boundaries computed within each simulation.
@@ -361,7 +352,7 @@ d.res$value[which(d.res$value < 0.01)] <- NA
 res.mdi <- unlist(sapply(l.res, function(i) i$model.disc.index))
 
 # plot with transparency
-xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.05))), layout=c(7,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
+xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.025))), layout=c(7,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
 	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
 	panel.xyplot(...)
 })
@@ -383,54 +374,4 @@ ddply(sim.ml, 'hz', plyr::summarize, top=paste(round(quantile(top, probs=c(0.05,
 
 ```
 
-### Simultaneous confidence intervals for derivatives of splines in GAMs
-not yet ready for prime time...
 
-
-```{r gamms, eval=FALSE}
-## Load mgcv and fit the model
-require(mgcv)
-
-# method setup
-ctrl <- list(
-  niterEM = 0, 
-  msVerbose = FALSE, 
-  optimMethod="L-BFGS-B"
-)
-
-# fitting model
-m2 <- gamm(
-  formula = value ~ s(top),
-  data = subset(g, variable == 'A'), 
-  correlation = corARMA(form = ~ 1 | top, p = 2),
-  control = ctrl
-)
-
-## prediction data
-want <- seq(1, nrow(subset(g, variable == 'A')), length.out = 200)
-pdat <- with(subset(g, variable == 'A'), data.frame(top = top[want]))
-
-## download the derivatives gist
-# tmpf <- tempfile()
-# download.file("https://gist.githubusercontent.com/gavinsimpson/ca18c9c789ef5237dbc6/raw/295fc5cf7366c831ab166efaee42093a80622fa8/derivSimulCI.R", tmpf, method = "wget")
-# source(tmpf)
-
-library(MASS)
-
-lp <- predict(m2$gam, newdata = pdat, type = "lpmatrix")
-coefs <- coef(m2$gam)
-vc <- vcov(m2$gam)
-
-set.seed(35)
-sim <- mvrnorm(25, mu = coefs, Sigma = vc)
-
-want <- grep("top", colnames(lp))
-
-fits <- lp[, want] %*% t(sim[, want])
-dim(fits) ## 25 columns, 1 per simulation, 200 rows, 1 per evaln point
-
-ylims <- range(fits)
-plot(value ~ top, data = subset(g, variable == 'A'), pch = 19, ylim = ylims, type = "n")
-matlines(pdat$top, fits, col = rgb(0.1, 0.1, 0.1, alpha=0.25), lty = 1)
-
-```
