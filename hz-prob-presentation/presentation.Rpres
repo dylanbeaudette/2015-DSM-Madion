@@ -173,7 +173,7 @@ height: 800
 css: custom.css
 
 
-D.E. Beaudette, P. Rouder, J.M. Skovlin
+D.E. Beaudette, P. Roudier, J.M. Skovlin
 
 <br><br><br><br><br><br><br><br>
 <span style="color: white; font-size:50%;">This document is based on `aqp` version `r utils::packageDescription("aqp", field="Version")` and `soilDB` version `r utils::packageDescription("soilDB", field="Version")``.</span>
