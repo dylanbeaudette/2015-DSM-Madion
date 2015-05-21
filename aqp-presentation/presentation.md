@@ -9,11 +9,11 @@ width: 1024
 height: 800
 css: custom.css
 
-D.E. Beaudette, P. Rouder, J.M. Skovlin
+D.E. Beaudette, P. Roudier, J.M. Skovlin
 
 
 <br><br><br><br><br><br><br><br>
-<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-7 </span>
+<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-8 </span>
 
 
 Outline
@@ -21,6 +21,7 @@ Outline
 class: smaller
 
 ## Main Ideas
+
 1. framework and vocabulary for soil data modeling
 2. specialized data structures to accommodate **most** soil information (soilDB companion package)
 3. data vizualization via. sketches
@@ -29,6 +30,7 @@ class: smaller
 6. extensible (examples in companion sharpshootR package)
 
 ## Digital Soil Morphometrics Examples
+
 1. ML profile generation
 2. profile-level aggregate / stock estimation
 3. continuous-representation of data collected from genetic horizons (e.g. depth-function estimation)
@@ -38,13 +40,14 @@ class: smaller
 
 
 
-Preaching to the Choir: why R?
+Why R?
 ========================================================
 
 - repeatable, self-documenting work:
  - uni-variate / multivariate summaries
  - graphical representations of complex data
  - 2800+ packages on CRAN: 100+ packages on GIS, ecology, and **soils**!
+ - package system: algorithms + docs + sample data
  
 - algorithm development by experts, application by trained users
  - testing by eye: simple graphical "grammar" used to plot data
@@ -60,16 +63,21 @@ Preaching to the Choir: why R?
 
 aqp package: Algorithms for Quantitative Pedology
 ========================================================
+class: smaller
+
 <span class="oneliner">a "vocabulary" for soil data analysis</span>
+
+![alt text](static-figures/sketches.png)
 
 - special data structures: avoids annoying book-keeping code
 - visualization: soil profile sketches
 - aggregation: depth-slice summaries
 - classification: pair-wise dissimilarity of profiles
+- ...
+- ...
 
-![alt text](static-figures/sketches.png)
 
-<span class="link-to-details">&#8594;&nbsp;[aqp manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/index.html)</span>
+
 
 
 
@@ -194,10 +202,12 @@ Slice-Wise Aggregation
 
 Pair-Wise Dissimilarity
 ========================================================
+![alt text](static-figures/AQP-num_soil_classification-example.png)
 
+
+Pair-Wise Dissimilarity
+========================================================
 ![alt text](static-figures/dend_with_profiles-SJER.png)
-
-<span class="link-to-details">&#8594;&nbsp;[profile_compare() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/profile_compare-methods.html)</span>
 
 
 
