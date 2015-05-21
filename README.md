@@ -55,8 +55,8 @@ documentation are fairly complete.
   * [x] draft presentations done:
     * [x] hz-prob
     * [x] AQP
-  * [] collect references for both papers (bibtex?)
-  * [] outline both papers
+  * [] collect references for both papers in bibtex format
+  * [x] outline both papers
   * [] figures for both papers
 
 3. May 18 thru 22:
@@ -65,7 +65,7 @@ documentation are fairly complete.
     * [] AQP
   * [] 50% goal for both papers
 
-4. May 25 thru 29:
+4. May 25 thru 29: this is a short week for me
   * [] finish both papers
   * [] proof presentations / final adjustments
   * [] testing
