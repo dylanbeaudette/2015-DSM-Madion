@@ -9,11 +9,11 @@ width: 1024
 height: 800
 css: custom.css
 
-D.E. Beaudette, P. Rouder, J.M. Skovlin
+D.E. Beaudette, P. Roudier, J.M. Skovlin
 
 
 <br><br><br><br><br><br><br><br>
-<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-7 </span>
+<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-8 </span>
 
 
 Outline
@@ -21,6 +21,7 @@ Outline
 class: smaller
 
 ## Main Ideas
+
 1. framework and vocabulary for soil data modeling
 2. specialized data structures to accommodate **most** soil information (soilDB companion package)
 3. data vizualization via. sketches
@@ -29,6 +30,7 @@ class: smaller
 6. extensible (examples in companion sharpshootR package)
 
 ## Digital Soil Morphometrics Examples
+
 1. ML profile generation
 2. profile-level aggregate / stock estimation
 3. continuous-representation of data collected from genetic horizons (e.g. depth-function estimation)
@@ -52,6 +54,13 @@ Preaching to the Choir: why R?
  - I/O capabilities: file, URL, SOAP, SQL, ODBC, PDF, PNG, SHP, KML, ...
  - optimizers, matrix operations, custom data structures, ...
 
+
+Soil data analysis in practice
+===================================
+
+- what is the usual workflow
+- where could we be more efficient
+- showcase the need for a dedicated piece of software
 
 
 
@@ -89,7 +98,7 @@ Formal class 'SoilProfileCollection' [package "aqp"] with 7 slots
   ..@ diagnostic:'data.frame':	177 obs. of  4 variables:
 ```
 
-<img src="presentation-figure/SPC-2-1.png" title="plot of chunk SPC-2" alt="plot of chunk SPC-2" style="display: block; margin: auto;" />
+<img src="presentation-figure/SPC-2.png" title="plot of chunk SPC-2" alt="plot of chunk SPC-2" style="display: block; margin: auto;" />
 
 
 SoilProfileCollection Objects
@@ -275,7 +284,7 @@ par(mar=c(0,0,3,0))
 plot(d, color='p1', axis.line.offset=-4, max.depth=150)
 ```
 
-<img src="presentation-figure/simulate-profiles-2-1.png" title="plot of chunk simulate-profiles-2" alt="plot of chunk simulate-profiles-2" style="display: block; margin: auto;" />
+<img src="presentation-figure/simulate-profiles-2.png" title="plot of chunk simulate-profiles-2" alt="plot of chunk simulate-profiles-2" style="display: block; margin: auto;" />
 
 <span class="link-to-details">&#8594;&nbsp;[random_profile() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/random_profile.html)</span>
 
@@ -296,7 +305,7 @@ par(mar=c(0,0,3,0))
 plot(d, color='p1', axis.line.offset=-4, max.depth=150)
 ```
 
-<img src="presentation-figure/simulate-profiles-3-1.png" title="plot of chunk simulate-profiles-3" alt="plot of chunk simulate-profiles-3" style="display: block; margin: auto;" />
+<img src="presentation-figure/simulate-profiles-3.png" title="plot of chunk simulate-profiles-3" alt="plot of chunk simulate-profiles-3" style="display: block; margin: auto;" />
 
 <span class="link-to-details">&#8594;&nbsp;[random_profile() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/random_profile.html)</span>
 
@@ -361,7 +370,7 @@ axis(1, at=1:length(sp4), labels=round(sp4$wt.mean.ca.to.mg, 3), cex.axis=1)
 mtext(1, line=2.25, text='Horizon Thickness Weighted Mean Ex. Ca:Mg', cex=1)
 ```
 
-<img src="presentation-figure/magnesic-soils-2-1.png" title="plot of chunk magnesic-soils-2" alt="plot of chunk magnesic-soils-2" style="display: block; margin: auto;" />
+<img src="presentation-figure/magnesic-soils-2.png" title="plot of chunk magnesic-soils-2" alt="plot of chunk magnesic-soils-2" style="display: block; margin: auto;" />
 
 <span class="link-to-details">&#8594;&nbsp;[sp4 sample data set](http://aqp.r-forge.r-project.org/aqp-html-manual/sp4.html)</span>
 
