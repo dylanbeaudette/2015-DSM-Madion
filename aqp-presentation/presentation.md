@@ -13,7 +13,7 @@ D.E. Beaudette, P. Roudier, J.M. Skovlin
 
 
 <br><br><br><br><br><br><br><br>
-<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-8 </span>
+<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-3 </span>
 
 
 Outline
@@ -95,11 +95,11 @@ class: smaller
 ![alt text](static-figures/sketches.png)
 
 - special data structures: avoids annoying book-keeping code
-- visualization: soil profile sketches
-- aggregation: depth-slice summaries
+- visualization: soil profile sketches + annotations + more
+- resampling: regular depth-slicing or EA spline (coming soon)
+- aggregation: summary by depth-slice or arbitrary "slabs"
 - classification: pair-wise dissimilarity of profiles
-- ...
-- ...
+- utility functions: soil depth, missing data eval, aggregate data viz, ...
 
 
 

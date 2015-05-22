@@ -15,7 +15,7 @@ css: custom.css
 D.E. Beaudette, P. Roudier, J.M. Skovlin
 
 <br><br><br><br><br><br><br><br>
-<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-8 and `soilDB` version 1.5-5`.</span>
+<span style="color: white; font-size:50%;">This document is based on `aqp` version 1.8-3 and `soilDB` version 1.5-2`.</span>
 
 
 
