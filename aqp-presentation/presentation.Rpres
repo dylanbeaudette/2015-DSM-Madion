@@ -52,17 +52,31 @@ class: smaller
 5. Pierre: any recent work examples?
 6. scavenge from AQP website
 
+Soil data analysis is changing
+===============================
 
+- volume
+- variety
+- velocity (rate of change)
+
+Emerging needs
+=======================
+
+- reproducibility
+- automation
+- scalability
+- handling of complex data
+- communication/outreach
 
 Why R?
 ========================================================
-
+ 
 - repeatable, self-documenting work:
- - uni-variate / multivariate summaries
- - graphical representations of complex data
  - 2800+ packages on CRAN: 100+ packages on GIS, ecology, and **soils**!
  - package system: algorithms + docs + sample data
  
+- advanced data visualisation capabilities
+
 - algorithm development by experts, application by trained users
  - testing by eye: simple graphical "grammar" used to plot data
  - formalized testing: correlation, regression, classification, ordination, ...
@@ -73,13 +87,17 @@ Why R?
 Soil data analysis in practice
 ===================================
 
-- what is the usual workflow
-- where could we be more efficient
-- showcase the need for a dedicated piece of software
+![alt text](static-figures/workflow-1.png)
 
+It's a long road....
+===================================
 
+![alt text](static-figures/workflow-2.png)
 
+Improving the workflow
+===================================
 
+![alt text](static-figures/workflow-3.png)
 
 
 aqp package: Algorithms for Quantitative Pedology
