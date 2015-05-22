@@ -84,12 +84,12 @@ Why R?
  - optimizers, matrix operations, custom data structures, ...
 
 
-Soil data analysis in practice
+Soil data analysis in theory
 ===================================
 
 ![alt text](static-figures/workflow-1.png)
 
-It's a long road....
+In practice, it is a long road ...
 ===================================
 
 ![alt text](static-figures/workflow-2.png)
@@ -225,7 +225,7 @@ Slice-Wise Aggregation
 ========================================================
 <span class="oneliner">aggregation along regular "depth-slices" and within groups</span>
 
-![alt text](static-figures/kssl-slab-example.png)
+![alt text](static-figures/properties_by_mlra.png)
 
 <span class="link-to-details">&#8594;&nbsp;[slab() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/SPC-slab-methods.html)</span>
 
