@@ -1,0 +1,65 @@
+
+
+### Simulation from GHL Probabilities [this doesn't work, consider leaving out]
+```{r simulation-from-model, fig.width=10, fig.height=5}
+# simulate GHL at each depth-slice, using probabilities from PO-model
+p.sim <- apply(p, 1, function(i) sample(hz.names, size = 10, replace = TRUE, prob = i[hz.names]))
+
+# check... not quite right, too much noise in the predictions
+t(p.sim)[1:10, ]
+```
+
+
+
+### Simultaneous confidence intervals for derivatives of splines in GAMs
+not yet ready for prime time...
+
+
+```{r gamms, eval=FALSE}
+## Load mgcv and fit the model
+require(mgcv)
+
+# method setup
+ctrl <- list(
+  niterEM = 0, 
+  msVerbose = FALSE, 
+  optimMethod="L-BFGS-B"
+)
+
+# fitting model
+m2 <- gamm(
+  formula = value ~ s(top),
+  data = subset(g, variable == 'A'), 
+  correlation = corARMA(form = ~ 1 | top, p = 2),
+  control = ctrl
+)
+
+## prediction data
+want <- seq(1, nrow(subset(g, variable == 'A')), length.out = 200)
+pdat <- with(subset(g, variable == 'A'), data.frame(top = top[want]))
+
+## download the derivatives gist
+# tmpf <- tempfile()
+# download.file("https://gist.githubusercontent.com/gavinsimpson/ca18c9c789ef5237dbc6/raw/295fc5cf7366c831ab166efaee42093a80622fa8/derivSimulCI.R", tmpf, method = "wget")
+# source(tmpf)
+
+library(MASS)
+
+lp <- predict(m2$gam, newdata = pdat, type = "lpmatrix")
+coefs <- coef(m2$gam)
+vc <- vcov(m2$gam)
+
+set.seed(35)
+sim <- mvrnorm(25, mu = coefs, Sigma = vc)
+
+want <- grep("top", colnames(lp))
+
+fits <- lp[, want] %*% t(sim[, want])
+dim(fits) ## 25 columns, 1 per simulation, 200 rows, 1 per evaln point
+
+ylims <- range(fits)
+plot(value ~ top, data = subset(g, variable == 'A'), pch = 19, ylim = ylims, type = "n")
+matlines(pdat$top, fits, col = rgb(0.1, 0.1, 0.1, alpha=0.25), lty = 1)
+
+```
+
