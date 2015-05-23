@@ -106,19 +106,49 @@ class: smaller
 
 ![alt text](static-figures/sketches.png)
 
-- special data structures: avoids annoying book-keeping code
-- visualization: soil profile sketches, transect diagrams, Munsell &#8594;&nbsp; RGB
-- resampling: regular depth-slicing or EA spline (coming soon)
-- aggregation: summary by depth-slice or arbitrary "slabs"
-- classification: pair-wise dissimilarity of profiles
-- utility functions: soil depth, missing data eval, simulation, ...
+- **special data structures:** avoids annoying book-keeping code
+- **visualization:** soil profile sketches, transect diagrams, Munsell &#8594;&nbsp; RGB
+- **re-sampling:** regular depth-slicing or EA spline (coming soon)
+- **aggregation:** summary by depth-slice or arbitrary "slabs"
+- **classification:** pair-wise dissimilarity of profiles
+- **utility functions:** soil depth, missing data eval, simulation, ...
+
+
+What does it look like?
+========================================================
+
+- profile sketches ordered by meaningful gradient
+```{r plotSPC-intro, eval=FALSE, tidy=FALSE}
+plot(SPC, plot.order=new.order)
+```
+
+- applying functions by profile
+```{r profileApply-intro, eval=FALSE, tidy=FALSE}
+profileApply(SPC, <function>)
+```
+
+- "slicing": depth-wise alignment and extraction of data
+```{r slice-intro, eval=FALSE, tidy=FALSE}
+slice(SPC, 0:50 ~ sand + silt + clay)
+```
+
+- aggregating by "slab": group / depth-wise summaries
+```{r slab-intro, eval=FALSE, tidy=FALSE}
+# assuming no NA
+slab(SPC, ~ sand + silt + clay, slab.fun=mean)
+slab(SPC, ~ sand + silt + clay, slab.structure=c(0,10), slab.fun=mean)
+slab(SPC, group ~ sand + silt + clay, slab.fun=mean)
+```
+
+- simulating data to feed / test models
+```{r sim-intro, eval=FALSE, tidy=FALSE}
+sim(SPC, n=10, hz.sd=2)
+random_profile(id, n=c(3, 4, 5), min_thick=5, max_thick=30, n_prop=5)
+```
 
 
 
-
-
-
-SoilProfileCollection Objects
+SoilProfileCollection objects
 ========================================================
 <span class="oneliner">custom datatype to store/access hierarchy of soil profile information</span>
 
@@ -138,7 +168,7 @@ plot(loafercreek[1:10, ], name='hzname', print.id=FALSE, cex.names=0.8, axis.lin
 
 
 
-SoilProfileCollection Objects
+SoilProfileCollection objects
 ========================================================
 class: small-code
 
@@ -234,73 +264,6 @@ Pair-Wise Dissimilarity
 
 
 
-
-OK, So What?
-========================================================
-
-- simulating data to feed / test models
-```{r sim-intro, eval=FALSE, tidy=FALSE}
-sim(SPC, n=10, hz.sd=2)
-random_profile(id, n=c(3, 4, 5), min_thick=5, max_thick=30, n_prop=5)
-```
-- profile sketches ordered by meaningful gradient
-```{r plotSPC-intro, eval=FALSE, tidy=FALSE}
-plot(SPC, plot.order=new.order)
-```
-- applying functions by profile
-```{r profileApply-intro, eval=FALSE, tidy=FALSE}
-profileApply(SPC, <function>)
-```
-- "slicing": depth-wise alignment and extraction of data
-```{r slice-intro, eval=FALSE, tidy=FALSE}
-slice(SPC, 0:50 ~ sand + silt + clay)
-```
-- aggregating by "slab": group / depth-wise summaries
-```{r slab-intro, eval=FALSE, tidy=FALSE}
-# assuming no NA
-slab(SPC, ~ sand + silt + clay, slab.fun=mean)
-slab(SPC, ~ sand + silt + clay, slab.structure=c(0,10), slab.fun=mean)
-slab(SPC, group ~ sand + silt + clay, slab.fun=mean)
-```
-
-
-Simulated Data: Horizon Depths and Designations
-========================================================
-class: small-code
-
-```{r simulate-profiles-1, eval=FALSE, tidy=FALSE}
-# source data are a single profile description of the Morley series as a data.frame
-depths(b) <- id ~ top + bottom
-# convert horizon colors into RGB
-b$soil_color <- munsell2rgb(b$hue, b$value, b$chroma)
-# simulate 15 profiles based on reported horizon thickness standard deviations
-b.sim <- sim(b, n=15, hz.sd=c(2,1,1,2,4,2,2,4))
-# set depth units to inches
-depth_units(b.sim) <- 'in'
-```
-
-![alt text](static-figures/morley-simulation.png)
-
-<span class="link-to-details">&#8594;&nbsp;[sim() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/sim.html)</span>
-
-
-
-
-
-Simulated Data: Physical Properties
-========================================================
-class: small-code
-<span class="oneliner">simulation based on the [logistic power peak](http://www.sciencedirect.com/science/article/pii/S0016706111002163) function-- more realistic anisotropy</span>
-
-```{r simulate-profiles-3, tidy=FALSE, fig.width=8, fig.height=4}
-# implicit loop via plyr::ldply, result is a data.frame
-d <- ldply(1:10, random_profile, n=c(6, 7, 8), n_prop=1, method='LPP', 
-lpp.a=5, lpp.b=10, lpp.d=5, lpp.e=5, lpp.u=25)
-# promote to SoilProfileCollection and plot
-depths(d) <- id ~ top + bottom
-par(mar=c(0,0,3,0))
-plot(d, color='p1', axis.line.offset=-4, max.depth=150)
-```
 
 
 
