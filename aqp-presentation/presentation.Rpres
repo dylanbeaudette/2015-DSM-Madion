@@ -104,16 +104,14 @@ aqp package: Algorithms for Quantitative Pedology
 ========================================================
 class: smaller
 
-<span class="oneliner">a "vocabulary" for soil data analysis</span>
-
 ![alt text](static-figures/sketches.png)
 
 - special data structures: avoids annoying book-keeping code
-- visualization: soil profile sketches + annotations + more
+- visualization: soil profile sketches, transect diagrams, Munsell &#8594;&nbsp; RGB
 - resampling: regular depth-slicing or EA spline (coming soon)
 - aggregation: summary by depth-slice or arbitrary "slabs"
 - classification: pair-wise dissimilarity of profiles
-- utility functions: soil depth, missing data eval, aggregate data viz, ...
+- utility functions: soil depth, missing data eval, simulation, ...
 
 
 
@@ -137,38 +135,7 @@ plot(loafercreek[1:10, ], name='hzname', print.id=FALSE, cex.names=0.8, axis.lin
 ```
 
 
-SoilProfileCollection Objects
-========================================================
 
-Typical pedon/site data:
-```
-id, top, bottom, name, group
-1,  0,   10,     A,    g1
-1,  10,  18,     AB,   g1
-          ...
-2,  12,   22,    E,    g2
-2,  22,   45,    Bhs1, g2
-```
-
-Converting `data.frame` &#8594; `SoilProfileCollection`:
-```{r SPC-3, eval=FALSE}
-x <- read.csv(file=...)
-# promote to SoilProfileCollection
-depths(x) <- id ~ top + bottom
-# move "site data" into @site
-site(x) <- ~ group
-```
-
-Functions that return `SoilProfileCollection`:
-```{r SPC-4, eval=FALSE}
-x <- fetchOSD()
-x <- fetchKSSL()
-x <- fetchPedonPC()
-x <- fetchNASIS()
-x <- fetchNASIS_component_data()
-```
-
-<span class="link-to-details">&#8594;&nbsp;[SoilProfileCollection tutorial](https://r-forge.r-project.org/scm/viewvc.php/*checkout*/docs/aqp/aqp-intro.html?root=aqp)</span>
 
 
 SoilProfileCollection Objects
@@ -210,25 +177,50 @@ as(sp4, 'data.frame')
 ```
 
 
+Munsell Color Conversion: RGB, LAB, HSV, etc.  
+========================================================
+![alt text](static-figures/munsell-soil_colors-LAB.png)
 
 
 Plotting SoilProfileCollection Objects
 ========================================================
-<span class="oneliner">flexible generation of soil profile sketches using "base graphics"</span>
+![alt text](static-figures/sketches-sjer.png)
 
-![alt text](static-figures/aqp_profile_plot_example_sjer.png)
 
-<span class="link-to-details">&#8594;&nbsp;[plotSPC() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/SPC-plotting.html)</span>
+Plotting SoilProfileCollection Objects
+========================================================
+![alt text](static-figures/sketches-sfrec.png)
+
+
+Plotting SoilProfileCollection Objects
+========================================================
+![alt text](static-figures/OSD-dend.png)
+
+
+Plotting SoilProfileCollection Objects
+========================================================
+![alt text](static-figures/mineralking-set1-elevation.png)
+
+Plotting SoilProfileCollection Objects
+========================================================
+![alt text](static-figures/aggregate-clay-content.png)
 
 
 Slice-Wise Aggregation
 ========================================================
-<span class="oneliner">aggregation along regular "depth-slices" and within groups</span>
-
 ![alt text](static-figures/properties_by_mlra.png)
 
-<span class="link-to-details">&#8594;&nbsp;[slab() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/SPC-slab-methods.html)</span>
+Slice-Wise Aggregation
+========================================================
+![alt text](static-figures/kssl-slab-example.png)
 
+Slice-Wise Aggregation
+========================================================
+![alt text](static-figures/aggregate-continuous-example.png)
+
+Slice-Wise Aggregation
+========================================================
+![alt text](static-figures/aggregate-categorical-example.png)
 
 
 Pair-Wise Dissimilarity
@@ -245,8 +237,6 @@ Pair-Wise Dissimilarity
 
 OK, So What?
 ========================================================
-class: small-code
-<span class="oneliner">how about some examples</span>
 
 - simulating data to feed / test models
 ```{r sim-intro, eval=FALSE, tidy=FALSE}
@@ -295,21 +285,6 @@ depth_units(b.sim) <- 'in'
 
 
 
-Simulated Data: Physical Properties
-========================================================
-class: small-code
-<span class="oneliner">simulation based on a [random walk](http://en.wikipedia.org/wiki/Random_walk)-- similar to highly stratified soils</span>
-
-```{r simulate-profiles-2, tidy=FALSE, fig.width=8, fig.height=4}
-# implicit loop via plyr::ldply, result is a data.frame
-d <- ldply(1:10, random_profile, n=c(6, 7, 8), n_prop=1, method='random_walk')
-# promote to SoilProfileCollection and plot
-depths(d) <- id ~ top + bottom
-par(mar=c(0,0,3,0))
-plot(d, color='p1', axis.line.offset=-4, max.depth=150)
-```
-
-<span class="link-to-details">&#8594;&nbsp;[random_profile() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/random_profile.html)</span>
 
 
 Simulated Data: Physical Properties
@@ -327,77 +302,12 @@ par(mar=c(0,0,3,0))
 plot(d, color='p1', axis.line.offset=-4, max.depth=150)
 ```
 
-<span class="link-to-details">&#8594;&nbsp;[random_profile() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/random_profile.html)</span>
 
 
 
-Magnesic Soils of California
-========================================================
-class: small-code
-<span class="oneliner">data From [McGahan et al.](https://www.soils.org/publications/sssaj/abstracts/73/6/2087)</span>
-
-```{r magnesic-soils-1, tidy=FALSE}
-# load sample dataset, comes with aqp package
-data(sp4)
-# inspect first 4 rows x 12 columns
-sp4[1:4, 1:12]
-# upgrade to SoilProfileCollection
-depths(sp4) <- id ~ top + bottom
-
-# custom function for computing hz-thick wt. mean, accounting for missing data
-wt.mean.ca.mg <- function(i) {
-    # use horizon thickness as a weight
-    thick <- i$bottom - i$top
-    # function is from the Hmisc package
-    m <- wtd.mean(i$ex_Ca_to_Mg, weights=thick, na.rm=TRUE)
-    return(m)
-    }
-
-# apply custom function to each profile, save as "site-level" attribute
-sp4$wt.mean.ca.to.mg <- profileApply(sp4, wt.mean.ca.mg)
-
-# generate index ordering from small -> large Ca:Mg
-new.order <- order(sp4$wt.mean.ca.to.mg)
-```
-
-<span class="link-to-details">&#8594;&nbsp;[profileApply() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/profileApply-methods.html)</span>
-
-
-Magnesic Soils of California
-========================================================
-class: small-code
-
-```{r magnesic-soils-2, tidy=FALSE, fig.width=8, fig.height=4}
-# plot the data using our new order based on Ca:Mg
-par(mar=c(4,0,3,0))
-plot(sp4, name='name', color='ex_Ca_to_Mg', plot.order=new.order, cex.name=0.75, id.style='side', axis.line.offset=-4,)
-
-# add an axis labeled with the sorting criteria
-axis(1, at=1:length(sp4), labels=round(sp4$wt.mean.ca.to.mg, 3), cex.axis=1)
-mtext(1, line=2.25, text='Horizon Thickness Weighted Mean Ex. Ca:Mg', cex=1)
-```
-
-<span class="link-to-details">&#8594;&nbsp;[sp4 sample data set](http://aqp.r-forge.r-project.org/aqp-html-manual/sp4.html)</span>
 
 
 
-Summarize Clay vs Depth by Geology
-========================================================
-class: small-code
-
-```{r ca630-geol-clay, tidy=FALSE, eval=FALSE}
-pedons <- fetchNASIS()
-# ... details on generalization of geologic classes ommitted ...
-# aggregate by major geologic type, default slab.fun = hdquantile
-a <- slab(pedons, generalized_bedrock ~ clay)
-
-# plot with lattice graphics
-xyplot(top ~ p.q50 | generalized_bedrock, upper=a$p.q75, lower=a$p.q25, data=a, ylim=c(180,-5), ylab='Depth (cm)', xlab='Clay Content (%)', strip=strip.custom(bg=grey(0.85)), as.table=TRUE, panel=panel.depth_function, prepanel=prepanel.depth_function, scales=list(y=list(tick.number=7, alternating=3), x=list(alternating=1)), subset=variable == 'clay', layout=c(6,1), cf=a$contributing_fraction, sync.colors=TRUE, alpha=0.25)
-```
-
-![alt text](static-figures/ca630-bedrock-clay.png)
-
-<span class="link-to-details">&#8594;&nbsp;[slab() manual page](http://aqp.r-forge.r-project.org/aqp-html-manual/SPC-slab-methods.html)</span>
 
 
 Wrap-Up
