@@ -30,27 +30,6 @@ D.E. Beaudette, P. Roudier, J.M. Skovlin
 <span style="color: white; font-size:50%;">This document is based on `aqp` version `r utils::packageDescription("aqp", field="Version")` </span>
 
 
-Outline
-========================================================
-class: smaller
-
-## Main Ideas
-
-1. framework and vocabulary for soil data modeling
-2. specialized data structures to accommodate **most** soil information (soilDB companion package)
-3. data vizualization via. sketches
-4. re-sampling via slicing / slabbing and related vizualization
-5. numerical classification
-6. extensible (examples in companion sharpshootR package)
-
-## Digital Soil Morphometrics Examples
-
-1. ML profile generation
-2. profile-level aggregate / stock estimation
-3. continuous-representation of data collected from genetic horizons (e.g. depth-function estimation)
-4. TODO: coalate recent work and find some more!
-5. Pierre: any recent work examples?
-6. scavenge from AQP website
 
 Soil data analysis is changing
 ===============================
@@ -252,6 +231,10 @@ Slice-Wise Aggregation
 ========================================================
 ![alt text](static-figures/aggregate-categorical-example.png)
 
+Slice-Wise Aggregation
+========================================================
+another example of probability depth-functions here
+
 
 Pair-Wise Dissimilarity
 ========================================================
@@ -273,10 +256,11 @@ Pair-Wise Dissimilarity
 
 
 
-Wrap-Up
+Concluding remarks
 ========================================================
+class: smaller
 
-- **getting soils data** can be difficult and time-consuming
+- **managing soils data** can be difficult and time-consuming
 - DSM requires considerable **data processing**
 - DSM requires detailed **analysis** of soil profile collections or aggregate soils data
 
@@ -287,10 +271,12 @@ AQP can help:
 - pair-wise dissimilarity: `profile_compare()`
 - visual comparisons and non-parametric summaries
 
-&#8594;&nbsp; ideas and code welcome, plenty of room for improvement
+**most-importantly: focus on creative thinking, not coding**
 
-<br>
-Join the fun at the [AQP r-forge site](http://r-forge.r-project.org/projects/aqp/)
-
+<center>
+Thank You!
+<hr>
+http://aqp.r-forge.r-project.org
+</center>
 
 
