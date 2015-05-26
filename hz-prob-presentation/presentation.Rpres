@@ -232,7 +232,7 @@ class: smaller
 Examples using 54 profiles correlated to Loafercreek soil series
 
 - fine-loamy, mixed, super-active, thermic ultic haploxeralfs
-- extent: foothills of the Sierra Nevada Mountains, MLRA 18
+- extent: foothills of the Sierra Nevada Mountains (MLRA 18)
 - uses: recreation, range, vineyard, low-density residential
 
 ![alt text](static-figures/loafercreek-landscapes.jpg)
@@ -305,7 +305,7 @@ text(x=30, y=s.depths+0.5, labels=s.hz.prop[3, ], adj = 0, cex=1.5, font=2, col=
 text(x=32, y=s.depths+0.5, labels=s.hz.prop[4, ], adj = 0, cex=1.5, font=2, col=cols[4])
 ```
 
-<span class="oneliner">results are interpretable and directly tied to the original data, but over-fit</span>
+<span class="oneliner">no assumptions, simple interpretation, directly tied to the original data; but over-fit</span>
 
 
 slice() and fit PO-logistic regression model
@@ -325,11 +325,11 @@ lines(27 + (7*p$Bt2), p$top, col=cols[4], lwd=3)
 <span class="oneliner">proportional-odds logistic regression generalizes the process</span>
 
 
-GHL probability depth-functions / model
+Probabilistic representation of genetic horizons
 ========================================================
 
 ```{r compare-proportions, echo=FALSE, fig.width=10, fig.height=7}
-xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=2), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1), layout.heights=list(strip=1.5)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(par.strip.text=list(cex=1.5), bg=grey(0.85)), asp=1.5, panel=function(...) {
+xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=2, title='GHL'), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1), layout.heights=list(strip=1.5)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(par.strip.text=list(cex=1.5), bg=grey(0.85)), asp=1.5, panel=function(...) {
   panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
   panel.xyplot(...)
 })
@@ -348,6 +348,8 @@ xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), 
 #   panel.xyplot(...)
 # })
 ```
+
+<span class="oneliner">empirical probabilities when data are sparse, PO-LR when data are available</span>
 
 
 
@@ -371,13 +373,17 @@ p.1 <- xyplot(top ~ value, groups=variable, data=p.long.copy, type='l', ylim=c(1
 p.1 + as.layer(xyplot(0:150 ~ shannon.h, type='l', lty=2, lwd=2, col='black'))
 ```
 
+<span class="oneliner">Shannon entropy: continuous metric of confusion; Brier scores: agreement by GHL</span>
+
 
 Quantifying uncertainty
 ========================================================
 ![alt text](static-figures/model-robustness.png)
 
+<span class="oneliner">model stability: iterative re-fitting (n=25, reps=250), mean R<sup><span style="font-size: 75%;">2</span></sup> = 0.89</span>
 
-Most likely horizonation
+
+Most-likely (ML) horizonation
 ========================================================
 ```{r plot-ml-hz, echo=FALSE, fig.width=10, fig.height=7}
 # plot generalized horizons via color, sorted by depth
@@ -392,6 +398,8 @@ text(x=length(loafercreek)+4, y=with(a.ml, (top+bottom)/2), labels=a.ml$hz, cex=
 # l.text <- paste0(hz.names[-2], '\n', a.ml$top, '--', a.ml$bottom)
 legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2, pt.cex=5, title='Generalized Horizon Labels')
 ```
+
+<span class="oneliner">most-likely horizon boundaries determined by probability depth-functions</span>
 
 
 Conclusions: aggregate soil morphology
@@ -408,7 +416,7 @@ p.1 + latticeExtra::layer(panel.rect(xleft=1.05, ytop=p.s$hzdept, xright=1.175, 
 
 ***
 
-- fact: sampling by **genetic horizon** will continue to be important
+- fact: sampling by **genetic horizon** is efficient and will continue to be important
 - we can do better than picking a single, **representative profile**
 - soil series **defined** by GHL rules, PO-LR model, and properties aggregated by GHL
 - variability between descriptions **smoothed** as sample size increases-- *given thoughtful correlation*
@@ -424,7 +432,7 @@ class: smaller
 
 ![alt text](static-figures/mvo-soil-montage-narrow.jpg)
 
-- minimum sample sizes, model diagnostics, etc.
+- minimum sample sizes, model diagnostics, best-practice guidelines, etc.
 - more realistic estimates of SE, e.g. correlation structure via GEE
 - pedogenic interpretation of model coefficients
 

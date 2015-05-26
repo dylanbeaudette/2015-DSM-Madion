@@ -62,12 +62,14 @@ documentation are fairly complete.
 3. May 18 thru 22:
   * [] finish presentations:
     * [x] hz-prob
-    * [] AQP
-  * [] 50% goal for both papers
+    * [] AQP (yikes, not done!)
+  * [] 50% goal for both papers (yikes, not done!)
 
 4. May 25 thru 29: this is a short week for me
   * [] finish both papers
-  * [] proof presentations / final adjustments
+  * [] proof presentations / final adjustments:
+    * [x] hz-prob
+    * [] AQP
   * [] testing
 
 
