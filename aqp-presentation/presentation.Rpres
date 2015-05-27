@@ -31,21 +31,16 @@ D.E. Beaudette, P. Roudier, J.M. Skovlin
 
 
 
-Soil data analysis is changing
+Why do we need (yet) another framework?
 ===============================
 
-- volume
-- variety
-- velocity (rate of change)
+![alt text](static-figures/pinn-transect.png)
 
-Emerging needs
-=======================
+- soil data are complex, inherently visual
+- reproducibility is increasingly important
+- focus on the interesting questions, not the implementation
+- a common vocabulary
 
-- reproducibility
-- automation
-- scalability
-- handling of complex data
-- communication/outreach
 
 Why R?
 ========================================================
@@ -67,6 +62,7 @@ Soil data analysis in theory
 ===================================
 
 ![alt text](static-figures/workflow-1.png)
+
 
 In practice, it is a long road ...
 ===================================
@@ -90,40 +86,9 @@ class: smaller
 - **re-sampling:** regular depth-slicing or EA spline (coming soon)
 - **aggregation:** summary by depth-slice or arbitrary "slabs"
 - **classification:** pair-wise dissimilarity of profiles
-- **utility functions:** soil depth, missing data eval, simulation, ...
+- **utility functions:** soil depth, missing data eval., simulation, ...
 
 
-What does it look like?
-========================================================
-
-- profile sketches ordered by meaningful gradient
-```{r plotSPC-intro, eval=FALSE, tidy=FALSE}
-plot(SPC, plot.order=new.order)
-```
-
-- applying functions by profile
-```{r profileApply-intro, eval=FALSE, tidy=FALSE}
-profileApply(SPC, <function>)
-```
-
-- "slicing": depth-wise alignment and extraction of data
-```{r slice-intro, eval=FALSE, tidy=FALSE}
-slice(SPC, 0:50 ~ sand + silt + clay)
-```
-
-- aggregating by "slab": group / depth-wise summaries
-```{r slab-intro, eval=FALSE, tidy=FALSE}
-# assuming no NA
-slab(SPC, ~ sand + silt + clay, slab.fun=mean)
-slab(SPC, ~ sand + silt + clay, slab.structure=c(0,10), slab.fun=mean)
-slab(SPC, group ~ sand + silt + clay, slab.fun=mean)
-```
-
-- simulating data to feed / test models
-```{r sim-intro, eval=FALSE, tidy=FALSE}
-sim(SPC, n=10, hz.sd=2)
-random_profile(id, n=c(3, 4, 5), min_thick=5, max_thick=30, n_prop=5)
-```
 
 
 
@@ -186,9 +151,22 @@ as(sp4, 'data.frame')
 ```
 
 
-Munsell Color Conversion: RGB, LAB, HSV, etc.  
+Munsell Color Conversion
 ========================================================
+class: smaller
+
 ![alt text](static-figures/munsell-soil_colors-LAB.png)
+
+- Munsell to RGB, LAB, HSV, LUV, etc.
+```{r munsell-to-rgb, tidy=FALSE}
+munsell2rgb('7.5YR', 4, 6, return_triplets=TRUE)
+```
+
+- RGB to Munsell
+```{r rgb-to-munsell, tidy=FALSE}
+rgb2munsell(cbind(r=0.5252055, g=0.340437, b=0.1578492))
+```
+
 
 
 Plotting SoilProfileCollection Objects
@@ -215,25 +193,28 @@ Plotting SoilProfileCollection Objects
 ![alt text](static-figures/aggregate-clay-content.png)
 
 
-Slice-Wise Aggregation
+Slice-Wise Aggregation: RIC via quantiles
 ========================================================
 ![alt text](static-figures/properties_by_mlra.png)
 
-Slice-Wise Aggregation
+Slice-Wise Aggregation: RIC via quantiles
 ========================================================
 ![alt text](static-figures/kssl-slab-example.png)
 
-Slice-Wise Aggregation
+Slice-Wise Aggregation: RIC via quantiles
 ========================================================
 ![alt text](static-figures/aggregate-continuous-example.png)
 
-Slice-Wise Aggregation
+Slice-Wise Aggregation: probabilities
 ========================================================
 ![alt text](static-figures/aggregate-categorical-example.png)
 
-Slice-Wise Aggregation
+Slice-Wise Aggregation: probabilities
 ========================================================
-another example of probability depth-functions here
+
+![alt text](static-figures/domingopeak-ml-hz.png)
+***
+![alt text](static-figures/dunstone-ml-hz.png)
 
 
 Pair-Wise Dissimilarity
@@ -264,15 +245,16 @@ class: smaller
 - DSM requires considerable **data processing**
 - DSM requires detailed **analysis** of soil profile collections or aggregate soils data
 
-AQP can help:
-- "fetch" your data from NASIS, KSSL, SDA, SCAN, SoilWeb, etc.
-- [SoilProfileCollection](https://r-forge.r-project.org/scm/viewvc.php/*checkout*/docs/aqp/aqp-intro.html?root=aqp) objects are powerful
+## AQP can help:
+- simple conversion from common data sources to SoilProfileCollection
+- SoilProfileCollection objects are powerful
 - innovative constructs: `slice()`, `slab()`, `SPC[i,j]`
 - pair-wise dissimilarity: `profile_compare()`
 - visual comparisons and non-parametric summaries
 
 **most-importantly: focus on creative thinking, not coding**
 
+<br>
 <center>
 Thank You!
 <hr>
