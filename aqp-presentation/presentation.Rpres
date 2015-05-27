@@ -42,22 +42,6 @@ Why do we need (yet) another framework?
 - a common vocabulary
 
 
-Why R?
-========================================================
- 
-- repeatable, self-documenting work:
- - 2800+ packages on CRAN: 100+ packages on GIS, ecology, and **soils**!
- - package system: algorithms + docs + sample data
- 
-- advanced data visualisation capabilities
-
-- algorithm development by experts, application by trained users
- - testing by eye: simple graphical "grammar" used to plot data
- - formalized testing: correlation, regression, classification, ordination, ...
- - I/O capabilities: file, URL, SOAP, SQL, ODBC, PDF, PNG, SHP, KML, ...
- - optimizers, matrix operations, custom data structures, ...
-
-
 Soil data analysis in theory
 ===================================
 
@@ -73,6 +57,23 @@ Improving the workflow
 ===================================
 
 ![alt text](static-figures/workflow-3.png)
+
+
+Why R?
+========================================================
+ 
+- repeatable, self-documenting work:
+ - 2800+ packages on CRAN: 100+ packages on GIS, ecology, and **soils**!
+ - package system: algorithms + docs + sample data
+ 
+- advanced data visualisation capabilities
+
+- algorithm development by experts, application by trained users
+ - testing by eye: simple graphical "grammar" used to plot data
+ - formalized testing: correlation, regression, classification, ordination, ...
+ - I/O capabilities: file, URL, SOAP, SQL, ODBC, PDF, PNG, SHP, KML, ...
+ - optimizers, matrix operations, custom data structures, ...
+
 
 
 aqp package: Algorithms for Quantitative Pedology
@@ -94,7 +95,6 @@ class: smaller
 
 SoilProfileCollection objects
 ========================================================
-<span class="oneliner">custom datatype to store/access hierarchy of soil profile information</span>
 
 ```{r SPC-1, echo=FALSE}
 # sample dataset, extracted from NASIS
@@ -153,20 +153,7 @@ as(sp4, 'data.frame')
 
 Munsell Color Conversion
 ========================================================
-class: smaller
-
 ![alt text](static-figures/munsell-soil_colors-LAB.png)
-
-- Munsell to RGB, LAB, HSV, LUV, etc.
-```{r munsell-to-rgb, tidy=FALSE}
-munsell2rgb('7.5YR', 4, 6, return_triplets=TRUE)
-```
-
-- RGB to Munsell
-```{r rgb-to-munsell, tidy=FALSE}
-rgb2munsell(cbind(r=0.5252055, g=0.340437, b=0.1578492))
-```
-
 
 
 Plotting SoilProfileCollection Objects
