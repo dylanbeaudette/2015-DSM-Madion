@@ -31,6 +31,11 @@
   - I would put even more emphasis on the first slide that morphological description has a lot to do w/ the observer (*in its larger sense*): not only to draw boundaries and qualify an hz, but also in where the pit hyas been dug (horizontal variations)
   - "morphology is in the eye of the beholder" which makes a strong point for NOT picking one actual profile in particular, but rather hope the "white noise" will level itself out if we aggregate over a collection of N profiles
 
+  - notes from Sam:
+    - You described the complexity of the soil system you are presenting.  Emphasizing this at the beginning shows how hard it is to summarize vertical and horizontal variability in a strictly pedometric form without considering the pedological implications (soil forming factors that Alex discovered).
+    - include or describe soil-landscape setting
+
+
 
 ## other stuff to follow-up on:
 - management of GHL (mico-correlation decisions)
