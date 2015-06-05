@@ -38,8 +38,8 @@ Why do we need (yet) another framework?
 
 - soil data are complex, inherently visual
 - reproducibility is increasingly important
-- focus on the interesting questions, not the implementation
-- a common vocabulary
+- focus on the interesting questions, not boilerplate
+- a common vocabulary for soil data analysis would be nice
 
 
 Soil data analysis in theory
@@ -91,7 +91,14 @@ class: smaller
 
 
 
+========================================================
 
+## Details: papers, project homepage
+![alt text](static-figures/aqp-comp-and-geosci.png)
+![alt text](static-figures/aqp-r-forge-screen-shot.png)
+
+
+## This talk: dog and pony show
 
 SoilProfileCollection objects
 ========================================================
@@ -214,14 +221,20 @@ Pair-Wise Dissimilarity
 ![alt text](static-figures/dend_with_profiles-SJER.png)
 
 
+Recent (last hour) developments, inspired group discussion
+========================================================
+class: smaller
 
+- inspired by Darrell et al. (thanks Pierre)
+  - depiction of structure|fabric via unconditional sim. (variogram)
+  - not perfect, but illustrates rapid protoyping framework
 
+![alt text](static-figures/structures.png)
 
-
-
-
-
-
+-  on deck for next week (thanks Pierre)
+  - more efficient `SoilProfileCollection` implementation + images
+  - EA spline methods for `SoilProfileCollection`
+  - integration of hz boundary topography / distinctness into sketches
 
 
 Concluding remarks
@@ -239,7 +252,7 @@ class: smaller
 - pair-wise dissimilarity: `profile_compare()`
 - visual comparisons and non-parametric summaries
 
-**most-importantly: focus on creative thinking, not coding**
+**AQP speaks digital soil morphometrics** 
 
 <br>
 <center>
@@ -247,5 +260,8 @@ Thank You!
 <hr>
 http://aqp.r-forge.r-project.org
 </center>
+
+
+
 
 
