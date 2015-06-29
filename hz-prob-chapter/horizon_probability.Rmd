@@ -1,12 +1,12 @@
-<!--
-library(rmarkdown)
-render('horizon_probability.Rmd', output_format='html_document', quiet=TRUE)
--->
+---
+output: html_document
+bibliography: bibliography.bib
+---
 
 ```{r setup, echo=FALSE, results='hide'}
 # options for knitr
-library(knitr)
-opts_chunk$set(message=FALSE, warning=FALSE, background='#F7F7F7', dpi=100, fig.align='center', dev='CairoPNG', dev.args=list(pointsize=10), tidy=TRUE)
+library(knitr, quietly = TRUE)
+opts_chunk$set(message=FALSE, warning=FALSE, background='#F7F7F7', dpi=100, fig.align='center', dev='png', dev.args=list(pointsize=10, type='cairo', antialias='subpixel'), tidy=TRUE)
 
 # options for R session
 options(width=100, stringsAsFactors=FALSE)
@@ -38,11 +38,13 @@ library(scales)
 data(loafercreek, package = 'soilDB')
 ```
 
-## Introduction
+# Introduction
+
+Example citation [@Allardice1991]
 
 Published soil survey reports typically describe soils in terms of *aggregate* information-- soil properties, interpretations, and limitations that are based on a collection of field-described soil profiles. While aggregate soil properties are readily estimated via standard statistical functions (mean, median, etc.), an aggregate representation of *horizonation* (e.g. genetic horizon designation and depth) is typically difficult to construct. Variation in horizon designation "style" among different soil scientists, changes in horizon designation standards over time, variable depths at which genetic horizons occur, and the possible lack of a specific genetic horizon are all factors that complicate the process of delivering an aggregate representation of horizonation.
 
-### Ideas:
+## Ideas:
 
 * Horizonation as assessed by soil scientists is somewhat subjective, and there is always some error associated with it. This error is rarely acknowledged: boundaries between horizons, expressed as horizon depths, are generally considered as "crisp" numbers, while in actuality they represent "fuzz" numbers. 
 * At this stage of the introduction it would be good to explain how traditional aggregates (mean, etc) only gets you so far. Soil profile is a fundamental object for the understanding of soil processes, so it's important to come up w/ statistical/quantitative aggregate for these. Link this with importance of pedological understanding of soil, and with making a truly useful product out of soil survey data. 
@@ -80,7 +82,7 @@ Cr|R     15.1321     0.2652   57.05
 ```
 
 
-### Sample Data Set
+## Sample Data Set
 
 A collection of (`r length(loafercreek)`) soil profiles from the Sierra Foothill region of California were used to demonstrate two approaches for determining aggregate representation of genetic horizon boundaries. These soil profiles represent some of the data that have been "correlated" to the [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series. These data are included within the **soilDB** package for R.
 
@@ -93,10 +95,9 @@ par(mar=c(0,0,0,0))
 plot(loafercreek[sample(1:length(loafercreek), 15), ], name='hzname', id.style='side', cex.names=0.9)
 ```
 
-## Methods
+# Methods
 
-
-### Horizon Generalization
+## Horizon Generalization
 
 Generalized horizon labels (GHL) represent an expert-guided selection of generalized horizon designations that were consistently observed in the field, and meaningful in terms of soil morphology and management.  These designations were determine to convey the "morphologic story" or conceptual framework of most-likely horizons typically observed in soil of the Loafercreek soil series. The Official Series Description (OSD) of the Loafercreek series typical pedon and range in characteristics defines this soil series concept.
 
@@ -143,7 +144,7 @@ legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
 ```
 
 
-### Horizon Aggregation by Slicing
+## Horizon Aggregation by Slicing
 
 Slicing and slice-wise evaluation of horizon probability described in [AQP: A Toolkit for Soil Scientists](10.1016/j.cageo.2012.10.020).
 
@@ -179,7 +180,7 @@ a.1.long <- melt(a.1, id.vars='top', measure.vars=hz.names)
 ```
 
 
-### Horizon Aggregation by Proportional-Odds Model
+## Horizon Aggregation by Proportional-Odds Model
 ```{r po-model, fig.width=5, fig.height=5}
 ## check assumptions of PO model: pp. 351 in (Harell, 2001)
 plot.xmean.ordinaly(genhz ~ hzdept, data=horizons(s))
@@ -207,7 +208,7 @@ p.long <- melt(p, id.vars='top', measure.vars=hz.names)
 ```
 
 
-## Results
+# Results
 
 ```{r viz-results, fig.width=10, fig.height=8}
 # combine sliced data / predictions
@@ -234,7 +235,7 @@ p.2 <- xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155
 ```
 
 
-### ML Horizon boundaries
+## ML Horizon boundaries
 
 ```{r ml-hz-boundaries, fig.width=10, fig.height=5}
 ## compute ML horizons by slice
@@ -257,7 +258,7 @@ cbind(a.1.ml, p.ml)
 ```
 
 
-### Brier Score Evaluation of ML Horizon Labels
+## Brier Score Evaluation of ML Horizon Labels
 ```{r brier-scores, fig.width=10, fig.height=5}
 # generate NA-free values/predictions for Brier Score calc
 s.sub <- horizons(s)[, c('genhz', 'hzdept')]
@@ -308,10 +309,10 @@ p.2 + p.3
  
 
 
-### Model Stability
+## Model Stability
 PO-model stability was evaluated by repeatedly re-fitting a model to 25 randomly sampled profiles (out of 53 total), 250 times. Predictions from the 250 models were then combined and visualized below. ML horizon boundaries were derived from these data by evaluating the 5th-50th-95th percentiles of ML horizon boundaries computed within each simulation.
 
-```{r model-robustness, fig.width=10, fig.height=5}
+```{r model-robustness, fig.width=10, fig.height=5, eval=FALSE}
 # encapsulate model fitting / prediction within a single function
 f.test <- function(s.i, slice.vect, hz.names) {
 	# fit model to a subset of the original data
@@ -374,4 +375,7 @@ ddply(sim.ml, 'hz', plyr::summarize, top=paste(round(quantile(top, probs=c(0.05,
 
 ```
 
+# Conclusions
+
+# References
 
