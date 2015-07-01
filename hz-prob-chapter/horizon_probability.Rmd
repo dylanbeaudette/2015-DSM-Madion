@@ -46,7 +46,7 @@ Papers to cite:
 
 * "red clay" hz presence, logistic regression [@Evans2014296]
 
-* depth-functions [@Kempen2011]
+* depth-functions [@myers2011,@Kempen2011]
 
 * morphometrics [@Hartemink2014]
 
