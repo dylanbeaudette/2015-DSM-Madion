@@ -31,6 +31,7 @@ library(plyr)
 library(reshape)
 library(scales)
 # library(RColorBrewer)
+library(knitr)
 ```
 
 ```{r load-data}
@@ -92,11 +93,15 @@ Cr|R     15.1321     0.2652   57.05
 ```
 
 
-## Sample Data Set
+# Material and methods
 
-A collection of (`r length(loafercreek)`) soil profiles from the Sierra Foothill region of California were used to demonstrate two approaches for determining aggregate representation of genetic horizon boundaries. These soil profiles represent some of the data that have been "correlated" to the [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series. These data are included within the **soilDB** package for R.
 
-```{r plot-data, fig.width=10, fig.height=5}
+## Soil profile data
+
+A collection of (`r length(loafercreek)`) soil profiles from the Sierra Foothill region of California were used to demonstrate two approaches for determining aggregate representation of genetic horizon boundaries. [INSERT DESCRIPTION OF RAINFALL, LOCATION, ETC] 
+These soil profiles represent some of the data that have been "correlated" to the [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series. These data are included within the **soilDB** package for R [@beaudette2015].
+
+```{r plot-data, fig.width=10, fig.height=5, echo=FALSE, fig.cap='Collection of soil profiles from the Loafercreek soil serie used to illustrate our approach. The colour of each horizon is a RGB dpiction of the Munsell colour recorded on the profile. '}
 # discreet colors used to plot horizon probability depth-functions
 cols <- c(grey(0.33), 'goldenrod4', 'orange', 'orangered', 'chocolate', 'green', 'blue')
 
@@ -105,16 +110,16 @@ par(mar=c(0,0,0,0))
 plot(loafercreek[sample(1:length(loafercreek), 15), ], name='hzname', id.style='side', cex.names=0.9)
 ```
 
-# Methods
-
 ## Horizon Generalization
 
-Generalized horizon labels (GHL) represent an expert-guided selection of generalized horizon designations that were consistently observed in the field, and meaningful in terms of soil morphology and management.  These designations were determine to convey the "morphologic story" or conceptual framework of most-likely horizons typically observed in soil of the Loafercreek soil series. The Official Series Description (OSD) of the Loafercreek series typical pedon and range in characteristics defines this soil series concept.
+Generalized horizon labels (GHL) represent an expert-guided selection of generalized horizon designations that were consistently observed in the field, and meaningful in terms of soil morphology and management [REFERENCE TO THE NRCS SOIL SURVEY GUIDE??].  These designations were determine to convey the "morphologic story" or conceptual framework of most-likely horizons typically observed in a suite of soil profiles. The Official Series Description (OSD, [REFERENCE]) of the Loafercreek series typical pedon and range in characteristics defines this soil series concept.
 
-```{r eval-horizonation, fig.width=10, fig.height=5, echo=FALSE}
+```{r table-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='FIGURE LEGEND'}
 # check on existing horizonation
-sort(table(loafercreek$hzname), decreasing=TRUE)
+barplot(sort(table(loafercreek$hzname), decreasing=TRUE), ylab = "Number of horizons")
+```
 
+```{r eval-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='FIGURE LEGEND'}
 # graphical range in horizon mid-point, sorted by class-wise median depth
 loafercreek$mid <- with(horizons(loafercreek), (hzdept + hzdepb) / 2)
 hz.designation.by.median.depths <- names(sort(tapply(loafercreek$mid, loafercreek$hzname, median)))
@@ -125,18 +130,20 @@ bwplot(mid ~ factor(hzname, levels=hz.designation.by.median.depths), data=horizo
 })
 ```
 
+Once a set of GHL have been determined (```r c('A','BA','Bt1','Bt2','Bt3','Cr','R')```), a corresponding set of regular expression (REGEX) rules were developed to map the field-described designations into generalized designations. This process typically requires expert-guided review of: 1) regional patterns in horizonation style, 2) morphologic property differences by groups of field-described designation, and, 3) patterns of horizonation and properties with depth. The expert's field experience is thus preserved within the vector of REGEX rules. 
 
-Once a set of generalized horizons, via GHL, have been determined (```r c('A','BA','Bt1','Bt2','Bt3','Cr','R')```), a corresponding set of regular expression (REGEX) rules were developed to map the field-described designations into generalized designations. This process typically requires expert-guided review of: 1) regional patterns in horizonation style, 2) morphologic property differences by groups of field-described designation, and, 3) patterns of horizonation and properties with depth. The expert's field experience is thus preserved within the vector of REGEX rules. 
-
-```{r generalize-hz-names, fig.width=15, fig.height=4}
+```{r generalize-hz-names-tbl, results='asis', echo=FALSE}
 ## generalize horizon names using REGEX rules
 n <- c('A','BA','Bt1','Bt2','Bt3','Cr','R')
 p <- c('^A$|Ad|Ap|^ABt$','AB$|BA$|Bw', 'Bt1$|^Bt$|^B$','^Bt2$','^Bt3|^Bt4|CBt$|BCt$|2Bt|2CB$|^C$','Cr','R')
 loafercreek$genhz <- generalize.hz(loafercreek$hzname, n, p)
 
 # check unclassified names
-table(loafercreek$genhz, loafercreek$hzname)
+tbl <- table(loafercreek$genhz, loafercreek$hzname)
+kable(tbl, caption = "This table is a bit of a mouthful")
+```
 
+```{r generalize-hz-names, fig.width=15, fig.height=4, echo=FALSE}
 # remove non-matching generalized horizon names
 loafercreek$genhz[loafercreek$genhz == 'not-used'] <- NA
 loafercreek$genhz <- factor(loafercreek$genhz)
