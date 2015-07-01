@@ -138,9 +138,13 @@ n <- c('A','BA','Bt1','Bt2','Bt3','Cr','R')
 p <- c('^A$|Ad|Ap|^ABt$','AB$|BA$|Bw', 'Bt1$|^Bt$|^B$','^Bt2$','^Bt3|^Bt4|CBt$|BCt$|2Bt|2CB$|^C$','Cr','R')
 loafercreek$genhz <- generalize.hz(loafercreek$hzname, n, p)
 
-# check unclassified names
-tbl <- table(loafercreek$genhz, loafercreek$hzname)
-kable(tbl, caption = "This table is a bit of a mouthful")
+# full cross-tab of GHL vs. original designations
+cross.tab <- table(loafercreek$genhz, loafercreek$hzname)
+# get top-N columns, not including "not-used" row
+top.hz <- order(apply(cross.tab[1:length(n), ], 2, sum), decreasing = TRUE)[1:15]
+
+# truncated cross-tabulation
+kable(cross.tab[, top.hz], caption = "Generalized Horizon Labels vs. Horizon Designations (truncated counts)")
 ```
 
 ```{r generalize-hz-names, fig.width=15, fig.height=4, echo=FALSE}
@@ -151,8 +155,8 @@ loafercreek$genhz <- factor(loafercreek$genhz)
 # keep track of generalized horizon names for later
 hz.names <- levels(loafercreek$genhz)
 
+## optionally sort-by GHL probabilities, see related presentation
 # plot generalized horizons via color, sorted by depth
-  
 loafercreek$genhz.soil_color <- cols[match(loafercreek$genhz, hz.names)]
 new.order <- order(profileApply(loafercreek, max))
 par(mar=c(0,0,0,0))
@@ -202,13 +206,12 @@ a.1.long <- melt(a.1, id.vars='top', measure.vars=hz.names)
 ## check assumptions of PO model: pp. 351 in (Harell, 2001)
 plot.xmean.ordinaly(genhz ~ hzdept, data=horizons(s))
 
-
 # proportional-odds logistics regression: fits well, ignore standard errors
 # using sliced data properly weights observations... but creates optimistic SE
 # rcs required when we include depths > 100 cm...
 # should we use penalized PO-LR? see pentrace()
 dd <- datadist(horizons(s)) ; options(datadist="dd")
-(l.genhz <- orm(genhz ~ rcs(hzdept), data=horizons(s), x=TRUE, y=TRUE))
+(l.genhz <- lrm(genhz ~ rcs(hzdept), data=horizons(s), x=TRUE, y=TRUE))
 
 # predict along same depths: columns are the class-wise probability
 # fitted.ind --> return all probability estimates
