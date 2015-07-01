@@ -227,6 +227,10 @@ p.long <- melt(p, id.vars='top', measure.vars=hz.names)
 
 # Results
 
+## Horizon labels generalisation
+
+## Aggregation of horizon labels by slicing
+
 ```{r viz-results, fig.width=10, fig.height=8}
 # combine sliced data / predictions
 g <- make.groups(sliced.mode.1 = a.1.long, PO.model = p.long)
