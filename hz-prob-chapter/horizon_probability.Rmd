@@ -34,64 +34,28 @@ library(scales)
 library(knitr)
 ```
 
-```{r load-data}
+```{r load-data, echo=FALSE}
 # load sample data
 data(loafercreek, package = 'soilDB')
 ```
-
-
-# Meta-Stuff
-
-Papers to cite:
-* horizon thickness [@Vanwalleghem2010]
-
-* "red clay" hz presence, logistic regression [@Evans2014296]
-
-* depth-functions [@myers2011,@Kempen2011]
-
-* morphometrics [@Hartemink2014]
 
 # Introduction
 
 Published soil survey reports typically describe soils in terms of *aggregate* information, *ie* soil properties, interpretations, and limitations that are based on a collection of field-described soil profiles. While aggregate soil properties are readily estimated via standard statistical functions (mean, median, etc.), an aggregate representation of *horizonation* (e.g. genetic horizon designation and depth) is typically difficult to construct [@beaudette2013]. Variation in horizon designation "style" among different soil scientists, changes in horizon designation standards over time, variable depths at which genetic horizons occur, and the possible lack of a specific genetic horizon are all factors that complicate the process of delivering an aggregate representation of horizonation. 
 
-## Ideas:
-
 * Horizonation as assessed by soil scientists is somewhat subjective, and there is always some error associated with it. This error is rarely acknowledged: boundaries between horizons, expressed as horizon depths, are generally considered as "crisp" numbers, while in actuality they represent "fuzz" numbers. 
 * At this stage of the introduction it would be good to explain how traditional aggregates (mean, etc) only gets you so far. Soil profile is a fundamental object for the understanding of soil processes, so it's important to come up w/ statistical/quantitative aggregate for these. Link this with importance of pedological understanding of soil, and with making a truly useful product out of soil survey data. 
+
+Papers to cite:
+
+* horizon thickness [@Vanwalleghem2010]
+* "red clay" hz presence, logistic regression [@Evans2014296]
+* depth-functions [@myers2011,@Kempen2011]
+* morphometrics [@Hartemink2014]
 
 We demonstrate two possible methods for aggregating a collection of soil profiles into "synthetic profiles"; describing depth-wise probability functions for each genetic horizon. Both methods rely on an expert-guided description of generalized horizon designation (e.g. horizon designations that are deemed representative) along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. Specialized classes for soil profile collections and depth-slicing algorithms are implemented in the [aqp](http://cran.at.r-project.org/web/packages/aqp/index.html) package for R [C&G reference here].
 
 * examples: http://www.stat.ufl.edu/~aa/ordinal/R_examples.pdf
-
-### Issues to be resolved
-* estimation of confidence intervals via GAMM ? [ideas here](http://www.fromthebottomoftheheap.net/2014/06/16/simultaneous-confidence-intervals-for-derivatives/)
-
-* how can we simulate from a model developed by `orm()`? See `stats:::simulate.lm` for ideas.
-
-* are we violating any assumptinos of PO logistic regression ? [ideas](http://www.ats.ucla.edu/stat/r/dae/ologit.htm) and [more info](http://www.kenbenoit.net/courses/ME104/ME104_Day8_CatOrd.pdf)
-
-* how can we accomodate the lower effective DF due to massive autocorrelation within "sliced" data? (GEE approach as suggested by Frank Harrell)
-
-* does it make more sense to use the original horizons, and then add thickness weights-- or use the sliced data? I like the slicing approach, but it does give unreasonably small standard error estimates for coefficients.
-
-* use of ordered factors does not change the results of `orm()` and `slab()` barfs with them.
-
-* slice-wise eval of predicted genhz via [Brier Score](http://en.wikipedia.org/wiki/Brier_score#cite_note-Brier-1), or even better: `verification::rps()` for ranked probability scores
-
-* [this method](http://cran.r-project.org/web/packages/ordinal/vignettes/clm_intro.pdf) gives identical models to `orm()`, however the `ordinal` package has some additional features. It is not clear how the "threshold coefficients" could be used:
-
-```
-Threshold coefficients:
-        Estimate Std. Error z value
-A|BA      1.3081     0.1002   13.06
-BA|Bt1    2.0080     0.1044   19.24
-Bt1|Bt2   6.1038     0.1906   32.03
-Bt2|Bt3   9.8494     0.2398   41.07
-Bt3|Cr   12.3512     0.2515   49.10
-Cr|R     15.1321     0.2652   57.05
-```
-
 
 # Material and methods
 
