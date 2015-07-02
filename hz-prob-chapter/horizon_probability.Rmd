@@ -110,9 +110,9 @@ hz.names <- levels(loafercreek$genhz)
 
 Generalized horizon labels (GHL) represent an expert-guided selection of generalized horizon designations that were consistently observed in the field, and meaningful in terms of soil morphology and management [REFERENCE TO THE NRCS SOIL SURVEY GUIDE??].  
 These designations were determine to convey the "morphologic story" or conceptual framework of most-likely horizons typically observed in a suite of soil profiles. 
-The Official Series Description (OSD, [REFERENCE]) of the Loafercreek series typical pedon and range in characteristics defines this soil series concept. 
+The Official Series Description (OSD, [https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html]) of the Loafercreek series typical pedon and range in characteristics defines this soil series concept. 
 
-Once a set of GHL have been determined (```r print(n)```), a corresponding set of regular expression (REGEX) rules were developed to map the field-described designations into generalized designations. 
+Once a set of GHL have been determined (```r c('Oi', 'A','BA','Bt1','Bt2','Bt3','Cr','R')```), a corresponding set of regular expression (REGEX) rules were developed to map the field-described designations into generalized designations. 
 This process typically requires expert-guided review of: 1) regional patterns in horizonation style, 2) morphologic property differences by groups of field-described designation, and, 3) patterns of horizonation and properties with depth. 
 The expert's field experience is thus preserved within the vector of REGEX rules. 
 
@@ -145,7 +145,7 @@ proportional-odds (PO) logistic regression
 $$ P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
 Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accommodate non-linearity.
 
-```{r pro-po-model, echo=FALSE, cache=TRUE}
+```{r pro-po-model, echo=FALSE, cache=TRUE, results='hide'}
 # proportional-odds logistics regression: fits well, ignore standard errors
 # using sliced data properly weights observations... but creates optimistic SE
 # rcs required when we include depths > 100 cm...
