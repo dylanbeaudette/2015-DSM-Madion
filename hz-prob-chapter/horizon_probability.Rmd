@@ -171,8 +171,8 @@ p.long <- melt(p, id.vars='top', measure.vars=hz.names)
 g <- make.groups(sliced.mode.1 = a.long, PO.model = p.long)
 g$which <- factor(g$which, labels=c('empirical probabilities', 'PO-logistic regression'))
 
-# remove P(hz) < 0.5%
-g$value[which(g$value < 0.005)] <- NA
+# remove P(hz) < 1%
+g$value[which(g$value < 0.01)] <- NA
 
 ## compute ML horizons by slice
 
@@ -290,11 +290,6 @@ $B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and 
 
 ## Horizon labels generalisation
 
-```{r fig-horizonation, fig.width=6, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
-# check on existing horizonation
-barplot(sort(table(loafercreek$hzname), decreasing=TRUE), ylab = "Number of horizons", cex.names=0.5)
-```
-
 ```{r fig-eval-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
 hz_lfc <- horizons(loafercreek)
 hz_ordered <- c('Oi', 'Ap', 'A', 'Ad', 'ABt', 'AB', 'BA', 'Bw', 'Bt1', 'B', 'Bt', 'Bt2', '2Bt2', '2Bt3', 'CBt', '2BCt', 'Bt3', 'C', '2CB', 'Bt4', '2Bt4', 'BCt', 'Cr', 'Crt', '2Crt', '2Cr', 'Rt', 'R', '2R')
@@ -329,14 +324,7 @@ legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
 
 ## Aggregation of horizon labels by slicing
 
-```{r fig-slicing-results, fig.width=10, fig.height=6, echo=FALSE, fig.cap='CAPTION ME'}
-# graphical check: profiles 1:15, top 25 slices
-opar <- par()
-par(mfrow=c(2,1), mar=c(0,0,0,0))
-plot(loafercreek[1:15, 1:25], name='genhz', id.style='side', cex.names=0.9)
-plot(s[1:15, 1:25], name='genhz', id.style='side', cex.names=0.9)
-par(opar)
-```
+
 
 ```{r fig-genhz-depths, fig.width=10, fig.height=8, echo=FALSE, fig.cap='CAPTION ME'}
 # plot depth-ranges of generalized horizon slices
@@ -358,22 +346,30 @@ plot.xmean.ordinaly(genhz ~ hzdept, data=horizons(s))
 print(l.genhz)
 ```
 
-```{r fig-ml-hz-boundaries, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME'}
-p.1 <- xyplot(top ~ value | variable, groups=which, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(columns=2, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(superpose.line=list(lwd=1, lty=1, col=c('blue','black','red'))), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
-	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
-	panel.xyplot(...)
-})
 
-# add hz-boundaries by slicing vs. PO model
-p.1 + latticeExtra::layer(panel.text(x=1, y=a.ml$top[-1], label=expression(symbol("\254")), col='blue', cex=1)) + latticeExtra::layer(panel.text(x=1, y=p.ml$top[-1], label=expression(symbol("\254")), col='red', cex=1))
-```
 
-```{r fig-ml-hz-boundaries-2, fig.width=5, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME'}
+```{r fig-compare-genzh-probability-depth-functions, fig.width=10, fig.height=7, echo=FALSE, fig.cap = 'CAPTION ME'}
 # compare slicing vs. PO-LR
 xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=2, title='GHL'), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1), layout.heights=list(strip=1.5)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(par.strip.text=list(cex=1.5), bg=grey(0.85)), asp=1.5, panel=function(...) {
   panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
   panel.xyplot(...)
 })
+```
+
+```{r fig-quantify-uncertainty, fig.width=10, fig.height=7, echo=FALSE, fig.cap = 'CAPTION ME'}
+# copy our predictions and adjust GHL labels to include brier scores
+p.long.copy <- p.long 
+# larger values -> predictions are less consistently correct
+# merge BS with genhz labels
+lab.text <- sprintf("%.3f %s", p.bs$brier.score, p.bs$genhz)
+p.long.copy$variable <- factor(p.long.copy$variable, labels=lab.text)
+
+p.1 <- xyplot(top ~ value, groups=variable, data=p.long.copy, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=1.75, title='Brier Scores'), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability | Shannon Entropy', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), asp=1.5, panel=function(...) {
+  panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
+  panel.xyplot(...)
+})
+
+p.1 + as.layer(xyplot(0:150 ~ shannon.h, type='l', lty=2, lwd=2, col='black'))
 ```
 
 ```{r tbl-ml-hz-boundaries, echo=FALSE, results='asis'}
@@ -390,13 +386,7 @@ kable(hz_bnd_tbl, digits = 2, caption = 'CAPTION ME')
 kable(p.bs, digits = 2, caption = "CAPTION ME")
 ```
 
-```{r fig-brier-scores, fig.width=10, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
-# make plot of jittered slice-depths vs. fake probability, colored by genhz label
-p.3 <- xyplot(jitter(hzdept) ~ jitter(fake.prob, factor=2), groups=genhz, data=p.s, cex=0.25, pch=15, par.settings=list(superpose.symbol=list(col=alpha(cols, 0.5))))
 
-# combine with model output
-p.2 + p.3
-```
 
 ## Model Stability
 

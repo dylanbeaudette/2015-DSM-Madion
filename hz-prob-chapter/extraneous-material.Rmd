@@ -26,6 +26,38 @@ Bt3|Cr   12.3512     0.2515   49.10
 Cr|R     15.1321     0.2652   57.05
 ```
 
+```{r fig-horizonation, fig.width=6, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
+# check on existing horizonation
+barplot(sort(table(loafercreek$hzname), decreasing=TRUE), ylab = "Number of horizons", cex.names=0.5)
+```
+
+```{r fig-slicing-results, fig.width=10, fig.height=6, echo=FALSE, fig.cap='CAPTION ME'}
+# graphical check: profiles 1:15, top 25 slices
+opar <- par()
+par(mfrow=c(2,1), mar=c(0,0,0,0))
+plot(loafercreek[1:15, 1:25], name='genhz', id.style='side', cex.names=0.9)
+plot(s[1:15, 1:25], name='genhz', id.style='side', cex.names=0.9)
+par(opar)
+```
+
+```{r fig-ml-hz-boundaries, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME'}
+p.1 <- xyplot(top ~ value | variable, groups=which, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(columns=2, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(superpose.line=list(lwd=1, lty=1, col=c('blue','black','red'))), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
+  panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
+	panel.xyplot(...)
+})
+
+# add hz-boundaries by slicing vs. PO model
+p.1 + latticeExtra::layer(panel.text(x=1, y=a.ml$top[-1], label=expression(symbol("\254")), col='blue', cex=1)) + latticeExtra::layer(panel.text(x=1, y=p.ml$top[-1], label=expression(symbol("\254")), col='red', cex=1))
+```
+
+```{r fig-brier-scores, fig.width=10, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
+# make plot of jittered slice-depths vs. fake probability, colored by genhz label
+p.3 <- xyplot(jitter(hzdept) ~ jitter(fake.prob, factor=2), groups=genhz, data=p.s, cex=0.25, pch=15, par.settings=list(superpose.symbol=list(col=alpha(cols, 0.5))))
+
+# combine with model output
+p.2 + p.3
+```
+
 
 ### Simulation from GHL Probabilities [this doesn't work, consider leaving out]
 ```{r simulation-from-model, fig.width=10, fig.height=5}
