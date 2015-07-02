@@ -46,6 +46,8 @@ Published soil survey reports typically describe soils in terms of *aggregate* i
 * Horizonation as assessed by soil scientists is somewhat subjective, and there is always some error associated with it. This error is rarely acknowledged: boundaries between horizons, expressed as horizon depths, are generally considered as "crisp" numbers, while in actuality they represent "fuzz" numbers. 
 * At this stage of the introduction it would be good to explain how traditional aggregates (mean, etc) only gets you so far. Soil profile is a fundamental object for the understanding of soil processes, so it's important to come up w/ statistical/quantitative aggregate for these. Link this with importance of pedological understanding of soil, and with making a truly useful product out of soil survey data. 
 
+We demonstrate two possible methods for aggregating a collection of soil profiles into "synthetic profiles"; describing depth-wise probability functions for each genetic horizon. Both methods rely on an expert-guided description of generalized horizon designation (e.g. horizon designations that are deemed representative) along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. Specialized classes for soil profile collections and depth-slicing algorithms are implemented in the [aqp](http://cran.at.r-project.org/web/packages/aqp/index.html) package for R [C&G reference here].
+
 Papers to cite:
 
 * horizon thickness [@Vanwalleghem2010]
@@ -53,26 +55,16 @@ Papers to cite:
 * depth-functions [@myers2011,@Kempen2011]
 * morphometrics [@Hartemink2014]
 
-We demonstrate two possible methods for aggregating a collection of soil profiles into "synthetic profiles"; describing depth-wise probability functions for each genetic horizon. Both methods rely on an expert-guided description of generalized horizon designation (e.g. horizon designations that are deemed representative) along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. Specialized classes for soil profile collections and depth-slicing algorithms are implemented in the [aqp](http://cran.at.r-project.org/web/packages/aqp/index.html) package for R [C&G reference here].
+Other:
 
 * examples: http://www.stat.ufl.edu/~aa/ordinal/R_examples.pdf
 
 # Material and methods
 
-
 ## Soil profile data
 
 A collection of (`r length(loafercreek)`) soil profiles from the Sierra Foothill region of California were used to demonstrate two approaches for determining aggregate representation of genetic horizon boundaries. [INSERT DESCRIPTION OF RAINFALL, LOCATION, ETC] 
 These soil profiles represent some of the data that have been "correlated" to the [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series. These data are included within the **soilDB** package for R [@beaudette2015].
-
-```{r plot-data, fig.width=10, fig.height=5, echo=FALSE, fig.cap='Collection of soil profiles from the Loafercreek soil serie used to illustrate our approach. The colour of each horizon is a RGB dpiction of the Munsell colour recorded on the profile. '}
-# discreet colors used to plot horizon probability depth-functions
-cols <- c(grey(0.33), 'goldenrod4', 'orange', 'orangered', 'chocolate', 'green', 'blue')
-
-# graphical check: sample 15
-par(mar=c(0,0,0,0))
-plot(loafercreek[sample(1:length(loafercreek), 15), ], name='hzname', id.style='side', cex.names=0.9)
-```
 
 ## Horizon Generalization
 
