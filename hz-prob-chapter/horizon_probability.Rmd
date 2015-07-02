@@ -1,5 +1,16 @@
 ---
-output: html_document
+title: "Aggregate Representation of Genetic Soil Horizons"
+author: D.E. Beaudette, P. Roudier and J.M. Skovlin
+fontsize: 11pt
+output:
+  html_document:
+    fig_caption: yes
+    number_sections: yes
+    theme: journal
+  pdf_document:
+    fig_caption: yes
+  word_document:
+    fig_caption: yes
 bibliography: bibliography.bib
 ---
 
@@ -12,11 +23,7 @@ opts_chunk$set(message=FALSE, warning=FALSE, background='#F7F7F7', dpi=100, fig.
 options(width=100, stringsAsFactors=FALSE)
 ```
 
-# Aggregate Representation of Genetic Soil Horizons
-
-D.E. Beaudette, P. Roudier, J.M. Skovlin
-
-## Abstract
+# Abstract
 
 Published soil survey reports typically describe soils in terms of aggregate information: soil properties, interpretations, and limitations that are based on a collection of field-described soil profiles. While aggregate soil properties are readily estimated via standard statistical functions (mean, median, etc.), an aggregate representation of horizonation (e.g. genetic or functional horizon designation and depth) is typically difficult to construct. Variation in horizon designation among different soil scientists and different soil description systems, changes in horizon designation standards over time, variable depths at which horizons occur, and the various uncertainties associated with these are all factors that complicate the process of delivering an aggregate representation of horizonation.
 In this paper we propose alternatives to the typical "representative profile"-- e.g. the selection of a single soil profile to represent a collection. Two possible methods for aggregating a collection of soil profiles into synthetic profiles are presented, describing depth-wise probability functions for each horizon. Both methods rely on an expert-guided description of generalized horizon designation (e.g. a subset of horizon designation labels that convey a reasonable "morphologic story") along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. These methods are demonstrated using USDA-NRCS soil survey data (USA), based on genetic horizons, and on S-Map soil survey data (NZ), based on functional horizons.
@@ -34,7 +41,7 @@ library(scales)
 library(knitr)
 ```
 
-```{r load-data, echo=FALSE}
+```{r data, echo=FALSE}
 # load sample data
 data(loafercreek, package = 'soilDB')
 
@@ -76,15 +83,14 @@ These data are included within the **soilDB** package for R [@beaudette2015].
 
 ## Horizon Generalization
 
-```{r generalization, echo=FALSE, results='hide'}
+```{r pro-genz, echo=FALSE, results='hide', cache=TRUE}
 # graphical range in horizon mid-point, sorted by class-wise median depth
 loafercreek$mid <- with(horizons(loafercreek), (hzdept + hzdepb) / 2)
 hz.designation.by.median.depths <- names(sort(tapply(loafercreek$mid, loafercreek$hzname, median)))
 
-## generalize horizon names using REGEX rules
+# generalize horizon names using REGEX rules
 n <- c('A','BA','Bt1','Bt2','Bt3','Cr','R')
 p <- c('^A$|Ad|Ap|^ABt$','AB$|BA$|Bw', 'Bt1$|^Bt$|^B$','^Bt2$','^Bt3|^Bt4|CBt$|BCt$|2Bt|2CB$|^C$','Cr','R')
-
 loafercreek$genhz <- generalize.hz(loafercreek$hzname, n, p)
 
 # remove non-matching generalized horizon names
@@ -105,7 +111,7 @@ Once a set of GHL have been determined (```r c('A','BA','Bt1','Bt2','Bt3','Cr','
 
 Slicing and slice-wise evaluation of horizon probability described in [AQP: A Toolkit for Soil Scientists](10.1016/j.cageo.2012.10.020).
 
-```{r slice-data, fig.width=10, fig.height=5}
+```{r pro-slice, echo=FALSE, cache=TRUE}
 # slice out color and horzizon name into 1cm intervals: no aggregation
 max.depth <- 150
 slice.resolution <- 1
@@ -114,19 +120,6 @@ s <- slice(loafercreek, slice.vect ~ soil_color + genhz)
 
 # convert horizon name to factor
 s$genhz <- factor(s$genhz, levels = hz.names)
-
-# check horizon proportions at select slices (in this case the first 5 slices)
-sapply(1:5, function(i) { round(prop.table(table(s[, i]$genhz)), 3) })
-
-# graphical check: profiles 1:15, top 25 slices
-par(mar=c(0,0,0,0))
-plot(s[1:15, 1:25], name='genhz', id.style='side', cex.names=0.9)
-
-# plot depth-ranges of generalized horizon slices
-bwplot(hzdept ~ genhz, data=horizons(s), ylim=c(155, -5), ylab='Generalized Horizon Depth (cm)', scales=list(y=list(tick.number=10)), asp=1, panel=function(...) {
-	panel.abline(h=seq(0, 140, by=10), v=1:length(hz.names),col=grey(0.8), lty=3)
-	panel.bwplot(...)
-})
 
 # compute slice-wise probability: slice-wise P always sum to 1
 # BUG: this doesn't work with ordered factors
@@ -139,16 +132,13 @@ a.1.long <- melt(a.1, id.vars='top', measure.vars=hz.names)
 
 ## Horizon Aggregation by Proportional-Odds Model
 
-```{r po-model, fig.width=5, fig.height=5}
-## check assumptions of PO model: pp. 351 in (Harell, 2001)
-plot.xmean.ordinaly(genhz ~ hzdept, data=horizons(s))
-
+```{r pro-po-model, echo=FALSE, cache=TRUE}
 # proportional-odds logistics regression: fits well, ignore standard errors
 # using sliced data properly weights observations... but creates optimistic SE
 # rcs required when we include depths > 100 cm...
 # should we use penalized PO-LR? see pentrace()
 dd <- datadist(horizons(s)) ; options(datadist="dd")
-(l.genhz <- lrm(genhz ~ rcs(hzdept), data=horizons(s), x=TRUE, y=TRUE))
+l.genhz <- lrm(genhz ~ rcs(hzdept), data=horizons(s), x=TRUE, y=TRUE)
 
 # predict along same depths: columns are the class-wise probability
 # fitted.ind --> return all probability estimates
@@ -162,74 +152,13 @@ p$top <- slice.vect
 
 # melt to long format for plotting
 p.long <- melt(p, id.vars='top', measure.vars=hz.names)
-```
 
-
-# Results
-
-## Horizon labels generalisation
-
-```{r table-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='FIGURE LEGEND'}
-# check on existing horizonation
-barplot(sort(table(loafercreek$hzname), decreasing=TRUE), ylab = "Number of horizons")
-```
-
-```{r eval-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='FIGURE LEGEND'}
-bwplot(mid ~ factor(hzname, levels=hz.designation.by.median.depths), data=horizons(loafercreek), ylim=c(155, -5), ylab='Horizon Mid-Point Depth (cm)', scales=list(y=list(tick.number=10)), panel=function(...) {
-	panel.abline(h=seq(0, 140, by=10), v=1:length(hz.designation.by.median.depths), col=grey(0.8), lty=3)
-	panel.bwplot(...)
-})
-```
-
-```{r generalize-hz-names-tbl, results='asis', echo=FALSE}
-# full cross-tab of GHL vs. original designations
-cross.tab <- table(loafercreek$genhz, loafercreek$hzname)
-# get top-N columns, not including "not-used" row
-top.hz <- order(apply(cross.tab[1:length(n), ], 2, sum), decreasing = TRUE)[1:15]
-# truncated cross-tabulation
-kable(cross.tab[, top.hz], caption = "Generalized Horizon Labels vs. Horizon Designations (truncated counts)")
-```
-
-```{r generalize-hz-names, fig.width=15, fig.height=4, echo=FALSE}
-## optionally sort-by GHL probabilities, see related presentation
-# plot generalized horizons via color, sorted by depth
-loafercreek$genhz.soil_color <- cols[match(loafercreek$genhz, hz.names)]
-new.order <- order(profileApply(loafercreek, max))
-par(mar=c(0,0,0,0))
-plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, plot.order=new.order)
-legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
-```
-
-## Aggregation of horizon labels by slicing
-
-```{r viz-results, fig.width=10, fig.height=8}
 # combine sliced data / predictions
 g <- make.groups(sliced.mode.1 = a.1.long, PO.model = p.long)
 
 # remove P(hz) < 1%
 g$value[which(g$value < 0.01)] <- NA
 
-# plot all three methods using panels
-p.1 <- xyplot(top ~ value | variable, groups=which, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(columns=2, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(superpose.line=list(lwd=1, lty=1, col=c('blue','black','red'))), layout=c(7,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
-	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
-	panel.xyplot(...)
-})
-
-p.2 <- xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(columns=4, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), layout=c(2,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), asp=2, panel=function(...) {
-	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
-	panel.xyplot(...)
-})
-
-# p.3 <- levelplot(value ~ variable * top | which, data=g, ylim=c(155, -5), col.regions=cols.simple, cuts=n.cuts, scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), asp=2, panel=function(...) {
-# 	panel.abline(h=seq(0, 140, by=10), v=1:length(hz.names), col=grey(0.5), lty=3)
-# 	panel.levelplot(...)
-# })
-```
-
-
-## ML Horizon boundaries
-
-```{r ml-hz-boundaries, fig.width=10, fig.height=5}
 ## compute ML horizons by slice
 ## note that P(hz) sums to 1 with mode=1 and PO-model
 
@@ -237,21 +166,6 @@ p.2 <- xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155
 a.1.ml <- get.ml.hz(a.1, hz.names)
 p.ml <- get.ml.hz(p, hz.names)
 
-# add hz-boundaries by slicing vs. PO model
-p.1 + latticeExtra::layer(panel.text(x=1, y=a.1.ml$top[-1], label=expression(symbol("\254")), col='blue', cex=1)) + latticeExtra::layer(panel.text(x=1, y=p.ml$top[-1], label=expression(symbol("\254")), col='red', cex=1))
-
-# plot via groups with lines
-print(p.2)
-# # plot via shading: 
-# print(p.3)
-
-# print hz boundary tables
-cbind(a.1.ml, p.ml)
-```
-
-
-## Brier Score Evaluation of ML Horizon Labels
-```{r brier-scores, fig.width=10, fig.height=5}
 # generate NA-free values/predictions for Brier Score calc
 s.sub <- horizons(s)[, c('genhz', 'hzdept')]
 p.s  <- data.frame(predict(l.genhz, s.sub, type='fitted.ind'))
@@ -286,25 +200,15 @@ names(p.bs) <- c('genhz', 'brier.score')
 # remove NAs from table
 p.bs <- na.omit(p.bs)
 
-# larger values -> predictions are less consistently correct
-print(p.bs)
-
 # add fake prob for plotting along x-axis of depth vs. prob
 p.s$fake.prob <- 1.1
-
-# make plot of jittered slice-depths vs. fake probability, colored by genhz label
-p.3 <- xyplot(jitter(hzdept) ~ jitter(fake.prob, factor=2), groups=genhz, data=p.s, cex=0.25, pch=15, par.settings=list(superpose.symbol=list(col=alpha(cols, 0.5))))
-
-# combine with model output
-p.2 + p.3
 ```
- 
 
+## Model stability
 
-## Model Stability
-PO-model stability was evaluated by repeatedly re-fitting a model to 25 randomly sampled profiles (out of 53 total), 250 times. Predictions from the 250 models were then combined and visualized below. ML horizon boundaries were derived from these data by evaluating the 5th-50th-95th percentiles of ML horizon boundaries computed within each simulation.
+PO-model stability was evaluated by repeatedly re-fitting a model to 25 randomly sampled profiles (out of 53 total), 250 times. ML horizon boundaries were derived from these data by evaluating the 5th-50th-95th percentiles of ML horizon boundaries computed within each simulation.
 
-```{r model-robustness, fig.width=10, fig.height=5, eval=FALSE}
+```{r pro-model-robustness, echo=FALSE, cache=TRUE}
 # encapsulate model fitting / prediction within a single function
 f.test <- function(s.i, slice.vect, hz.names) {
 	# fit model to a subset of the original data
@@ -318,8 +222,10 @@ f.test <- function(s.i, slice.vect, hz.names) {
 	p <- data.frame(predict(l.genhz, data.frame(hzdept=slice.vect), type='fitted.ind'))
 	names(p) <- hz.names
 	p$top <- slice.vect
+	
 	p.long <- melt(p, id.vars='top', measure.vars=hz.names)
 	mdi <- l.genhz$stats['R2']
+	
 	return(list(predictions=p.long, model.disc.index=mdi))
 }
 
@@ -343,17 +249,135 @@ d.res$value[which(d.res$value < 0.01)] <- NA
 
 # extract model discrimination index
 res.mdi <- unlist(sapply(l.res, function(i) i$model.disc.index))
+```
 
+# Results
+
+## Horizon labels generalisation
+
+```{r fig-horizonation, fig.width=6, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
+# check on existing horizonation
+barplot(sort(table(loafercreek$hzname), decreasing=TRUE), ylab = "Number of horizons")
+```
+
+```{r fig-eval-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
+bwplot(mid ~ factor(hzname, levels=hz.designation.by.median.depths), data=horizons(loafercreek), ylim=c(155, -5), ylab='Horizon Mid-Point Depth (cm)', scales=list(y=list(tick.number=10)), panel=function(...) {
+	panel.abline(h=seq(0, 140, by=10), v=1:length(hz.designation.by.median.depths), col=grey(0.8), lty=3)
+	panel.bwplot(...)
+})
+```
+
+```{r tbl-generalize-hz-names-tbl, results='asis', echo=FALSE}
+# full cross-tab of GHL vs. original designations
+cross.tab <- table(loafercreek$genhz, loafercreek$hzname)
+# get top-N columns, not including "not-used" row
+top.hz <- order(apply(cross.tab[1:length(n), ], 2, sum), decreasing = TRUE)[1:15]
+# truncated cross-tabulation
+kable(cross.tab[, top.hz], caption = "Generalized Horizon Labels vs. Horizon Designations (truncated counts)")
+```
+
+```{r fig-generalize-hz-names, fig.width=10, fig.height=6, echo=FALSE, fig.cap='CAPTION ME'}
+## optionally sort-by GHL probabilities, see related presentation
+# plot generalized horizons via color, sorted by depth
+loafercreek$genhz.soil_color <- cols[match(loafercreek$genhz, hz.names)]
+new.order <- order(profileApply(loafercreek, max))
+par(mar=c(0,0,0,0))
+plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, plot.order=new.order)
+legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
+```
+
+## Aggregation of horizon labels by slicing
+
+```{r fig-slicing-results, fig.width=10, fig.height=6, echo=FALSE, fig.cap='CAPTION ME'}
+# graphical check: profiles 1:15, top 25 slices
+opar <- par()
+par(mfrow=c(2,1), mar=c(0,0,0,0))
+plot(loafercreek[1:15, 1:25], name='genhz', id.style='side', cex.names=0.9)
+plot(s[1:15, 1:25], name='genhz', id.style='side', cex.names=0.9)
+par(opar)
+```
+
+```{r fig-genhz-depths, fig.width=10, fig.height=8, echo=FALSE, fig.cap='CAPTION ME'}
+# plot depth-ranges of generalized horizon slices
+bwplot(hzdept ~ genhz, data=horizons(s), ylim=c(155, -5), ylab='Generalized Horizon Depth (cm)', scales=list(y=list(tick.number=10)), asp=1, panel=function(...) {
+	panel.abline(h=seq(0, 140, by=10), v=1:length(hz.names),col=grey(0.8), lty=3)
+	panel.bwplot(...)
+})
+```
+
+## ML Horizon boundaries
+
+```{r fig-assumptions-po-model, echo=FALSE, fig.width=5, fig.height=5, fig.cap='CAPTION ME'}
+## check assumptions of PO model: pp. 351 in (Harell, 2001)
+plot.xmean.ordinaly(genhz ~ hzdept, data=horizons(s))
+```
+
+```{r tbl-po-model, echo=FALSE}
+# we need to find a much cleaner way to report those results!
+print(l.genhz)
+```
+
+```{r fig-ml-hz-boundaries, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME'}
+p.1 <- xyplot(top ~ value | variable, groups=which, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(columns=2, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(superpose.line=list(lwd=1, lty=1, col=c('blue','black','red'))), layout=c(7,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
+	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
+	panel.xyplot(...)
+})
+
+# add hz-boundaries by slicing vs. PO model
+p.1 + latticeExtra::layer(panel.text(x=1, y=a.1.ml$top[-1], label=expression(symbol("\254")), col='blue', cex=1)) + latticeExtra::layer(panel.text(x=1, y=p.ml$top[-1], label=expression(symbol("\254")), col='red', cex=1))
+```
+
+```{r fig-ml-hz-boundaries-2, fig.width=5, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME'}
+# plot via groups with lines
+p.2 <- xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(columns=4, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), layout=c(2,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), asp=2, panel=function(...) {
+	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
+	panel.xyplot(...)
+})
+
+print(p.2)
+```
+
+```{r tbl-ml-hz-boundaries, echo=FALSE, results='asis'}
+# print hz boundary tables
+hz_bnd_tbl <- cbind(a.1.ml, p.ml)
+names(hz_bnd_tbl) <- rep(c('Horizon', 'Top (cm)', 'Bottom (cm)', 'Confidence', 'Brier'), times = 2)
+kable(hz_bnd_tbl, digits = 2, caption = 'CAPTION ME')
+```
+
+## Brier Score Evaluation of ML Horizon Labels
+
+```{r tbl-brier-scores, echo=FALSE}
+# larger values -> predictions are less consistently correct
+kable(p.bs, digits = 2, caption = "CAPTION ME")
+```
+
+```{r fig-brier-scores, fig.width=10, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
+# make plot of jittered slice-depths vs. fake probability, colored by genhz label
+p.3 <- xyplot(jitter(hzdept) ~ jitter(fake.prob, factor=2), groups=genhz, data=p.s, cex=0.25, pch=15, par.settings=list(superpose.symbol=list(col=alpha(cols, 0.5))))
+
+# combine with model output
+p.2 + p.3
+```
+
+## Model Stability
+
+Predictions from the 250 models were then combined and visualized below. 
+
+```{r fig-model-robustness, fig.width=10, fig.height=5, echo=FALSE}
 # plot with transparency
 xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.025))), layout=c(7,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
 	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
 	panel.xyplot(...)
 })
 
-
 # plot model accuracy: not all models are equal! (in terms of quality)
-plot(density(na.omit(res.mdi)), main='Model Discrimination Index (R2)')
+# plot(density(na.omit(res.mdi)), main='Model Discrimination Index (R2)')
+#
+# (We can describe these stats uin the text as we already have quite a lot of figures)
+#
+```
 
+```{r tbl-model-robustness, echo=FALSE}
 # cast to wide format
 d.res.wide <- cast(d.res, .id + top ~ variable, value='value')
 d.res.wide$bottom <- d.res.wide$top + 1
@@ -363,8 +387,9 @@ d.res.wide$bottom <- d.res.wide$top + 1
 sim.ml <- ddply(d.res.wide, '.id', get.ml.hz, o.names=hz.names)
 
 # aggregate ML horizonation over reps
-ddply(sim.ml, 'hz', plyr::summarize, top=paste(round(quantile(top, probs=c(0.05, 0.5, 0.95))), collapse='-'), bottom=paste(round(quantile(bottom, probs=c(0.05, 0.5, 0.95))), collapse='-'), psuedo.brier=paste(round(quantile(pseudo.brier, probs=c(0.05, 0.5, 0.95)), 3), collapse='-'))
+res.robust <- ddply(sim.ml, 'hz', plyr::summarize, top=paste(round(quantile(top, probs=c(0.05, 0.5, 0.95))), collapse='-'), bottom=paste(round(quantile(bottom, probs=c(0.05, 0.5, 0.95))), collapse='-'), psuedo.brier=paste(round(quantile(pseudo.brier, probs=c(0.05, 0.5, 0.95)), 3), collapse='-'))
 
+kable(res.robust, digits = 2, caption = "CAPTION ME")
 ```
 
 # Conclusions
