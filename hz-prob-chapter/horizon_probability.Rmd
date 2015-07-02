@@ -50,7 +50,7 @@ library(knitr)
 data(loafercreek, package = 'soilDB')
 
 # discreet colors used to plot horizon probability depth-functions
-cols <- c(grey(0.33), 'goldenrod4', 'orange', 'orangered', 'chocolate', 'green', 'blue')
+cols <- c('black', grey(0.33), 'goldenrod4', 'orange', 'orangered', 'chocolate', 'green', 'blue')
 ```
 
 # Introduction
@@ -93,8 +93,8 @@ loafercreek$mid <- with(horizons(loafercreek), (hzdept + hzdepb) / 2)
 hz.designation.by.median.depths <- names(sort(tapply(loafercreek$mid, loafercreek$hzname, median)))
 
 # generalize horizon names using REGEX rules
-n <- c('A','BA','Bt1','Bt2','Bt3','Cr','R')
-p <- c('^A$|Ad|Ap|^ABt$','AB$|BA$|Bw', 'Bt1$|^Bt$|^B$','^Bt2$','^Bt3|^Bt4|CBt$|BCt$|2Bt|2CB$|^C$','Cr','R')
+n <- c('Oi', 'A','BA','Bt1','Bt2','Bt3','Cr','R')
+p <- c('O', '^A$|Ad|Ap|^ABt$','AB$|BA$|Bw', 'Bt1$|^Bt$|^B$','^Bt2$','^Bt3|^Bt4|CBt$|BCt$|2Bt|2CB$|^C$','Cr','R')
 loafercreek$genhz <- generalize.hz(loafercreek$hzname, n, p)
 
 # remove non-matching generalized horizon names
@@ -109,7 +109,7 @@ Generalized horizon labels (GHL) represent an expert-guided selection of general
 These designations were determine to convey the "morphologic story" or conceptual framework of most-likely horizons typically observed in a suite of soil profiles. 
 The Official Series Description (OSD, [REFERENCE]) of the Loafercreek series typical pedon and range in characteristics defines this soil series concept. 
 
-Once a set of GHL have been determined (```r c('A','BA','Bt1','Bt2','Bt3','Cr','R')```), a corresponding set of regular expression (REGEX) rules were developed to map the field-described designations into generalized designations. 
+Once a set of GHL have been determined (```r print(n)```), a corresponding set of regular expression (REGEX) rules were developed to map the field-described designations into generalized designations. 
 This process typically requires expert-guided review of: 1) regional patterns in horizonation style, 2) morphologic property differences by groups of field-described designation, and, 3) patterns of horizonation and properties with depth. 
 The expert's field experience is thus preserved within the vector of REGEX rules. 
 
@@ -144,7 +144,7 @@ a.1.long <- melt(a.1, id.vars='top', measure.vars=hz.names)
 # rcs required when we include depths > 100 cm...
 # should we use penalized PO-LR? see pentrace()
 dd <- datadist(horizons(s)) ; options(datadist="dd")
-l.genhz <- lrm(genhz ~ rcs(hzdept), data=horizons(s), x=TRUE, y=TRUE)
+l.genhz <- orm(genhz ~ rcs(hzdept), data=horizons(s), x=TRUE, y=TRUE)
 
 # predict along same depths: columns are the class-wise probability
 # fitted.ind --> return all probability estimates
@@ -264,7 +264,7 @@ res.mdi <- unlist(sapply(l.res, function(i) i$model.disc.index))
 
 ```{r fig-horizonation, fig.width=6, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
 # check on existing horizonation
-barplot(sort(table(loafercreek$hzname), decreasing=TRUE), ylab = "Number of horizons")
+barplot(sort(table(loafercreek$hzname), decreasing=TRUE), ylab = "Number of horizons", cex.names=0.5)
 ```
 
 ```{r fig-eval-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
@@ -325,7 +325,7 @@ print(l.genhz)
 ```
 
 ```{r fig-ml-hz-boundaries, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME'}
-p.1 <- xyplot(top ~ value | variable, groups=which, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(columns=2, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(superpose.line=list(lwd=1, lty=1, col=c('blue','black','red'))), layout=c(7,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
+p.1 <- xyplot(top ~ value | variable, groups=which, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(columns=2, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(superpose.line=list(lwd=1, lty=1, col=c('blue','black','red'))), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
 	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
 	panel.xyplot(...)
 })
@@ -372,7 +372,7 @@ Predictions from the 250 models were then combined and visualized below.
 
 ```{r fig-model-robustness, fig.width=10, fig.height=5, echo=FALSE}
 # plot with transparency
-xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.025))), layout=c(7,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
+xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.025))), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
 	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
 	panel.xyplot(...)
 })
