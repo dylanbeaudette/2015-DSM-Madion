@@ -41,7 +41,7 @@ library(rms)
 library(plyr)
 library(reshape)
 library(scales)
-# library(RColorBrewer)
+library(cluster)
 library(knitr)
 ```
 
@@ -77,9 +77,24 @@ Other:
 
 * examples: http://www.stat.ufl.edu/~aa/ordinal/R_examples.pdf
 
-# Material and methods
+# Materials and Methods
 
-## Soil profile data
+## Statistical Evaluation
+
+proportional-odds (PO) logistic regression
+$$ P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
+Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accommodate non-linearity.
+
+Shannon Entropy (H index)
+$$ H = -\sum_{i=1}^{n}{p_{i} * log_{n}(p_{i})}  $$
+$H$ is an index of uncertainty associated with predicted probabilities, $\mathbf{p}$, of encountering horizons $i$ through $n$ at some depth. Larger values suggest **more** confusion.
+
+Brier scores
+$$ B = \frac{1}{n} \sum_{i=1}^{n}{ ( p_{i} - y_{i} )^{2}  }  $$
+$B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and horizons, $\mathbf{y}$, over depth-slices $i$ through $n$ associated with a specific horizon. Larger values suggest **less** agreement between probabilities and observed horizon labels.
+
+
+## Soil Profile Data
 
 A collection of (`r length(loafercreek)`) soil profiles from the Sierra Foothill region of California were used to demonstrate two approaches for determining aggregate representation of genetic horizon boundaries. [INSERT DESCRIPTION OF RAINFALL, LOCATION, ETC] 
 These soil profiles represent some of the data that have been "correlated" to the [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series. 
@@ -129,10 +144,10 @@ s$genhz <- factor(s$genhz, levels = hz.names)
 
 # compute slice-wise probability: slice-wise P always sum to 1
 # BUG: this doesn't work with ordered factors
-a.1 <- slab(loafercreek, ~ genhz, cpm=1)
+a <- slab(loafercreek, ~ genhz, cpm=1)
 
 # convert to long-format for plotting
-a.1.long <- melt(a.1, id.vars='top', measure.vars=hz.names)
+a.long <- melt(a, id.vars='top', measure.vars=hz.names)
 ```
 
 
@@ -160,17 +175,27 @@ p$top <- slice.vect
 p.long <- melt(p, id.vars='top', measure.vars=hz.names)
 
 # combine sliced data / predictions
-g <- make.groups(sliced.mode.1 = a.1.long, PO.model = p.long)
+g <- make.groups(sliced.mode.1 = a.long, PO.model = p.long)
+g$which <- factor(g$which, labels=c('empirical probabilities', 'PO-logistic regression'))
 
-# remove P(hz) < 1%
-g$value[which(g$value < 0.01)] <- NA
+# remove P(hz) < 0.5%
+g$value[which(g$value < 0.005)] <- NA
 
 ## compute ML horizons by slice
-## note that P(hz) sums to 1 with mode=1 and PO-model
 
 # extract ML-horizon boundaries 
-a.1.ml <- get.ml.hz(a.1, hz.names)
+a.ml <- get.ml.hz(a, hz.names)
 p.ml <- get.ml.hz(p, hz.names)
+
+# generate ordering vector of loafrcreek based on GHL similarity
+a.slab.id <- slab(loafercreek, peiid ~ genhz, cpm=1)
+depths(a.slab.id) <- peiid ~ top + bottom
+d <- profile_compare(a.slab.id, vars=hz.names, max_d=140, k=0)
+h <- diana(d)
+
+# Shannon's H index for po-lr model, computed by depth-slice
+# using a log base of length(hz.names) constrains the value to 0--1
+shannon.h <- apply(p[, hz.names], 1, function(i) -sum(i*log(i, base = length(hz.names))))
 
 # generate NA-free values/predictions for Brier Score calc
 s.sub <- horizons(s)[, c('genhz', 'hzdept')]
@@ -284,12 +309,10 @@ kable(cross.tab[, top.hz], caption = "Generalized Horizon Labels vs. Horizon Des
 ```
 
 ```{r fig-generalize-hz-names, fig.width=10, fig.height=6, echo=FALSE, fig.cap='CAPTION ME'}
-## optionally sort-by GHL probabilities, see related presentation
-# plot generalized horizons via color, sorted by depth
+# plot generalized horizons via color, sorted by GHL probabilities
 loafercreek$genhz.soil_color <- cols[match(loafercreek$genhz, hz.names)]
-new.order <- order(profileApply(loafercreek, max))
 par(mar=c(0,0,0,0))
-plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, plot.order=new.order)
+plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, print.id=FALSE, name='', plot.order=h$order)
 legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
 ```
 
@@ -331,7 +354,7 @@ p.1 <- xyplot(top ~ value | variable, groups=which, data=g, type='l', ylim=c(155
 })
 
 # add hz-boundaries by slicing vs. PO model
-p.1 + latticeExtra::layer(panel.text(x=1, y=a.1.ml$top[-1], label=expression(symbol("\254")), col='blue', cex=1)) + latticeExtra::layer(panel.text(x=1, y=p.ml$top[-1], label=expression(symbol("\254")), col='red', cex=1))
+p.1 + latticeExtra::layer(panel.text(x=1, y=a.ml$top[-1], label=expression(symbol("\254")), col='blue', cex=1)) + latticeExtra::layer(panel.text(x=1, y=p.ml$top[-1], label=expression(symbol("\254")), col='red', cex=1))
 ```
 
 ```{r fig-ml-hz-boundaries-2, fig.width=5, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME'}
@@ -346,7 +369,7 @@ print(p.2)
 
 ```{r tbl-ml-hz-boundaries, echo=FALSE, results='asis'}
 # print hz boundary tables
-hz_bnd_tbl <- cbind(a.1.ml, p.ml)
+hz_bnd_tbl <- cbind(a.ml, p.ml)
 names(hz_bnd_tbl) <- rep(c('Horizon', 'Top (cm)', 'Bottom (cm)', 'Confidence', 'Brier'), times = 2)
 kable(hz_bnd_tbl, digits = 2, caption = 'CAPTION ME')
 ```
