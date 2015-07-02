@@ -37,16 +37,23 @@ library(knitr)
 ```{r load-data, echo=FALSE}
 # load sample data
 data(loafercreek, package = 'soilDB')
+
+# discreet colors used to plot horizon probability depth-functions
+cols <- c(grey(0.33), 'goldenrod4', 'orange', 'orangered', 'chocolate', 'green', 'blue')
 ```
 
 # Introduction
 
-Published soil survey reports typically describe soils in terms of *aggregate* information, *ie* soil properties, interpretations, and limitations that are based on a collection of field-described soil profiles. While aggregate soil properties are readily estimated via standard statistical functions (mean, median, etc.), an aggregate representation of *horizonation* (e.g. genetic horizon designation and depth) is typically difficult to construct [@beaudette2013]. Variation in horizon designation "style" among different soil scientists, changes in horizon designation standards over time, variable depths at which genetic horizons occur, and the possible lack of a specific genetic horizon are all factors that complicate the process of delivering an aggregate representation of horizonation. 
+Published soil survey reports typically describe soils in terms of *aggregate* information, *ie* soil properties, interpretations, and limitations that are based on a collection of field-described soil profiles. 
+While aggregate soil properties are readily estimated via standard statistical functions (mean, median, etc.), an aggregate representation of *horizonation* (e.g. genetic horizon designation and depth) is typically difficult to construct [@beaudette2013]. 
+Variation in horizon designation "style" among different soil scientists, changes in horizon designation standards over time, variable depths at which genetic horizons occur, and the possible lack of a specific genetic horizon are all factors that complicate the process of delivering an aggregate representation of horizonation. 
 
 * Horizonation as assessed by soil scientists is somewhat subjective, and there is always some error associated with it. This error is rarely acknowledged: boundaries between horizons, expressed as horizon depths, are generally considered as "crisp" numbers, while in actuality they represent "fuzz" numbers. 
 * At this stage of the introduction it would be good to explain how traditional aggregates (mean, etc) only gets you so far. Soil profile is a fundamental object for the understanding of soil processes, so it's important to come up w/ statistical/quantitative aggregate for these. Link this with importance of pedological understanding of soil, and with making a truly useful product out of soil survey data. 
 
-We demonstrate two possible methods for aggregating a collection of soil profiles into "synthetic profiles"; describing depth-wise probability functions for each genetic horizon. Both methods rely on an expert-guided description of generalized horizon designation (e.g. horizon designations that are deemed representative) along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. Specialized classes for soil profile collections and depth-slicing algorithms are implemented in the [aqp](http://cran.at.r-project.org/web/packages/aqp/index.html) package for R [C&G reference here].
+We demonstrate two possible methods for aggregating a collection of soil profiles into "synthetic profiles"; describing depth-wise probability functions for each genetic horizon. 
+Both methods rely on an expert-guided description of generalized horizon designation (e.g. horizon designations that are deemed representative) along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. 
+The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. Specialized classes for soil profile collections and depth-slicing algorithms are implemented in the [aqp](http://cran.at.r-project.org/web/packages/aqp/index.html) package for R [C&G reference here]. 
 
 Papers to cite:
 
@@ -64,62 +71,35 @@ Other:
 ## Soil profile data
 
 A collection of (`r length(loafercreek)`) soil profiles from the Sierra Foothill region of California were used to demonstrate two approaches for determining aggregate representation of genetic horizon boundaries. [INSERT DESCRIPTION OF RAINFALL, LOCATION, ETC] 
-These soil profiles represent some of the data that have been "correlated" to the [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series. These data are included within the **soilDB** package for R [@beaudette2015].
+These soil profiles represent some of the data that have been "correlated" to the [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series. 
+These data are included within the **soilDB** package for R [@beaudette2015]. 
 
 ## Horizon Generalization
 
-Generalized horizon labels (GHL) represent an expert-guided selection of generalized horizon designations that were consistently observed in the field, and meaningful in terms of soil morphology and management [REFERENCE TO THE NRCS SOIL SURVEY GUIDE??].  These designations were determine to convey the "morphologic story" or conceptual framework of most-likely horizons typically observed in a suite of soil profiles. The Official Series Description (OSD, [REFERENCE]) of the Loafercreek series typical pedon and range in characteristics defines this soil series concept.
-
-```{r table-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='FIGURE LEGEND'}
-# check on existing horizonation
-barplot(sort(table(loafercreek$hzname), decreasing=TRUE), ylab = "Number of horizons")
-```
-
-```{r eval-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='FIGURE LEGEND'}
+```{r generalization, echo=FALSE, results='hide'}
 # graphical range in horizon mid-point, sorted by class-wise median depth
 loafercreek$mid <- with(horizons(loafercreek), (hzdept + hzdepb) / 2)
 hz.designation.by.median.depths <- names(sort(tapply(loafercreek$mid, loafercreek$hzname, median)))
 
-bwplot(mid ~ factor(hzname, levels=hz.designation.by.median.depths), data=horizons(loafercreek), ylim=c(155, -5), ylab='Horizon Mid-Point Depth (cm)', scales=list(y=list(tick.number=10)), panel=function(...) {
-	panel.abline(h=seq(0, 140, by=10), v=1:length(hz.designation.by.median.depths), col=grey(0.8), lty=3)
-	panel.bwplot(...)
-})
-```
-
-Once a set of GHL have been determined (```r c('A','BA','Bt1','Bt2','Bt3','Cr','R')```), a corresponding set of regular expression (REGEX) rules were developed to map the field-described designations into generalized designations. This process typically requires expert-guided review of: 1) regional patterns in horizonation style, 2) morphologic property differences by groups of field-described designation, and, 3) patterns of horizonation and properties with depth. The expert's field experience is thus preserved within the vector of REGEX rules. 
-
-```{r generalize-hz-names-tbl, results='asis', echo=FALSE}
 ## generalize horizon names using REGEX rules
 n <- c('A','BA','Bt1','Bt2','Bt3','Cr','R')
 p <- c('^A$|Ad|Ap|^ABt$','AB$|BA$|Bw', 'Bt1$|^Bt$|^B$','^Bt2$','^Bt3|^Bt4|CBt$|BCt$|2Bt|2CB$|^C$','Cr','R')
+
 loafercreek$genhz <- generalize.hz(loafercreek$hzname, n, p)
 
-# full cross-tab of GHL vs. original designations
-cross.tab <- table(loafercreek$genhz, loafercreek$hzname)
-# get top-N columns, not including "not-used" row
-top.hz <- order(apply(cross.tab[1:length(n), ], 2, sum), decreasing = TRUE)[1:15]
-
-# truncated cross-tabulation
-kable(cross.tab[, top.hz], caption = "Generalized Horizon Labels vs. Horizon Designations (truncated counts)")
-```
-
-```{r generalize-hz-names, fig.width=15, fig.height=4, echo=FALSE}
 # remove non-matching generalized horizon names
 loafercreek$genhz[loafercreek$genhz == 'not-used'] <- NA
 loafercreek$genhz <- factor(loafercreek$genhz)
 
 # keep track of generalized horizon names for later
 hz.names <- levels(loafercreek$genhz)
-
-## optionally sort-by GHL probabilities, see related presentation
-# plot generalized horizons via color, sorted by depth
-loafercreek$genhz.soil_color <- cols[match(loafercreek$genhz, hz.names)]
-new.order <- order(profileApply(loafercreek, max))
-par(mar=c(0,0,0,0))
-plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, plot.order=new.order)
-legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
 ```
 
+Generalized horizon labels (GHL) represent an expert-guided selection of generalized horizon designations that were consistently observed in the field, and meaningful in terms of soil morphology and management [REFERENCE TO THE NRCS SOIL SURVEY GUIDE??].  
+These designations were determine to convey the "morphologic story" or conceptual framework of most-likely horizons typically observed in a suite of soil profiles. 
+The Official Series Description (OSD, [REFERENCE]) of the Loafercreek series typical pedon and range in characteristics defines this soil series concept. 
+
+Once a set of GHL have been determined (```r c('A','BA','Bt1','Bt2','Bt3','Cr','R')```), a corresponding set of regular expression (REGEX) rules were developed to map the field-described designations into generalized designations. This process typically requires expert-guided review of: 1) regional patterns in horizonation style, 2) morphologic property differences by groups of field-described designation, and, 3) patterns of horizonation and properties with depth. The expert's field experience is thus preserved within the vector of REGEX rules. 
 
 ## Horizon Aggregation by Slicing
 
@@ -158,6 +138,7 @@ a.1.long <- melt(a.1, id.vars='top', measure.vars=hz.names)
 
 
 ## Horizon Aggregation by Proportional-Odds Model
+
 ```{r po-model, fig.width=5, fig.height=5}
 ## check assumptions of PO model: pp. 351 in (Harell, 2001)
 plot.xmean.ordinaly(genhz ~ hzdept, data=horizons(s))
@@ -187,6 +168,37 @@ p.long <- melt(p, id.vars='top', measure.vars=hz.names)
 # Results
 
 ## Horizon labels generalisation
+
+```{r table-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='FIGURE LEGEND'}
+# check on existing horizonation
+barplot(sort(table(loafercreek$hzname), decreasing=TRUE), ylab = "Number of horizons")
+```
+
+```{r eval-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='FIGURE LEGEND'}
+bwplot(mid ~ factor(hzname, levels=hz.designation.by.median.depths), data=horizons(loafercreek), ylim=c(155, -5), ylab='Horizon Mid-Point Depth (cm)', scales=list(y=list(tick.number=10)), panel=function(...) {
+	panel.abline(h=seq(0, 140, by=10), v=1:length(hz.designation.by.median.depths), col=grey(0.8), lty=3)
+	panel.bwplot(...)
+})
+```
+
+```{r generalize-hz-names-tbl, results='asis', echo=FALSE}
+# full cross-tab of GHL vs. original designations
+cross.tab <- table(loafercreek$genhz, loafercreek$hzname)
+# get top-N columns, not including "not-used" row
+top.hz <- order(apply(cross.tab[1:length(n), ], 2, sum), decreasing = TRUE)[1:15]
+# truncated cross-tabulation
+kable(cross.tab[, top.hz], caption = "Generalized Horizon Labels vs. Horizon Designations (truncated counts)")
+```
+
+```{r generalize-hz-names, fig.width=15, fig.height=4, echo=FALSE}
+## optionally sort-by GHL probabilities, see related presentation
+# plot generalized horizons via color, sorted by depth
+loafercreek$genhz.soil_color <- cols[match(loafercreek$genhz, hz.names)]
+new.order <- order(profileApply(loafercreek, max))
+par(mar=c(0,0,0,0))
+plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, plot.order=new.order)
+legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
+```
 
 ## Aggregation of horizon labels by slicing
 
