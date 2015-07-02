@@ -79,21 +79,6 @@ Other:
 
 # Materials and Methods
 
-## Statistical Evaluation
-
-proportional-odds (PO) logistic regression
-$$ P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
-Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accommodate non-linearity.
-
-Shannon Entropy (H index)
-$$ H = -\sum_{i=1}^{n}{p_{i} * log_{n}(p_{i})}  $$
-$H$ is an index of uncertainty associated with predicted probabilities, $\mathbf{p}$, of encountering horizons $i$ through $n$ at some depth. Larger values suggest **more** confusion.
-
-Brier scores
-$$ B = \frac{1}{n} \sum_{i=1}^{n}{ ( p_{i} - y_{i} )^{2}  }  $$
-$B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and horizons, $\mathbf{y}$, over depth-slices $i$ through $n$ associated with a specific horizon. Larger values suggest **less** agreement between probabilities and observed horizon labels.
-
-
 ## Soil Profile Data
 
 A collection of (`r length(loafercreek)`) soil profiles from the Sierra Foothill region of California were used to demonstrate two approaches for determining aggregate representation of genetic horizon boundaries. [INSERT DESCRIPTION OF RAINFALL, LOCATION, ETC] 
@@ -154,7 +139,11 @@ a.long <- melt(a, id.vars='top', measure.vars=hz.names)
 ```
 
 
-## Horizon Aggregation by Proportional-Odds Model
+## Horizon Aggregation by Proportional-Odds Logistic Regression
+
+proportional-odds (PO) logistic regression
+$$ P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
+Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accommodate non-linearity.
 
 ```{r pro-po-model, echo=FALSE, cache=TRUE}
 # proportional-odds logistics regression: fits well, ignore standard errors
@@ -285,6 +274,16 @@ d.res$value[which(d.res$value < 0.01)] <- NA
 # extract model discrimination index
 res.mdi <- unlist(sapply(l.res, function(i) i$model.disc.index))
 ```
+
+## Quantification of Uncertainty
+
+Shannon Entropy (H index)
+$$ H = -\sum_{i=1}^{n}{p_{i} * log_{n}(p_{i})}  $$
+$H$ is an index of uncertainty associated with predicted probabilities, $\mathbf{p}$, of encountering horizons $i$ through $n$ at some depth. Larger values suggest **more** confusion.
+
+Brier scores
+$$ B = \frac{1}{n} \sum_{i=1}^{n}{ ( p_{i} - y_{i} )^{2}  }  $$
+$B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and horizons, $\mathbf{y}$, over depth-slices $i$ through $n$ associated with a specific horizon. Larger values suggest **less** agreement between probabilities and observed horizon labels.
 
 # Results
 
