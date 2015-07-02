@@ -184,4 +184,5 @@ presentation-figure
 presentation_files
 *.js
 presentation.md
-
+horizon_probability_cache
+horizon_probability_files

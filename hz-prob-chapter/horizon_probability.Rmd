@@ -97,6 +97,9 @@ $B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and 
 ## Soil Profile Data
 
 A collection of (`r length(loafercreek)`) soil profiles from the Sierra Foothill region of California were used to demonstrate two approaches for determining aggregate representation of genetic horizon boundaries. [INSERT DESCRIPTION OF RAINFALL, LOCATION, ETC] 
+
+![alt text](static-figures/mvo-soil-montage-narrow.jpg)
+
 These soil profiles represent some of the data that have been "correlated" to the [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series. 
 These data are included within the **soilDB** package for R [@beaudette2015]. 
 
