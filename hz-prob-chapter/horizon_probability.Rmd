@@ -25,9 +25,13 @@ options(width=100, stringsAsFactors=FALSE)
 
 # Abstract
 
-Published soil survey reports typically describe soils in terms of aggregate information: soil properties, interpretations, and limitations that are based on a collection of field-described soil profiles. While aggregate soil properties are readily estimated via standard statistical functions (mean, median, etc.), an aggregate representation of horizonation (e.g. genetic or functional horizon designation and depth) is typically difficult to construct. Variation in horizon designation among different soil scientists and different soil description systems, changes in horizon designation standards over time, variable depths at which horizons occur, and the various uncertainties associated with these are all factors that complicate the process of delivering an aggregate representation of horizonation.
-In this paper we propose alternatives to the typical "representative profile"-- e.g. the selection of a single soil profile to represent a collection. Two possible methods for aggregating a collection of soil profiles into synthetic profiles are presented, describing depth-wise probability functions for each horizon. Both methods rely on an expert-guided description of generalized horizon designation (e.g. a subset of horizon designation labels that convey a reasonable "morphologic story") along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. These methods are demonstrated using USDA-NRCS soil survey data (USA), based on genetic horizons, and on S-Map soil survey data (NZ), based on functional horizons.
-
+Published soil survey reports typically describe soils in terms of aggregate information: soil properties, interpretations, and limitations that are based on a collection of field-described soil profiles. 
+While aggregate soil properties are readily estimated via standard statistical functions (mean, median, etc.), an aggregate representation of horizonation (e.g. genetic or functional horizon designation and depth) is typically difficult to construct. 
+Variation in horizon designation among different soil scientists and different soil description systems, changes in horizon designation standards over time, variable depths at which horizons occur, and the various uncertainties associated with these are all factors that complicate the process of delivering an aggregate representation of horizonation. 
+In this paper we propose alternatives to the typical "representative profile" -- e.g. the selection of a single soil profile to represent a collection. Two possible methods for aggregating a collection of soil profiles into synthetic profiles are presented, describing depth-wise probability functions for each horizon. 
+Both methods rely on an expert-guided description of generalized horizon designation (e.g. a subset of horizon designation labels that convey a reasonable "morphologic story") along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. 
+The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. 
+These methods are demonstrated using USDA-NRCS soil survey data (USA). 
 
 ```{r libraries, echo=FALSE, message=FALSE}
 # libraries
@@ -105,7 +109,9 @@ Generalized horizon labels (GHL) represent an expert-guided selection of general
 These designations were determine to convey the "morphologic story" or conceptual framework of most-likely horizons typically observed in a suite of soil profiles. 
 The Official Series Description (OSD, [REFERENCE]) of the Loafercreek series typical pedon and range in characteristics defines this soil series concept. 
 
-Once a set of GHL have been determined (```r c('A','BA','Bt1','Bt2','Bt3','Cr','R')```), a corresponding set of regular expression (REGEX) rules were developed to map the field-described designations into generalized designations. This process typically requires expert-guided review of: 1) regional patterns in horizonation style, 2) morphologic property differences by groups of field-described designation, and, 3) patterns of horizonation and properties with depth. The expert's field experience is thus preserved within the vector of REGEX rules. 
+Once a set of GHL have been determined (```r c('A','BA','Bt1','Bt2','Bt3','Cr','R')```), a corresponding set of regular expression (REGEX) rules were developed to map the field-described designations into generalized designations. 
+This process typically requires expert-guided review of: 1) regional patterns in horizonation style, 2) morphologic property differences by groups of field-described designation, and, 3) patterns of horizonation and properties with depth. 
+The expert's field experience is thus preserved within the vector of REGEX rules. 
 
 ## Horizon Aggregation by Slicing
 
@@ -206,7 +212,8 @@ p.s$fake.prob <- 1.1
 
 ## Model stability
 
-PO-model stability was evaluated by repeatedly re-fitting a model to 25 randomly sampled profiles (out of 53 total), 250 times. ML horizon boundaries were derived from these data by evaluating the 5th-50th-95th percentiles of ML horizon boundaries computed within each simulation.
+PO-model stability was evaluated by repeatedly re-fitting a model to 25 randomly sampled profiles (out of 53 total), 250 times. 
+ML horizon boundaries were derived from these data by evaluating the 5th-50th-95th percentiles of ML horizon boundaries computed within each simulation. 
 
 ```{r pro-model-robustness, echo=FALSE, cache=TRUE}
 # encapsulate model fitting / prediction within a single function
