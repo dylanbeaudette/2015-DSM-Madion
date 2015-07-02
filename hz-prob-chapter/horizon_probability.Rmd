@@ -43,6 +43,7 @@ library(reshape)
 library(scales)
 library(cluster)
 library(knitr)
+library(ggplot2)
 ```
 
 ```{r data, echo=FALSE}
@@ -295,10 +296,18 @@ barplot(sort(table(loafercreek$hzname), decreasing=TRUE), ylab = "Number of hori
 ```
 
 ```{r fig-eval-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
-bwplot(mid ~ factor(hzname, levels=hz.designation.by.median.depths), data=horizons(loafercreek), ylim=c(155, -5), ylab='Horizon Mid-Point Depth (cm)', scales=list(y=list(tick.number=10)), panel=function(...) {
-	panel.abline(h=seq(0, 140, by=10), v=1:length(hz.designation.by.median.depths), col=grey(0.8), lty=3)
-	panel.bwplot(...)
-})
+hz_lfc <- horizons(loafercreek)
+hz_ordered <- c('Oi', 'Ap', 'A', 'Ad', 'ABt', 'AB', 'BA', 'Bw', 'Bt1', 'B', 'Bt', 'Bt2', '2Bt2', '2Bt3', 'CBt', '2BCt', 'Bt3', 'C', '2CB', 'Bt4', '2Bt4', 'BCt', 'Cr', 'Crt', '2Crt', '2Cr', 'Rt', 'R', '2R')
+hz_lfc$hzname <- factor(hz_lfc$hzname, levels = hz_ordered)
+
+# Making group 
+ggplot(data = hz_lfc) +
+  geom_boxplot(aes(x = hzname, y = mid, fill = genhz)) +
+  scale_fill_manual(values = cols) +
+  scale_y_reverse() +
+  guides(fill = guide_legend(title = "Generalized\nHorizon\nLabel")) +
+  labs(x = "Original Horizon Designation", y = "Horizon Mid-Point Depth (cm)") +
+  theme_bw()
 ```
 
 ```{r tbl-generalize-hz-names-tbl, results='asis', echo=FALSE}
