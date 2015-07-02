@@ -1,3 +1,30 @@
+### Issues to be resolved
+* estimation of confidence intervals via GAMM ? [ideas here](http://www.fromthebottomoftheheap.net/2014/06/16/simultaneous-confidence-intervals-for-derivatives/)
+
+* how can we simulate from a model developed by `orm()`? See `stats:::simulate.lm` for ideas.
+
+* are we violating any assumptinos of PO logistic regression ? [ideas](http://www.ats.ucla.edu/stat/r/dae/ologit.htm) and [more info](http://www.kenbenoit.net/courses/ME104/ME104_Day8_CatOrd.pdf)
+
+* how can we accomodate the lower effective DF due to massive autocorrelation within "sliced" data? (GEE approach as suggested by Frank Harrell)
+
+* does it make more sense to use the original horizons, and then add thickness weights-- or use the sliced data? I like the slicing approach, but it does give unreasonably small standard error estimates for coefficients.
+
+* use of ordered factors does not change the results of `orm()` and `slab()` barfs with them.
+
+* slice-wise eval of predicted genhz via [Brier Score](http://en.wikipedia.org/wiki/Brier_score#cite_note-Brier-1), or even better: `verification::rps()` for ranked probability scores
+
+* [this method](http://cran.r-project.org/web/packages/ordinal/vignettes/clm_intro.pdf) gives identical models to `orm()`, however the `ordinal` package has some additional features. It is not clear how the "threshold coefficients" could be used:
+
+```
+Threshold coefficients:
+        Estimate Std. Error z value
+A|BA      1.3081     0.1002   13.06
+BA|Bt1    2.0080     0.1044   19.24
+Bt1|Bt2   6.1038     0.1906   32.03
+Bt2|Bt3   9.8494     0.2398   41.07
+Bt3|Cr   12.3512     0.2515   49.10
+Cr|R     15.1321     0.2652   57.05
+```
 
 
 ### Simulation from GHL Probabilities [this doesn't work, consider leaving out]
