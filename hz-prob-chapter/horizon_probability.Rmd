@@ -162,6 +162,7 @@ proportional-odds (PO) logistic regression
 $$ P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
 Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accommodate non-linearity.
 
+
 ```{r pro-po-model, echo=FALSE, cache=TRUE, results='hide'}
 # proportional-odds logistics regression: fits well, ignore standard errors
 # using sliced data properly weights observations... but creates optimistic SE
@@ -276,6 +277,20 @@ for(i in seq_along(p.s$hzdept)) {
 }
 ```
 
+```{r slice-and-fit-1, echo=FALSE, fig.width=10, fig.height=6}
+# graphical check: profiles 1:15, top 25 slices
+par(mar=c(0,0,1,0))
+plot(s[1:25, 1:60], color='genhz.soil_color', name='', print.id=FALSE, plot.depth.axis=FALSE, n=32)
+legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.5, pt.cex=3)
+lines(27 + (7*p$Oi), p$top, col=cols[1], lwd=2)
+lines(27 + (7*p$A), p$top, col=cols[2], lwd=2)
+lines(27 + (7*p$BA), p$top, col=cols[3], lwd=2)
+lines(27 + (7*p$Bt1), p$top, col=cols[4], lwd=2)
+lines(27 + (7*p$Bt2), p$top, col=cols[5], lwd=2)
+lines(27 + (7*p$Bt3), p$top, col=cols[6], lwd=2)
+```
+
+
 ## Model stability
 
 PO-model stability was evaluated by repeatedly re-fitting a model to 25 randomly sampled profiles (out of 53 total), 250 times. 
@@ -334,9 +349,11 @@ Brier scores [@Harrell2001]
 $$ B = \frac{1}{n} \sum_{i=1}^{n}{ ( p_{i} - y_{i} )^{2}  }  $$
 $B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and horizons, $\mathbf{y}$, over depth-slices $i$ through $n$ associated with a specific horizon. Larger values suggest **less** agreement between probabilities and observed horizon labels.
 
+
+
 # Results
 
-## Horizon labels generalisation
+## Generalized Horizon Labels
 
 ```{r fig-eval-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
 hz_lfc <- horizons(loafercreek)
@@ -353,45 +370,18 @@ ggplot(data = hz_lfc) +
   theme_bw()
 ```
 
-```{r tbl-generalize-hz-names-tbl, results='asis', echo=FALSE}
-# full cross-tab of GHL vs. original designations
-cross.tab <- table(loafercreek$genhz, loafercreek$hzname)
-# get top-N columns, not including "not-used" row
-top.hz <- order(apply(cross.tab[1:length(n), ], 2, sum), decreasing = TRUE)[1:15]
-# truncated cross-tabulation
-kable(cross.tab[, top.hz], caption = "Generalized Horizon Labels vs. Horizon Designations (truncated counts)")
-```
 
-```{r fig-generalize-hz-names, fig.width=10, fig.height=6, echo=FALSE, fig.cap='CAPTION ME'}
+```{r fig-generalize-hz-names, fig.width=10, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
 # plot generalized horizons via color, sorted by GHL probabilities
-par(mar=c(0,0,0,0))
-plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, print.id=FALSE, name='', plot.order=h$order)
+par(mar=c(0,0,0,2))
+plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, print.id=FALSE, name='', plot.order=h$order, cex.depth.axis=1)
 legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
 ```
 
-## Aggregation of horizon labels by slicing
+## Aggregate Representation of GHL
 
-
-```{r slice-and-fit-1, echo=FALSE, fig.width=10, fig.height=6}
-# graphical check: profiles 1:15, top 25 slices
-par(mar=c(0,0,1,0))
-plot(s[1:25, 1:60], color='genhz.soil_color', name='', print.id=FALSE, plot.depth.axis=FALSE, n=32)
-legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.5, pt.cex=3)
-lines(27 + (7*p$Oi), p$top, col=cols[1], lwd=2)
-lines(27 + (7*p$A), p$top, col=cols[2], lwd=2)
-lines(27 + (7*p$BA), p$top, col=cols[3], lwd=2)
-lines(27 + (7*p$Bt1), p$top, col=cols[4], lwd=2)
-lines(27 + (7*p$Bt2), p$top, col=cols[5], lwd=2)
-lines(27 + (7*p$Bt3), p$top, col=cols[6], lwd=2)
-```
-
-
-
-## ML Horizon boundaries
-
-
-
-```{r tbl-po-model, echo=FALSE}
+Tidy representation of model fit here.
+```{r tbl-po-model, echo=FALSE, eval=FALSE}
 # we need to find a much cleaner way to report those results!
 print(l.genhz)
 ```
@@ -422,6 +412,8 @@ p.1 <- xyplot(top ~ value, groups=variable, data=p.long.copy, type='l', ylim=c(1
 
 p.1 + as.layer(xyplot(0:150 ~ shannon.h, type='l', lty=2, lwd=2, col='black'))
 ```
+
+## ML Horizon boundaries
 
 ```{r tbl-ml-hz-boundaries, echo=FALSE, results='asis'}
 # print hz boundary tables

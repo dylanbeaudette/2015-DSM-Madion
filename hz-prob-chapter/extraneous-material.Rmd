@@ -26,6 +26,15 @@ Bt3|Cr   12.3512     0.2515   49.10
 Cr|R     15.1321     0.2652   57.05
 ```
 
+```{r tbl-generalize-hz-names-tbl, results='asis', echo=FALSE}
+# full cross-tab of GHL vs. original designations
+cross.tab <- table(loafercreek$genhz, loafercreek$hzname)
+# get top-N columns, not including "not-used" row
+top.hz <- order(apply(cross.tab[1:length(n), ], 2, sum), decreasing = TRUE)[1:15]
+# truncated cross-tabulation
+kable(cross.tab[, top.hz], caption = "Generalized Horizon Labels vs. Horizon Designations (truncated counts)")
+```
+
 ```{r fig-horizonation, fig.width=6, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
 # check on existing horizonation
 barplot(sort(table(loafercreek$hzname), decreasing=TRUE), ylab = "Number of horizons", cex.names=0.5)
