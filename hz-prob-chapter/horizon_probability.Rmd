@@ -113,6 +113,9 @@ loafercreek$genhz <- factor(loafercreek$genhz)
 
 # keep track of generalized horizon names for later
 hz.names <- levels(loafercreek$genhz)
+
+# associate GHL colors
+loafercreek$genhz.soil_color <- cols[match(loafercreek$genhz, hz.names)]
 ```
 
 Generalized horizon labels (GHL) represent an expert-guided selection of generalized horizon designations that were consistently observed in the field, and meaningful in terms of soil morphology and management [REFERENCE TO THE NRCS SOIL SURVEY GUIDE??].  
@@ -134,7 +137,7 @@ Slicing and slice-wise evaluation of horizon probability described in [AQP: A To
 max.depth <- 150
 slice.resolution <- 1
 slice.vect <- seq(from = 0, to = max.depth, by = slice.resolution)
-s <- slice(loafercreek, slice.vect ~ soil_color + genhz)
+s <- slice(loafercreek, slice.vect ~ genhz.soil_color + genhz)
 
 # convert horizon name to factor
 s$genhz <- factor(s$genhz, levels = hz.names)
@@ -246,6 +249,31 @@ names(p.bs) <- c('genhz', 'brier.score')
 
 # remove NAs from table
 p.bs <- na.omit(p.bs)
+
+## mix GHL colors using weights derrived from predicted probabilities
+## TODO: would another color space make more sense?
+# convert color vector into RGB->HSV space
+cols.rgb <- col2rgb(cols)
+cols.hsv <- rgb2hsv(cols.rgb)
+# cols.lab <- t(as(RGB(t(cols.rgb)/255), 'sRGB')@coords)
+  
+# make room for mixed color, one for each slice
+p.s$mixed.color <- NA
+
+# along each slice, mix colors and save back to DF
+for(i in seq_along(p.s$hzdept)) {
+  # get the probabilities for this slice, use as weights
+  p.i <- unlist(p.s[i, hz.names])
+  # weights * color vector in HSV-space
+  hsv.i <- sweep(cols.hsv, 2, p.i, '*')
+  # lab.i <- sweep(cols.lab, 2, p.i, '*')
+  # compute weighted-mean for this slice
+  wt.mean.hsv <- rowSums(hsv.i) / sum(p.i)
+  ## wt.mean.lab <- rowSums(lab.i) / sum(p.i)
+  # convert color coords -> color for plotting
+  p.s$mixed.color[i] <- do.call('hsv', as.list(wt.mean.hsv))
+  # p.s$mixed.color[i] <- rgb(as(do.call('sRGB', as.list(wt.mean.lab)), 'RGB')@coords)
+}
 ```
 
 ## Model stability
@@ -336,7 +364,6 @@ kable(cross.tab[, top.hz], caption = "Generalized Horizon Labels vs. Horizon Des
 
 ```{r fig-generalize-hz-names, fig.width=10, fig.height=6, echo=FALSE, fig.cap='CAPTION ME'}
 # plot generalized horizons via color, sorted by GHL probabilities
-loafercreek$genhz.soil_color <- cols[match(loafercreek$genhz, hz.names)]
 par(mar=c(0,0,0,0))
 plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, print.id=FALSE, name='', plot.order=h$order)
 legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
@@ -345,22 +372,24 @@ legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
 ## Aggregation of horizon labels by slicing
 
 
-
-```{r fig-genhz-depths, fig.width=10, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
-# plot depth-ranges of generalized horizon slices
-ggplot(data = na.omit(horizons(s)[, c('hzdept', 'genhz')])) + 
-  geom_boxplot(aes(x = genhz, y = hzdept)) +
-  scale_y_reverse(breaks=seq(0, 140, by=10)) +
-  labs(x = "Generalized Horizon Label", y = "Generalized Horizon Depth (cm)") +
-  theme_bw()
+```{r slice-and-fit-1, echo=FALSE, fig.width=10, fig.height=6}
+# graphical check: profiles 1:15, top 25 slices
+par(mar=c(0,0,1,0))
+plot(s[1:25, 1:60], color='genhz.soil_color', name='', print.id=FALSE, plot.depth.axis=FALSE, n=32)
+legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.5, pt.cex=3)
+lines(27 + (7*p$Oi), p$top, col=cols[1], lwd=2)
+lines(27 + (7*p$A), p$top, col=cols[2], lwd=2)
+lines(27 + (7*p$BA), p$top, col=cols[3], lwd=2)
+lines(27 + (7*p$Bt1), p$top, col=cols[4], lwd=2)
+lines(27 + (7*p$Bt2), p$top, col=cols[5], lwd=2)
+lines(27 + (7*p$Bt3), p$top, col=cols[6], lwd=2)
 ```
+
+
 
 ## ML Horizon boundaries
 
-```{r fig-assumptions-po-model, echo=FALSE, fig.width=5, fig.height=5, fig.cap='CAPTION ME'}
-## check assumptions of PO model: pp. 351 in (Harell, 2001)
-plot.xmean.ordinaly(genhz ~ hzdept, data=s.sub, subn=FALSE)
-```
+
 
 ```{r tbl-po-model, echo=FALSE}
 # we need to find a much cleaner way to report those results!
@@ -401,16 +430,11 @@ names(hz_bnd_tbl) <- rep(c('Horizon', 'Top (cm)', 'Bottom (cm)', 'Confidence', '
 kable(hz_bnd_tbl, digits = 2, caption = 'CAPTION ME')
 ```
 
-## Brier Score Evaluation of ML Horizon Labels
 
-```{r tbl-brier-scores, echo=FALSE}
-# larger values -> predictions are less consistently correct
-kable(p.bs, digits = 2, caption = "CAPTION ME")
-```
 
 ## Model Fit
 ... waiting to hear back from F. Harrell on the type of residuals that make sense here.
-```{r fig-model-residuals-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME'}
+```{r fig-model-residuals-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME', eval=FALSE}
 # no cutoff required, but how do I interpret?
 # details here: http://biomet.oxfordjournals.org/content/early/2012/03/30/biomet.asr073.full.pdf
 s.sub$resid <- residuals(l.genhz, type='li.shepherd')
@@ -427,8 +451,9 @@ bwplot(resid ~ genhz, data=s.sub, panel=function(...){
 })
 ```
 
-```{r fig-model-fit-by-genhz, fig.width=10, fig.height=7, echo=FALSE, fig.cap = 'Does this help at all?'}
-xyplot(PO.logistic.regression ~ empirical.probabilities | variable, data=g.wide, as.table=TRUE, xlab='Empirical GHL Probability', ylab='PO-LR Predictions') + latticeExtra::layer(panel.abline(a=0, b=1))
+
+```{r fig-model-fit-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'Does this help at all?'}
+xyplot(PO.logistic.regression ~ empirical.probabilities | variable, data=g.wide, as.table=TRUE, xlab='Empirical GHL Probability', ylab='PO-LR Predictions', asp='iso') + latticeExtra::layer(panel.abline(a=0, b=1))
 ```
 
 
@@ -468,6 +493,22 @@ kable(res.robust, digits = 2, caption = "CAPTION ME")
 # Conclusions
 
 Ideas for the conclusion.....the ideas presented in this paper regarding modeling horizon depth probabilities are helping to bridge the soil profile/horizonation concept that is are our existing 'pedological language' with the development of continuous-depth soil morphometric measurements.  Hartemink talks about continuous functions of morphometrics decoupling the horizon as a support unit for the soil profile. Each method of describing a soil profile has its purpose.  Perhaps we should not be looking to decouple it so much as meld and anchor new continuous measurements within the horizon designation framework, thereby building new knowledge within the framework of our existing knowledge.  This is an area in which morphometrics has great potential to add value to soil survey products.  
+
+- fact: sampling by **genetic horizon** is efficient and will continue to be important
+- we can do better than picking a single, **representative profile**
+- soil series **defined** by GHL rules, PO-LR model, and properties aggregated by GHL
+- variability between descriptions **smoothed** as sample size increases-- *given thoughtful correlation*
+- continuous **depth-functions** of genetic, or diagnostic horizons
+- **most-likely** horizonation, based on depth-function crossings
+- quantitative estimates of **uncertainty**: Brier scores, Shannon Entropy, etc.
+
+## Future Work
+
+- minimum sample sizes, model diagnostics, best-practice guidelines, etc.
+- more realistic estimates of SE, e.g. correlation structure via GEE
+- pedogenic interpretation of model coefficients
+
+
 
 # References
 
