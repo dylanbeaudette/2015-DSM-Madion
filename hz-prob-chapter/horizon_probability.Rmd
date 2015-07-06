@@ -170,8 +170,11 @@ Extension of logistic regression model; predictions constrained by horizon desig
 idx <- which(complete.cases(horizons(s)[, c('genhz', 'hzdept')]))
 s.sub <- horizons(s)[idx, ]
 
+## TODO: how many knots and where should we put them?
+## 4 knots seems about right, by default they are spaced along quantiles of hzdept
+## linear -> rcs with 4 knots: R2 0.888 -> 0.893
 dd <- datadist(s.sub) ; options(datadist="dd")
-l.genhz <- orm(genhz ~ rcs(hzdept), data=s.sub, x=TRUE, y=TRUE)
+l.genhz <- orm(genhz ~ rcs(hzdept, parms=c(knots=4)), data=s.sub, x=TRUE, y=TRUE)
 
 # predict along same depths: columns are the class-wise probability
 # fitted.ind --> return all probability estimates
@@ -193,7 +196,9 @@ g$which <- factor(g$which, labels=c('empirical probabilities', 'PO-logistic regr
 # remove P(hz) < 1%
 g$value[which(g$value < 0.01)] <- NA
 
-## compute ML horizons by slice
+# re-shape to wide format, for comparison of fitted vs. empirical probabilities
+g.wide <- cast(g, top + variable ~ which, value.var = 'value')
+names(g.wide) <- make.names(names(g.wide))
 
 # extract ML-horizon boundaries 
 a.ml <- get.ml.hz(a, hz.names)
@@ -372,18 +377,6 @@ xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), 
 })
 ```
 
-```{r fig-model-residuals-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME'}
-# no cutoff
-s.sub$resid <- residuals(l.genhz, type='li.shepherd')
-
-s.sub$resid <- residuals(l.genhz, type='lp1')
-s.sub$resid <- residuals(l.genhz, type='hat')
-
-bwplot(resid ~ genhz, data=s.sub, panel=function(...){
-  panel.abline(h=0, lty=3)
-  panel.bwplot(...)
-})
-```
 
 ```{r fig-quantify-uncertainty, fig.width=10, fig.height=7, echo=FALSE, fig.cap = 'CAPTION ME'}
 # copy our predictions and adjust GHL labels to include brier scores
@@ -415,6 +408,28 @@ kable(hz_bnd_tbl, digits = 2, caption = 'CAPTION ME')
 kable(p.bs, digits = 2, caption = "CAPTION ME")
 ```
 
+## Model Fit
+... waiting to hear back from F. Harrell on the type of residuals that make sense here.
+```{r fig-model-residuals-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME'}
+# no cutoff required, but how do I interpret?
+# details here: http://biomet.oxfordjournals.org/content/early/2012/03/30/biomet.asr073.full.pdf
+s.sub$resid <- residuals(l.genhz, type='li.shepherd')
+
+## these require specification of a cutoff, kint=1 -> 2nd level
+## the absolute values on the y-axis change, the interpretation does NOT change
+## however, I am not sure how to interpret these...
+# s.sub$resid <- residuals(l.genhz, type='lp1', kint=1)
+# s.sub$resid <- residuals(l.genhz, type='hat', kint=1)
+
+bwplot(resid ~ genhz, data=s.sub, panel=function(...){
+  panel.abline(h=0, lty=3)
+  panel.bwplot(...)
+})
+```
+
+```{r fig-model-fit-by-genhz, fig.width=10, fig.height=7, echo=FALSE, fig.cap = 'Does this help at all?'}
+xyplot(PO.logistic.regression ~ empirical.probabilities | variable, data=g.wide, as.table=TRUE, xlab='Empirical GHL Probability', ylab='PO-LR Predictions') + latticeExtra::layer(panel.abline(a=0, b=1))
+```
 
 
 ## Model Stability
