@@ -85,6 +85,24 @@ ggplot(data = na.omit(horizons(s)[, c('hzdept', 'genhz')])) +
   theme_bw()
 ```
 
+don't have room for this
+... waiting to hear back from F. Harrell on the type of residuals that make sense here.
+```{r fig-model-residuals-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME', eval=FALSE}
+# no cutoff required, but how do I interpret?
+# details here: http://biomet.oxfordjournals.org/content/early/2012/03/30/biomet.asr073.full.pdf
+s.sub$resid <- residuals(l.genhz, type='li.shepherd')
+
+## these require specification of a cutoff, kint=1 -> 2nd level
+## the absolute values on the y-axis change, the interpretation does NOT change
+## however, I am not sure how to interpret these...
+# s.sub$resid <- residuals(l.genhz, type='lp1', kint=1)
+# s.sub$resid <- residuals(l.genhz, type='hat', kint=1)
+
+bwplot(resid ~ genhz, data=s.sub, panel=function(...){
+  panel.abline(h=0, lty=3)
+  panel.bwplot(...)
+})
+```
 
 we don't have room for this
 ```{r pro-eval-genz, echo=FALSE, results='hide', cache=TRUE}

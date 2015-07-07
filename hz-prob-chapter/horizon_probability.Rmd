@@ -1,16 +1,16 @@
 ---
 title: "Aggregate Representation of Genetic Soil Horizons"
-author: D.E. Beaudette, P. Roudier and J.M. Skovlin
+author: "D.E. Beaudette, P. Roudier and J.M. Skovlin"
 fontsize: 11pt
 output:
+  word_document:
+    fig_caption: yes
+  pdf_document:
+    fig_caption: yes
   html_document:
     fig_caption: yes
     number_sections: yes
     theme: journal
-  pdf_document:
-    fig_caption: yes
-  word_document:
-    fig_caption: yes
 bibliography: bibliography.bib
 ---
 
@@ -23,15 +23,6 @@ opts_chunk$set(message=FALSE, warning=FALSE, background='#F7F7F7', dpi=100, fig.
 options(width=100, stringsAsFactors=FALSE)
 ```
 
-# Abstract
-
-Published soil survey reports typically describe soils in terms of aggregate information: soil properties, interpretations, and limitations that are based on a collection of field-described soil profiles. 
-While aggregate soil properties are readily estimated via standard statistical functions (mean, median, etc.), an aggregate representation of horizonation (e.g. genetic or functional horizon designation and depth) is typically difficult to construct. 
-Variation in horizon designation among different soil scientists and different soil description systems, changes in horizon designation standards over time, variable depths at which horizons occur, and the various uncertainties associated with these are all factors that complicate the process of delivering an aggregate representation of horizonation. 
-In this paper we propose alternatives to the typical "representative profile" -- e.g. the selection of a single soil profile to represent a collection. Two possible methods for aggregating a collection of soil profiles into synthetic profiles are presented, describing depth-wise probability functions for each horizon. 
-Both methods rely on an expert-guided description of generalized horizon designation (e.g. a subset of horizon designation labels that convey a reasonable "morphologic story") along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. 
-The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. 
-These methods are demonstrated using USDA-NRCS soil survey data (USA). 
 
 ```{r libraries, echo=FALSE, message=FALSE}
 # libraries
@@ -241,6 +232,17 @@ d.res$value[which(d.res$value < 0.01)] <- NA
 res.mdi <- unlist(sapply(l.res, function(i) i$model.disc.index))
 ```
 
+# Abstract
+
+Published soil survey reports typically describe soils in terms of aggregate information: soil properties, interpretations, and limitations that are based on a collection of field-described soil profiles. 
+While aggregate soil properties are readily estimated via standard statistical functions (mean, median, etc.), an aggregate representation of horizonation (e.g. genetic or functional horizon designation and depth) is typically difficult to construct. 
+Variation in horizon designation among different soil scientists and different soil description systems, changes in horizon designation standards over time, variable depths at which horizons occur, and the various uncertainties associated with these are all factors that complicate the process of delivering an aggregate representation of horizonation. 
+In this paper we propose alternatives to the typical "representative profile" -- e.g. the selection of a single soil profile to represent a collection. Two possible methods for aggregating a collection of soil profiles into synthetic profiles are presented, describing depth-wise probability functions for each horizon. 
+Both methods rely on an expert-guided description of generalized horizon designation (e.g. a subset of horizon designation labels that convey a reasonable "morphologic story") along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. 
+The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. 
+These methods are demonstrated using USDA-NRCS soil survey data (USA). 
+
+
 # Introduction
 
 Published soil survey reports typically describe soils in terms of *aggregate* information, *ie* soil properties, interpretations, and limitations that are based on a collection of field-described soil profiles. 
@@ -265,6 +267,7 @@ The first method is based on (1-cm interval) slice-wise evaluation of generalize
 
 * morphometrics [@Hartemink2014]
 
+
 ![Figure 1. Eight photos of the Loafercreek soil series, collected in Tuolumne and Calaveras counties, CA, USA. How would you combine the wide range in morphology from these profiles into an aggregate concept?](static-figures/mvo-soil-montage-narrow.jpg)
 
 
@@ -277,7 +280,9 @@ These data are included within the **soilDB** package for R [@beaudette2015].
 These soils are associated with the  [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series (fine-loamy, mixed, super-active, thermic ultic haploxeralfs); moderately deep soils formed in colluvium and residuum from metavolcanic rocks (greenschist). The climate is characterized by hot, dry summers and cool, wet winters. 
 Mean annual air temperature is close to 16 degrees C and mean annual precipitation is about 760 mm. 
 The native vegitation is blue oak and annual grass savannah. Main land uses include range, vineyards, recreation, and wild life habitat. 
-This collection of soil profile data represents the work of 13 different soil scientists, with described properties spanning ranges in physical properties (related to bedrock composition).
+This collection of soil profile data represents the work of 13 different soil scientists, with described properties spanning ranges in physical properties (mostly related to bedrock composition). 
+
+**incorporate this idea:** "Although a portion of the variability within morphological properties determined in the file is attributed to discrepancies in human judgement, it is assumed that a major cause of variance is due to differences in soils at different locations" [@Wilding1964]
 
 
 
@@ -308,17 +313,18 @@ $$ P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
 
 where $P[Y \geq j | X]$ is the estimated probability of encountoring GHL $j$, $X$ is a set of predictor variables, and $\beta$ a vector of fitted regression coefficients [@Harrell2001]. In this study, the PO-LR model was fit to "sliced" horizon data; 1-cm slices of GHL and slice top depth (Figure 2). Restricted cubic spline basis functions [@Harrell2001; @Hastie2009] with 4 knots located at the 5th, 35th, 65th, and 95th percentiles of slice top depth were used to accommodate non-linearity. An empirical index of model stability was calculated by repeatedly re-fitting the PO-LR model to 25 randomly sampled profiles (out of 54 total), 250 times.
 
-```{r slice-and-fit-1, echo=FALSE, fig.width=10, fig.height=6, fig.cap='Figure 2. Demonstration of some Loafercreek soil profiles sliced into 1-cm chunks, colored by GHL, and associated probability estimates from the fitted PO-LR model.'}
-# graphical check: profiles 1:15, top 25 slices
-par(mar=c(0,0,1,0))
-plot(s[1:25, 1:60], color='genhz.soil_color', name='', print.id=FALSE, plot.depth.axis=FALSE, n=32)
-legend('top', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=1.5, pt.cex=3)
-lines(27 + (7*p$Oi), p$top, col=cols[1], lwd=2)
-lines(27 + (7*p$A), p$top, col=cols[2], lwd=2)
-lines(27 + (7*p$BA), p$top, col=cols[3], lwd=2)
-lines(27 + (7*p$Bt1), p$top, col=cols[4], lwd=2)
-lines(27 + (7*p$Bt2), p$top, col=cols[5], lwd=2)
-lines(27 + (7*p$Bt3), p$top, col=cols[6], lwd=2)
+```{r slice-and-fit-1, echo=FALSE, fig.width=10, fig.height=4, fig.cap='Figure 2. Demonstration of some Loafercreek soil profiles sliced into 1-cm chunks, colored by GHL, and associated probability estimates from the fitted PO-LR model.'}
+# graphical check: profiles 1:25, top n slices
+n.slices <- 50
+par(mar=c(0,0,1,2))
+plot(s[1:25, 1:n.slices], color='genhz.soil_color', name='', print.id=FALSE, n=32, cex.depth.axis=1)
+legend('top', legend=hz.names[1:6], col=cols[1:6], pch=15, bty='n', horiz=TRUE, cex=1.5, pt.cex=3)
+lines(27 + (7*p$Oi[1:n.slices]), p$top[1:n.slices], col=cols[1], lwd=2)
+lines(27 + (7*p$A[1:n.slices]), p$top[1:n.slices], col=cols[2], lwd=2)
+lines(27 + (7*p$BA[1:n.slices]), p$top[1:n.slices], col=cols[3], lwd=2)
+lines(27 + (7*p$Bt1[1:n.slices]), p$top[1:n.slices], col=cols[4], lwd=2)
+lines(27 + (7*p$Bt2[1:n.slices]), p$top[1:n.slices], col=cols[5], lwd=2)
+lines(27 + (7*p$Bt3[1:n.slices]), p$top[1:n.slices], col=cols[6], lwd=2)
 ```
 
 
@@ -410,23 +416,6 @@ kable(hz_bnd_tbl, digits = 2, caption = 'CAPTION ME')
 
 
 ## Model Fit
-... waiting to hear back from F. Harrell on the type of residuals that make sense here.
-```{r fig-model-residuals-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'CAPTION ME', eval=FALSE}
-# no cutoff required, but how do I interpret?
-# details here: http://biomet.oxfordjournals.org/content/early/2012/03/30/biomet.asr073.full.pdf
-s.sub$resid <- residuals(l.genhz, type='li.shepherd')
-
-## these require specification of a cutoff, kint=1 -> 2nd level
-## the absolute values on the y-axis change, the interpretation does NOT change
-## however, I am not sure how to interpret these...
-# s.sub$resid <- residuals(l.genhz, type='lp1', kint=1)
-# s.sub$resid <- residuals(l.genhz, type='hat', kint=1)
-
-bwplot(resid ~ genhz, data=s.sub, panel=function(...){
-  panel.abline(h=0, lty=3)
-  panel.bwplot(...)
-})
-```
 
 
 ```{r fig-model-fit-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'Does this help at all?'}
