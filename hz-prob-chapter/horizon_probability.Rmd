@@ -90,8 +90,11 @@ The first method is based on (1-cm interval) slice-wise evaluation of generalize
 
 **Possible Papers to cite**
 * horizon thickness [@Vanwalleghem2010]
+
 * "red clay" hz presence, logistic regression [@Evans2014296]
-* depth-functions [@myers2011,@Kempen2011]
+
+* depth-functions [@myers2011;@Kempen2011]
+
 * morphometrics [@Hartemink2014]
 
 ![Figure 1. Eight photos of the Loafercreek soil series, collected in Tuolumne and Calaveras counties, CA, USA. How would you combine these concepts into a single soil series description?](static-figures/mvo-soil-montage-narrow.jpg)
@@ -146,14 +149,11 @@ a.long <- melt(a, id.vars='top', measure.vars=hz.names)
 
 ## Horizon Aggregation by Proportional-Odds Logistic Regression
 
-cumulative link models [@McCullagh1980]
+A sequence of morphologic soil horizon designations can be modeled as an ordinal-scale variable: categorical by definition and ordered along a logical gradient, depth. Within the set of GHL associated with our sample data, "Bt2" horizons always occur after "Bt1" horizons and before "Bt3" horizons. The proportional odds logistic regression model (cumulative link model with logit link) [@McCullagh1980] is a convenient framework for estimating the probability of encountering a GHL, as conditioned by depth. The proportional odds logistic regression (PO-LR) model can be defined as:
 
-PO-LR [@Harrell2001]
-
-
-proportional-odds (PO) logistic regression
 $$ P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
-Extension of logistic regression model; predictions constrained by horizon designation and order. RCS basis functions accommodate non-linearity.
+
+where $P[Y \geq j | X]$ is the estimated probability of encountoring GHL $j$, $X$ is a set of predictor variables, and $\beta$ a vector of fitted regression coefficients [@Harrell2001]. In this study, the PO-LR model was fit to "sliced" horizon data; 1-cm slices of GHL and slice top depth. Restricted cubic spline basis functions with 4 knots [@Harrell2001; Hastie2009] located at the 5th, 35th, 65th, and 95th percentiles of slice top depth were used to accommodate non-linearity.
 
 
 ```{r pro-po-model, echo=FALSE, cache=TRUE, results='hide'}
@@ -264,7 +264,6 @@ for(i in seq_along(p.s$hzdept)) {
   p.s$mixed.color[i] <- do.call('hsv', as.list(wt.mean.hsv))
 }
 ```
-
 ```{r slice-and-fit-1, echo=FALSE, fig.width=10, fig.height=6}
 # graphical check: profiles 1:15, top 25 slices
 par(mar=c(0,0,1,0))
