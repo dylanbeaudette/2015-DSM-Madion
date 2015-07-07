@@ -88,12 +88,16 @@ Other:
 
 ## Soil Profile Data
 
-A collection of (`r length(loafercreek)`) soil profiles from the Sierra Foothill region of California were used to demonstrate two approaches for determining aggregate representation of genetic horizon boundaries. [INSERT DESCRIPTION OF RAINFALL, LOCATION, ETC] 
-
-![alt text](static-figures/mvo-soil-montage-narrow.jpg)
-
-These soil profiles represent some of the data that have been "correlated" to the [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series. 
+A collection of (`r length(loafercreek)`) soil profiles from the Sierra Foothill Region of California were used to demonstrate two approaches for determining aggregate representation of genetic horizon boundaries. 
 These data are included within the **soilDB** package for R [@beaudette2015]. 
+These soils are associated with the  [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series (fine-loamy, mixed, super-active, thermic ultic haploxeralfs); moderately deep soils formed in colluvium and residuum from metavolcanic rocks (greenschist). The climate is characterized by hot, dry summers and cool, wet winters. 
+Mean annual air temperature is close to 16 degrees C and mean annual precipitation is about 760 mm. 
+The native vegitation is blue oak and annual grass savannah. Main land uses include range, vineyards, recreation, and wild life habitat. 
+This collection of soil profile data represents the work of 13 different soil scientists, with described properties spanning ranges in physical properties (related to bedrock composition) (Figure 1).
+
+![Figure 1. Eight photos of the Loafercreek soil series, collected in Tuolumne and Calaveras counties, CA, USA.](static-figures/mvo-soil-montage-narrow.jpg)
+
+
 
 ## Horizon Generalization
 
@@ -445,7 +449,7 @@ bwplot(resid ~ genhz, data=s.sub, panel=function(...){
 
 
 ```{r fig-model-fit-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'Does this help at all?'}
-xyplot(PO.logistic.regression ~ empirical.probabilities | variable, data=g.wide, as.table=TRUE, xlab='Empirical GHL Probability', ylab='PO-LR Predictions', asp='iso') + latticeExtra::layer(panel.abline(a=0, b=1))
+xyplot(PO.logistic.regression ~ empirical.probabilities | variable, data=g.wide, as.table=TRUE, xlab='Empirical GHL Probability', ylab='PO-LR Predictions', asp='iso', strip=strip.custom(bg=grey(0.85)), scales=list(alternating=3)) + latticeExtra::layer(panel.abline(a=0, b=1))
 ```
 
 
@@ -455,7 +459,7 @@ Predictions from the 250 models were then combined and visualized below.
 
 ```{r fig-model-robustness, fig.width=10, fig.height=5, echo=FALSE}
 # plot with transparency
-xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.025))), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
+xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.025))), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1, tick.number=3)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
 	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
 	panel.xyplot(...)
 })
