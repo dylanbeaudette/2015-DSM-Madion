@@ -1,3 +1,9 @@
+
+## points to address
+......I tried to work these ideas into the text above....
+* Horizonation as assessed by soil scientists is somewhat subjective, and there is always some error associated with it. This error is rarely acknowledged: boundaries between horizons, expressed as horizon depths, are generally considered as "crisp" numbers, while in actuality they represent "fuzzy" numbers. 
+* At this stage of the introduction it would be good to explain how traditional aggregates (mean, etc) only gets you so far. Soil profile is a fundamental object for the understanding of soil processes, so it's important to come up w/ statistical/quantitative aggregate for these. Link this with importance of pedological understanding of soil, and with making a truly useful product out of soil survey data. 
+
 ### Issues to be resolved
 * estimation of confidence intervals via GAMM ? [ideas here](http://www.fromthebottomoftheheap.net/2014/06/16/simultaneous-confidence-intervals-for-derivatives/)
 
