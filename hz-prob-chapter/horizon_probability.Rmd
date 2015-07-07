@@ -265,7 +265,7 @@ The first method is based on (1-cm interval) slice-wise evaluation of generalize
 
 * morphometrics [@Hartemink2014]
 
-![Figure 1. Eight photos of the Loafercreek soil series, collected in Tuolumne and Calaveras counties, CA, USA. How would you combine these concepts into a single soil series description?](static-figures/mvo-soil-montage-narrow.jpg)
+![Figure 1. Eight photos of the Loafercreek soil series, collected in Tuolumne and Calaveras counties, CA, USA. How would you combine the wide range in morphology from these profiles into an aggregate concept?](static-figures/mvo-soil-montage-narrow.jpg)
 
 
 # Materials and Methods
@@ -293,21 +293,22 @@ The expert's field experience is thus preserved within the vector of REGEX rules
 
 Evaluation of GHL via silhouette width metric [@Rousseeuw1987]
 
-## Horizon Aggregation by Slicing
+### Aggregation of Generalized Horizon Labels
+
+### Slicing
 
 Slicing and slice-wise evaluation of horizon probability described in [AQP: A Toolkit for Soil Scientists](10.1016/j.cageo.2012.10.020).
 
 
-
-## Horizon Aggregation by Proportional-Odds Logistic Regression
+### Proportional Odds Logistic Regression
 
 A sequence of morphologic soil horizon designations can be modeled as an ordinal-scale variable: categorical by definition and ordered along a logical gradient, depth. Within the set of GHL associated with our sample data, "Bt2" horizons always occur after "Bt1" horizons and before "Bt3" horizons. The proportional odds logistic regression model (cumulative link model with logit link) [@McCullagh1980] is a convenient framework for estimating the probability of encountering a GHL, as conditioned by depth. The proportional odds logistic regression (PO-LR) model can be defined as:
 
 $$ P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
 
-where $P[Y \geq j | X]$ is the estimated probability of encountoring GHL $j$, $X$ is a set of predictor variables, and $\beta$ a vector of fitted regression coefficients [@Harrell2001]. In this study, the PO-LR model was fit to "sliced" horizon data; 1-cm slices of GHL and slice top depth. Restricted cubic spline basis functions with 4 knots [@Harrell2001; Hastie2009] located at the 5th, 35th, 65th, and 95th percentiles of slice top depth were used to accommodate non-linearity.
+where $P[Y \geq j | X]$ is the estimated probability of encountoring GHL $j$, $X$ is a set of predictor variables, and $\beta$ a vector of fitted regression coefficients [@Harrell2001]. In this study, the PO-LR model was fit to "sliced" horizon data; 1-cm slices of GHL and slice top depth (Figure 2). Restricted cubic spline basis functions [@Harrell2001; @Hastie2009] with 4 knots located at the 5th, 35th, 65th, and 95th percentiles of slice top depth were used to accommodate non-linearity. An empirical index of model stability was calculated by repeatedly re-fitting the PO-LR model to 25 randomly sampled profiles (out of 54 total), 250 times.
 
-```{r slice-and-fit-1, echo=FALSE, fig.width=10, fig.height=6, fig.cap='CAPTION ME'}
+```{r slice-and-fit-1, echo=FALSE, fig.width=10, fig.height=6, fig.cap='Figure 2. Demonstration of some Loafercreek soil profiles sliced into 1-cm chunks, colored by GHL, and associated probability estimates from the fitted PO-LR model.'}
 # graphical check: profiles 1:15, top 25 slices
 par(mar=c(0,0,1,0))
 plot(s[1:25, 1:60], color='genhz.soil_color', name='', print.id=FALSE, plot.depth.axis=FALSE, n=32)
@@ -321,12 +322,6 @@ lines(27 + (7*p$Bt3), p$top, col=cols[6], lwd=2)
 ```
 
 
-## Model stability
-
-PO-model stability was evaluated by repeatedly re-fitting a model to 25 randomly sampled profiles (out of 53 total), 250 times. 
-ML horizon boundaries were derived from these data by evaluating the 5th-50th-95th percentiles of ML horizon boundaries computed within each simulation. 
-
-
 ## Quantification of Uncertainty
 
 Shannon Entropy (H index) [@Kempen2009]
@@ -337,7 +332,9 @@ Brier scores [@Harrell2001]
 $$ B = \frac{1}{n} \sum_{i=1}^{n}{ ( p_{i} - y_{i} )^{2}  }  $$
 $B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and horizons, $\mathbf{y}$, over depth-slices $i$ through $n$ associated with a specific horizon. Larger values suggest **less** agreement between probabilities and observed horizon labels.
 
+## Most-Likely Horizon Boundaries
 
+ML horizon boundaries were derived from these data by evaluating the 5th-50th-95th percentiles of ML horizon boundaries computed within each simulation. 
 
 # Results
 
@@ -433,7 +430,7 @@ bwplot(resid ~ genhz, data=s.sub, panel=function(...){
 
 
 ```{r fig-model-fit-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'Does this help at all?'}
-xyplot(PO.logistic.regression ~ empirical.probabilities | variable, data=g.wide, as.table=TRUE, xlab='Empirical GHL Probability', ylab='PO-LR Predictions', asp='iso', strip=strip.custom(bg=grey(0.85)), scales=list(alternating=3)) + latticeExtra::layer(panel.abline(a=0, b=1))
+xyplot(PO.logistic.regression ~ empirical.probabilities | variable, data=g.wide, type=c('p', 'g'), as.table=TRUE, xlab='Empirical GHL Probability', ylab='PO-LR Estimated GHL Probability', asp='iso', strip=strip.custom(bg=grey(0.85)), scales=list(alternating=3), par.settings=list(plot.symbol=list(col='black'))) + latticeExtra::layer(panel.abline(a=0, b=1))
 ```
 
 
@@ -491,4 +488,4 @@ Ideas for the conclusion.....the ideas presented in this paper regarding modelin
 
 
 # References
-
+fake text here
