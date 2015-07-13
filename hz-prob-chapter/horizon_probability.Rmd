@@ -259,6 +259,8 @@ Both methods rely on an expert-guided description of generalized horizon designa
 The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. Specialized classes for soil profile collections and depth-slicing algorithms are implemented in the [aqp](http://cran.at.r-project.org/web/packages/aqp/index.html) package for R [beaudette2013]. 
 
 **Possible Papers to cite**
+* ordinal response models in ecology [@Antoine2000]
+
 * horizon thickness [@Vanwalleghem2010]
 
 * "red clay" hz presence, logistic regression [@Evans2014296]
