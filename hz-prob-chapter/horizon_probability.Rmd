@@ -3,14 +3,14 @@ title: "Aggregate Representation of Genetic Soil Horizons"
 author: "D.E. Beaudette, P. Roudier and J.M. Skovlin"
 fontsize: 11pt
 output:
-  word_document:
-    fig_caption: yes
-  pdf_document:
-    fig_caption: yes
   html_document:
     fig_caption: yes
     number_sections: yes
     theme: journal
+  pdf_document:
+    fig_caption: yes
+  word_document:
+    fig_caption: yes
 bibliography: bibliography.bib
 ---
 
@@ -35,6 +35,7 @@ library(scales)
 library(cluster)
 library(knitr)
 library(ggplot2)
+library(e1071)
 ```
 
 ```{r data-prep, echo=FALSE}
@@ -191,9 +192,14 @@ for(i in seq_along(p.s$hzdept)) {
 
 ```{r pro-model-robustness, echo=FALSE, cache=TRUE}
 # encapsulate model fitting / prediction within a single function
-f.test <- function(s.i, slice.vect, hz.names) {
+f.test <- function(s, idx.in, slice.vect, hz.names) {
+  
+  # split into calibration / validation sets
+  s.cal <- s[idx.in, ]
+  s.val <- s[setdiff(1:length(s), idx.in), ]
+  
   # fit model to a subset of the original data
-	l.genhz <- try(orm(genhz ~ rcs(hzdept), data=horizons(s.i)))
+	l.genhz <- try(orm(genhz ~ rcs(hzdept, parms=c(knots=4)), data=horizons(s.cal)))
 	
 	# sometimes the subset doesn't permit model fitting, in that case return NULL
 	if(inherits(l.genhz, 'try-error'))
@@ -207,7 +213,16 @@ f.test <- function(s.i, slice.vect, hz.names) {
 	p.long <- melt(p, id.vars='top', measure.vars=hz.names)
 	mdi <- l.genhz$stats['R2']
 	
-	return(list(predictions=p.long, model.disc.index=mdi))
+  # compare most-likely GHL by slice and compare with original assignments
+  p.val <- data.frame(predict(l.genhz, horizons(s.val), type='fitted.ind'))
+  p.val$hz <- hz.names[apply(p.val, 1, which.max)]
+  p.val$hz <- factor(p.val$hz, levels=hz.names)
+  
+  # compute class agreement
+  cross.tab <- table(original=s.val$genhz, predictions=p.val$hz)
+  agreement <- classAgreement(cross.tab, match.names = TRUE)
+  
+	return(list(predictions=p.long, model.disc.index=mdi, cross.tab=cross.tab, agreement=agreement))
 }
 
 # init an empty list
@@ -219,9 +234,9 @@ l.res <- list()
 # loop a bunch of times, re-fitting the model to a subset of only 25 profiles
 for(i in 1:n.reps) {
 	len.vect <- 1:length(loafercreek)
-	s.idx <- sample(len.vect, size=25, replace=FALSE)
+	idx.in <- sample(len.vect, size=25, replace=FALSE)
 	# s.left.out.idx <- setdiff(len.vect, s.idx)
-	l.res[[paste('rep.', i, sep='')]] <- f.test(s[s.idx, ], slice.vect, hz.names)
+	l.res[[paste('rep.', i, sep='')]] <- f.test(s, idx.in, slice.vect, hz.names)
 }
 
 # convert the result from a list into a data.frame, and remove very small probs.
@@ -230,6 +245,14 @@ d.res$value[which(d.res$value < 0.01)] <- NA
 
 # extract model discrimination index
 res.mdi <- unlist(sapply(l.res, function(i) i$model.disc.index))
+
+# compute mean cross-tab
+r <- Reduce('+', lapply(l.res, function(i) i$cross.tab))
+mean.cross.tab <- round(r / n.reps)
+
+## how useful is this?
+# get distribution of Kappa
+res.kappa <- unlist(sapply(l.res, function(i) i$agreement$kappa))
 ```
 
 # Abstract
@@ -256,9 +279,13 @@ The use of generalized horizon labels (GHL) provides a framework for correlating
 
 We demonstrate two possible methods for aggregating a collection of soil profiles into "synthetic profiles"; describing depth-wise probability functions for each genetic horizon. 
 Both methods rely on an expert-guided description of generalized horizon designation (e.g. horizon designations that are deemed representative) along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. 
-The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. Specialized classes for soil profile collections and depth-slicing algorithms are implemented in the [aqp](http://cran.at.r-project.org/web/packages/aqp/index.html) package for R [beaudette2013]. 
+The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. Specialized classes for soil profile collections and depth-slicing algorithms are implemented in the [aqp](http://cran.at.r-project.org/web/packages/aqp/index.html) package for R [@beaudette2013]. 
 
 **Possible Papers to cite**
+* [@Webster1968]
+
+* "any given pedon (component, series) can have a number of different realizations. re-sampling a pit, or changes in horizon designation lead to variability" [@Holmgren1988]
+
 * ordinal response models in ecology [@Antoine2000]
 
 * horizon thickness [@Vanwalleghem2010]
