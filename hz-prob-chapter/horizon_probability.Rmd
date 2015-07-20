@@ -229,8 +229,6 @@ f.test <- function(s, idx.in, slice.vect, hz.names) {
 n.reps <- 250
 l.res <- list()
 
-## TODO: it would be nice to evaluate the model at each iteration using
-##       those observations that were left out
 # loop a bunch of times, re-fitting the model to a subset of only 25 profiles
 for(i in 1:n.reps) {
 	len.vect <- 1:length(loafercreek)
@@ -246,6 +244,7 @@ d.res$value[which(d.res$value < 0.01)] <- NA
 # extract model discrimination index
 res.mdi <- unlist(sapply(l.res, function(i) i$model.disc.index))
 
+## how useful is this?
 # compute mean cross-tab
 r <- Reduce('+', lapply(l.res, function(i) i$cross.tab))
 mean.cross.tab <- round(r / n.reps)
@@ -281,8 +280,8 @@ We demonstrate two possible methods for aggregating a collection of soil profile
 Both methods rely on an expert-guided description of generalized horizon designation (e.g. horizon designations that are deemed representative) along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. 
 The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. Specialized classes for soil profile collections and depth-slicing algorithms are implemented in the [aqp](http://cran.at.r-project.org/web/packages/aqp/index.html) package for R [@beaudette2013]. 
 
-**Possible Papers to cite**
-* [@Webster1968]
+**Papers to cite**
+* single pedon (modal) is insufficient to represent a general range in characteristics [@Jones1959]
 
 * "any given pedon (component, series) can have a number of different realizations. re-sampling a pit, or changes in horizon designation lead to variability" [@Holmgren1988]
 
@@ -436,9 +435,15 @@ p.1 + as.layer(xyplot(0:150 ~ shannon.h, type='l', lty=2, lwd=2, col='black'))
 ## ML Horizon boundaries
 
 ```{r tbl-ml-hz-boundaries, echo=FALSE, results='asis'}
-# print hz boundary tables
+# remove these columns, confusing in this context
+a.ml$confidence <- NULL 
+p.ml$confidence <- NULL
+
+# combine ML horizonation tables
 hz_bnd_tbl <- cbind(a.ml, p.ml)
-names(hz_bnd_tbl) <- rep(c('Horizon', 'Top (cm)', 'Bottom (cm)', 'Confidence', 'Brier'), times = 2)
+
+# adjust names and print ML horizonation tables
+names(hz_bnd_tbl) <- rep(c('Horizon', 'Top (cm)', 'Bottom (cm)', 'Brier'), times = 2)
 kable(hz_bnd_tbl, digits = 2, caption = 'CAPTION ME')
 ```
 
