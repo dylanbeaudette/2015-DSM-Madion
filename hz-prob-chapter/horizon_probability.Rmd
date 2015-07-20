@@ -229,6 +229,8 @@ f.test <- function(s, idx.in, slice.vect, hz.names) {
 n.reps <- 250
 l.res <- list()
 
+## TODO: it would be nice to evaluate the model at each iteration using
+##       those observations that were left out
 # loop a bunch of times, re-fitting the model to a subset of only 25 profiles
 for(i in 1:n.reps) {
 	len.vect <- 1:length(loafercreek)
@@ -244,7 +246,6 @@ d.res$value[which(d.res$value < 0.01)] <- NA
 # extract model discrimination index
 res.mdi <- unlist(sapply(l.res, function(i) i$model.disc.index))
 
-## how useful is this?
 # compute mean cross-tab
 r <- Reduce('+', lapply(l.res, function(i) i$cross.tab))
 mean.cross.tab <- round(r / n.reps)
@@ -269,7 +270,9 @@ These methods are demonstrated using USDA-NRCS soil survey data (USA).
 
 Published soil survey reports typically describe soils in terms of *aggregate* information, *ie* soil properties, interpretations, and limitations that are based on a collection of field-described soil profiles. 
 While aggregate soil properties are readily estimated via standard statistical functions (mean, median, etc.), an aggregate representation of *horizonation* (e.g. genetic horizon designation and depth) is typically difficult to construct [@beaudette2013]. 
-Variation in horizon designation "style" among different soil scientists, changes in horizon designation standards over time, variable depths at which genetic horizons occur, and the possible lack of a specific genetic horizon are all factors that complicate the process of delivering an aggregate representation of horizonation.  The process of designating horizons by soil scientists can be somewhat subjective, and there is always error associated with it. This error is rarely acknowledged: boundaries between horizons, expressed as horizon depths, are generally considered as "crisp" numbers, while in actuality they represent "fuzzy" numbers due to the varying distinctness of the horizon boundaries and how abruptly characteristics change at horizon boundaries.
+Variation in horizon designation "style" among different soil scientists, changes in horizon designation standards over time, variable depths at which genetic horizons occur, and the possible lack of a specific genetic horizon are all factors that complicate the process of delivering an aggregate representation of horizonation. The process of designating horizons by soil scientists can be somewhat subjective; even a second description of the same volume of soil can lead to a slightly different set of horizon designations and depths [@Holmgren1988]. In addition to human sources of variability, it is understood that most of the variation between profile descriptions is due to real differences between soils observed at different locations [@Wilding1964].
+
+This complex combination of variability in morphologic horizon designation and depths is rarely acknowledged at the series or component level: boundaries between horizons, expressed as horizon depths, are generally considered as "crisp" numbers, while in actuality they represent "fuzzy" numbers due to the varying distinctness of the horizon boundaries and how abruptly characteristics change at horizon boundaries.
 
 Soil profiles and their corresponding soil horizons represent a record of soil formation and encapsulate significant information about soil morphology.  Although new tools and technologies may make continuous-depth measurements of soils possible, horizon designations, have historically been the common pedological language used to annotate observations of changes in soil properties with depth [@Hartemink2014].  Within soil classification systems, horizon designations provide a morphological framework within which other properties can be measured.
 
@@ -278,12 +281,11 @@ The use of generalized horizon labels (GHL) provides a framework for correlating
 
 We demonstrate two possible methods for aggregating a collection of soil profiles into "synthetic profiles"; describing depth-wise probability functions for each genetic horizon. 
 Both methods rely on an expert-guided description of generalized horizon designation (e.g. horizon designations that are deemed representative) along with associated rules (regular expression patterns) used to correlate field-described to generalized horizon designation. 
-The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression model fit to depth-slices. Specialized classes for soil profile collections and depth-slicing algorithms are implemented in the [aqp](http://cran.at.r-project.org/web/packages/aqp/index.html) package for R [@beaudette2013]. 
+The first method is based on (1-cm interval) slice-wise evaluation of generalized horizon designation; the second is based on a proportional-odds logistic regression [@McCullagh1980] model fit to depth-slices. Specialized classes for soil profile collections and depth-slicing algorithms are implemented in the [aqp](http://cran.at.r-project.org/web/packages/aqp/index.html) package for R [@beaudette2013].
 
-**Papers to cite**
-* single pedon (modal) is insufficient to represent a general range in characteristics [@Jones1959]
 
-* "any given pedon (component, series) can have a number of different realizations. re-sampling a pit, or changes in horizon designation lead to variability" [@Holmgren1988]
+
+**Possible Papers to cite**
 
 * ordinal response models in ecology [@Antoine2000]
 
@@ -293,53 +295,38 @@ The first method is based on (1-cm interval) slice-wise evaluation of generalize
 
 * depth-functions [@myers2011;@Kempen2011]
 
-* morphometrics [@Hartemink2014]
-
-
-![Figure 1. Eight photos of the Loafercreek soil series, collected in Tuolumne and Calaveras counties, CA, USA. How would you combine the wide range in morphology from these profiles into an aggregate concept?](static-figures/mvo-soil-montage-narrow.jpg)
-
 
 # Materials and Methods
 
 ## Soil Profile Data
 
-A collection of (`r length(loafercreek)`) soil profiles from the Sierra Foothill Region of California were used to demonstrate two approaches for determining aggregate representation of genetic horizon boundaries. 
-These data are included within the **soilDB** package for R [@beaudette2015]. 
-These soils are associated with the  [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series (fine-loamy, mixed, super-active, thermic ultic haploxeralfs); moderately deep soils formed in colluvium and residuum from metavolcanic rocks (greenschist). The climate is characterized by hot, dry summers and cool, wet winters. 
+A collection of (`r length(loafercreek)`) soil profiles from the Sierra Foothill Region of California were used to demonstrate two approaches for determining aggregate representation of genetic horizon boundaries. This collection of soil profile data represents the work of 13 different soil scientists, with described properties spanning ranges in physical properties (mostly related to bedrock composition) and are included within the **soilDB** package for R [@beaudette2015]. 
+These soils are associated with the [Loafercreek](https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html) soil series (fine-loamy, mixed, super-active, thermic ultic haploxeralfs); moderately deep soils formed in colluvium and residuum from metavolcanic rocks (greenschist) (Figure 1). The climate is characterized by hot, dry summers and cool, wet winters. 
 Mean annual air temperature is close to 16 degrees C and mean annual precipitation is about 760 mm. 
-The native vegitation is blue oak and annual grass savannah. Main land uses include range, vineyards, recreation, and wild life habitat. 
-This collection of soil profile data represents the work of 13 different soil scientists, with described properties spanning ranges in physical properties (mostly related to bedrock composition). 
+The native vegitation is blue oak and annual grass savannah. Main land uses include range, vineyards, recreation, and wild life habitat.
 
-**incorporate this idea:** "Although a portion of the variability within morphological properties determined in the file is attributed to discrepancies in human judgement, it is assumed that a major cause of variance is due to differences in soils at different locations" [@Wilding1964]
+![Figure 1. Eight photos of the Loafercreek soil series, collected in Tuolumne and Calaveras counties, CA, USA. How would you combine the wide range in morphology from these profiles into an aggregate concept?](static-figures/mvo-soil-montage-narrow.jpg)
 
+The methods described in this paper are based on field descriptions: observations based on (experienced) visual and tactile investigation of the soil profile. Given sufficient laboratory characterization data, these same methods could be refined to use a combination of field and lab data.
 
 
 ## Horizon Generalization
 
 Generalized horizon labels (GHL) represent an expert-guided selection of horizon designations that were consistently observed in the field, and meaningful in terms of soil morphology and management.  
 These designations were determined to convey the "morphologic story" or conceptual framework of most-likely horizons typically observed in a suite of soil profiles associated with a specific soil series or map unit concept. 
-The Official Series Description (OSD, [https://soilseries.sc.egov.usda.gov/OSD_Docs/L/LOAFERCREEK.html]) of the Loafercreek series typical pedon and range in characteristics defines this soil series concept. 
+The Official Series Description, or OSD [@OSD_reference] of the Loafercreek series typical pedon and range in characteristics defines this soil series concept. In this case, the OSD was a useful GHL template, however, older OSDs or those that were based on a very limited set of data may not adequately conveyan appropriate morphologic story.
 
-Once a set of GHL have been determined (```r c('Oi', 'A','BA','Bt1','Bt2','Bt3','Cr','R')```), a corresponding set of regular expression (REGEX) rules were developed to map the field-described designations into generalized designations. 
+Once a set of GHL have been determined (in the case of the sample dataset: ```r c('Oi','A','BA','Bt1','Bt2','Bt3','Cr','R')```), it is neccessary to create and apply a set of rules that map the field-described designations to corrosponding GHL. When working with a set of pedons that have been described by a small number of individuals over a short period of time (i.e. consistency in both designation application and standards) it is possible to use a regular expression (REGEX) pattern matching to apply GHL. 
 This process typically requires expert-guided review of: 1) regional patterns in horizonation style, 2) morphologic property differences by groups of field-described designation, and, 3) patterns of horizonation and properties with depth. 
-The expert's field experience is thus preserved within the vector of REGEX rules. 
+The expert's experience is (mostly) preserved within the REGEX rules.
+However, there are usually cases where pattern matching along is not enough and manual adjustment of GHL on a horizon-by-horizon basis are needed.
 
-Evaluation of GHL via silhouette width metric [@Rousseeuw1987]
+At present there aren't many ways in which this type of "micro-correlation" information can be preserved. The authors suggest that future studies maintain a record of orginal horizon designations, generalized horizon labels suitable for aggregation, and the rules used to apply these labels.
+A convenient, quantitative evaluation of GHL assignments can be performed using the silhouette width metric [@Rousseeuw1987]. This metric, commonly used to assess clustering labels, provides a simple metric that can be used to address the basic question of GHL assignment: "given a set of data and labels, how well do these labels split differences within the data?". A more detailed description of this approach has been documented in chapter (???).
 
 ### Aggregation of Generalized Horizon Labels
 
-### Slicing
-
-Slicing and slice-wise evaluation of horizon probability described in [AQP: A Toolkit for Soil Scientists](10.1016/j.cageo.2012.10.020).
-
-
-### Proportional Odds Logistic Regression
-
-A sequence of morphologic soil horizon designations can be modeled as an ordinal-scale variable: categorical by definition and ordered along a logical gradient, depth. Within the set of GHL associated with our sample data, "Bt2" horizons always occur after "Bt1" horizons and before "Bt3" horizons. The proportional odds logistic regression model (cumulative link model with logit link) [@McCullagh1980] is a convenient framework for estimating the probability of encountering a GHL, as conditioned by depth. The proportional odds logistic regression (PO-LR) model can be defined as:
-
-$$ P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
-
-where $P[Y \geq j | X]$ is the estimated probability of encountoring GHL $j$, $X$ is a set of predictor variables, and $\beta$ a vector of fitted regression coefficients [@Harrell2001]. In this study, the PO-LR model was fit to "sliced" horizon data; 1-cm slices of GHL and slice top depth (Figure 2). Restricted cubic spline basis functions [@Harrell2001; @Hastie2009] with 4 knots located at the 5th, 35th, 65th, and 95th percentiles of slice top depth were used to accommodate non-linearity. An empirical index of model stability was calculated by repeatedly re-fitting the PO-LR model to 25 randomly sampled profiles (out of 54 total), 250 times.
+Aggregation of horizons as defined by GHL was performed using empirical probabilities, estimated along regular depth-slices from 0--150cm [@beaudette2013]. The "sliced" GHL data were then aggregated using proportional odds  logistic regression (Figure 2). All computation was performed with the R package for statistical computing [@R].
 
 ```{r slice-and-fit-1, echo=FALSE, fig.width=10, fig.height=4, fig.cap='Figure 2. Demonstration of some Loafercreek soil profiles sliced into 1-cm chunks, colored by GHL, and associated probability estimates from the fitted PO-LR model.'}
 # graphical check: profiles 1:25, top n slices
@@ -355,6 +342,15 @@ lines(27 + (7*p$Bt2[1:n.slices]), p$top[1:n.slices], col=cols[5], lwd=2)
 lines(27 + (7*p$Bt3[1:n.slices]), p$top[1:n.slices], col=cols[6], lwd=2)
 ```
 
+A sequence of morphologic soil horizon designations can be modeled as an ordinal-scale variable: categorical by definition and ordered along a logical gradient, depth. Within the set of GHL associated with our sample data, "Bt2" horizons always occur after "Bt1" horizons and before "Bt3" horizons. The proportional odds logistic regression model (cumulative link model with logit link) [@McCullagh1980] is a convenient framework for estimating the probability of encountering a GHL, as conditioned by depth. The proportional odds logistic regression (PO-LR) model can be defined as:
+
+$$ P[Y \geq j | X] = \frac{1}{1 + exp[-(\alpha_{j} + X \beta]} $$
+
+where $P[Y \geq j | X]$ is the estimated probability of encountoring GHL $j$, $X$ is a set of predictor variables, and $\beta$ a vector of fitted regression coefficients [@Harrell2001]. In this study, the PO-LR model was fit to "sliced" horizon data; 1-cm slices of GHL and slice top depth (Figure 2). Restricted cubic spline basis functions [@Harrell2001; @Hastie2009] with 4 knots located at the 5th, 35th, 65th, and 95th percentiles of slice top depth were used to accommodate non-linearity. An empirical index of model stability was calculated by repeatedly re-fitting the PO-LR model to 25 randomly sampled profiles (out of 54 total), 250 times.
+
+
+## Most-Likely Horizon Boundaries
+
 
 ## Quantification of Uncertainty
 
@@ -366,9 +362,7 @@ Brier scores [@Harrell2001]
 $$ B = \frac{1}{n} \sum_{i=1}^{n}{ ( p_{i} - y_{i} )^{2}  }  $$
 $B$ is an index of agreement between predicted probabilities, $\mathbf{p}$, and horizons, $\mathbf{y}$, over depth-slices $i$ through $n$ associated with a specific horizon. Larger values suggest **less** agreement between probabilities and observed horizon labels.
 
-## Most-Likely Horizon Boundaries
 
-ML horizon boundaries were derived from these data by evaluating the 5th-50th-95th percentiles of ML horizon boundaries computed within each simulation. 
 
 # Results
 
@@ -435,15 +429,9 @@ p.1 + as.layer(xyplot(0:150 ~ shannon.h, type='l', lty=2, lwd=2, col='black'))
 ## ML Horizon boundaries
 
 ```{r tbl-ml-hz-boundaries, echo=FALSE, results='asis'}
-# remove these columns, confusing in this context
-a.ml$confidence <- NULL 
-p.ml$confidence <- NULL
-
-# combine ML horizonation tables
+# print hz boundary tables
 hz_bnd_tbl <- cbind(a.ml, p.ml)
-
-# adjust names and print ML horizonation tables
-names(hz_bnd_tbl) <- rep(c('Horizon', 'Top (cm)', 'Bottom (cm)', 'Brier'), times = 2)
+names(hz_bnd_tbl) <- rep(c('Horizon', 'Top (cm)', 'Bottom (cm)', 'Confidence', 'Brier'), times = 2)
 kable(hz_bnd_tbl, digits = 2, caption = 'CAPTION ME')
 ```
 
