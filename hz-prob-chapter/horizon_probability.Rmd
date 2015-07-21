@@ -400,29 +400,18 @@ ggplot(data = hz_lfc) +
   theme_bw()
 ```
 
-
-
-
-
-
-
+The degree of overlap in GHL concepts can be expressed in terms of measured soil properties (in this case a limited set of field-described properties), summarized by GHL (Table 1). 
 
 ```{r tbl-GHL-eval, echo=FALSE}
-kable(hz.eval$stats, col.names = c('GHL', 'Clay (%)', 'Horizon Mid-Point (cm)', 'Total RF Volume (%)', 'Moist Munsell Value', 'Sillhouette Width'), caption='Evaluation of GHL via field-described soil properties. Reported values are means and standard deviation, in parenthesis.')
+kable(hz.eval$stats, col.names = c('GHL', 'Clay (%)', 'Horizon Mid-Point (cm)', 'Total RF Volume (%)', 'Moist Munsell Value', 'Sillhouette Width'), caption='Table 1. Evaluation of GHL via field-described soil properties. Reported values are means and standard deviation, in parenthesis. Values marked as "NA" are the result of missing or insufficient data.')
 ```
 
 
 ## Aggregate Representation of GHL
 
-Tidy representation of model fit here.
-```{r tbl-po-model, echo=FALSE, eval=FALSE}
-# we need to find a much cleaner way to report those results!
-print(l.genhz)
-```
 
 
-
-```{r fig-compare-genzh-probability-depth-functions, fig.width=10, fig.height=7, echo=FALSE, fig.cap = 'CAPTION ME'}
+```{r fig-compare-genzh-probability-depth-functions, fig.width=10, fig.height=7, echo=FALSE, fig.cap = 'Figure 4. Comparison of empirical GHL probabilities, evaluated over 1cm depth slices, and predictions from the PO-LR model. Probabilities less than 0.01 have been removed for clarity.'}
 # compare slicing vs. PO-LR
 xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=2, title='GHL'), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1), layout.heights=list(strip=1.5)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(par.strip.text=list(cex=1.5), bg=grey(0.85)), asp=1.5, panel=function(...) {
   panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
@@ -431,7 +420,12 @@ xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), 
 ```
 
 
-```{r fig-quantify-uncertainty, fig.width=10, fig.height=7, echo=FALSE, fig.cap = 'CAPTION ME'}
+
+
+
+
+
+```{r fig-quantify-uncertainty, fig.width=10, fig.height=7, echo=FALSE, fig.cap = 'Figure 5. Brier scores and Shannon entropy computed from PO-LR predictions.'}
 # copy our predictions and adjust GHL labels to include brier scores
 p.long.copy <- p.long 
 # larger values -> predictions are less consistently correct
@@ -456,15 +450,36 @@ p.ml$confidence <- NULL
 hz_bnd_tbl <- cbind(a.ml, p.ml)
 # remove "confidence", this isn't well defined in the paper and not needed
 names(hz_bnd_tbl) <- rep(c('Horizon', 'Top (cm)', 'Bottom (cm)', 'Brier'), times = 2)
-kable(hz_bnd_tbl, digits = 2, caption = 'CAPTION ME')
+kable(hz_bnd_tbl, digits = 2, caption = 'Table 3. Most-likely GHL boundary depths and associated Brier scores, computed from empirical probabilities and PO-LR predictions.')
 ```
 
 
 
 ## Model Fit
 
+Tidy representation of model fit here.
+```{r tbl-po-model, echo=FALSE, eval=FALSE, results='asis'}
+# we need to find a much cleaner way to report those results!
+# until then, I'll just hand-make a MD version of the model coef and SE below
+print(l.genhz)
+```
 
-```{r fig-model-fit-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'Does this help at all?'}
+
+|Term       |Coef   |S.E.   |Wald Z |
+|:----------|:------|:------|:------|
+|y>=A       |2.2050 |0.2008  |10.98 |
+|y>=BA     |-1.6688 |0.1020 |-16.36 |
+|y>=Bt1    |-2.3032 |0.1064 |-21.66 |
+|y>=Bt2    |-6.4802 |0.1961 |-33.04 |
+|y>=Bt3   |-10.5553 |0.2542 |-41.52 |
+|y>=Cr    |-13.0341 |0.2656 |-49.08 |
+|y>=R     |-15.9055 |0.2785 |-57.12 |
+|hzdept     |0.2513 |0.0077 |32.78  |
+|hzdept'   |-0.3356 |0.0304 |-11.03 |
+|hzdept''   |0.6957 |0.0806   |8.63 |
+
+
+```{r fig-model-fit-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'Figure 6. Scatterplotcomparison of empirical GHL probabilities and PO-LR estimated GHL probabilities. Solid lines represent1:1 agreement.'}
 xyplot(PO.logistic.regression ~ empirical.probabilities | variable, data=g.wide, type=c('p', 'g'), as.table=TRUE, xlab='Empirical GHL Probability', ylab='PO-LR Estimated GHL Probability', asp='iso', strip=strip.custom(bg=grey(0.85)), scales=list(alternating=3), par.settings=list(plot.symbol=list(col='black'))) + latticeExtra::layer(panel.abline(a=0, b=1))
 ```
 
@@ -473,7 +488,7 @@ xyplot(PO.logistic.regression ~ empirical.probabilities | variable, data=g.wide,
 
 Predictions from the 250 models were then combined and visualized below. 
 
-```{r fig-model-robustness, fig.width=10, fig.height=5, echo=FALSE}
+```{r fig-model-robustness, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'Figure 7. Predicted GHL probability depth-functions from 250 iterations of model fitting, based on a reduced training dataset.'}
 # plot with transparency
 xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.025))), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1, tick.number=3)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
 	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
