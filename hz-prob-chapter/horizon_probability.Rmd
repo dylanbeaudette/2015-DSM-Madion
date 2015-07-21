@@ -48,8 +48,8 @@ loafercreek$mid <- with(horizons(loafercreek), (hzdept + hzdepb) / 2)
 hz.designation.by.median.depths <- names(sort(tapply(loafercreek$mid, loafercreek$hzname, median)))
 
 # generalize horizon names using REGEX rules
-n <- c('Oi', 'A','BA','Bt1','Bt2','Bt3','Cr','R')
-p <- c('O', '^A$|Ad|Ap','AB$|BA$|Bw|^ABt$', 'Bt1$|^Bt$|^B$','^Bt2$','^Bt3|^Bt4|CBt$|BCt$|2Bt|2CB$|^C$','Cr','R')
+n <- c('Oi', 'A', 'BA','Bt1','Bt2','Bt3','Cr','R')
+p <- c('O', '^A$|Ad|Ap|AB','BA$|Bw', 'Bt1$|^B$','^Bt$|^Bt2$','^Bt3|^Bt4|CBt$|BCt$|2Bt|2CB$|^C$','Cr','R')
 loafercreek$genhz <- generalize.hz(loafercreek$hzname, n, p)
 
 # remove non-matching generalized horizon names
@@ -253,6 +253,15 @@ mean.cross.tab <- round(r / n.reps)
 res.kappa <- unlist(sapply(l.res, function(i) i$agreement$kappa))
 ```
 
+```{r pro-eval-genz, echo=FALSE, results='hide', cache=TRUE}
+# compute horizon mid-points
+loafercreek$mid <- with(horizons(loafercreek), (hzdept + hzdepb) / 2)
+# store the column names of our variables of interest
+vars <- c('clay', 'mid', 'total_frags_pct', 'm_value')
+# result is a list of several items
+hz.eval <- evalGenHZ(loafercreek, 'genhz', vars)
+```
+
 # Abstract
 
 Published soil survey reports typically describe soils in terms of aggregate information: soil properties, interpretations, and limitations that are based on a collection of field-described soil profiles. 
@@ -319,9 +328,8 @@ These designations were determined to convey the "morphologic story" or conceptu
 The Official Series Description, or OSD [@OSD_reference] of the Loafercreek series typical pedon and range in characteristics defines this soil series concept. In this case, the OSD was a useful GHL template, however, older OSDs or those that were based on a very limited set of data may not adequately conveyan appropriate morphologic story.
 
 Once a set of GHL have been determined (in the case of the sample dataset: ```r c('Oi','A','BA','Bt1','Bt2','Bt3','Cr','R')```), it is neccessary to create and apply a set of rules that map the field-described designations to corrosponding GHL. When working with a set of pedons that have been described by a small number of individuals over a short period of time (i.e. consistency in both designation application and standards) it is possible to use a regular expression (REGEX) pattern matching to apply GHL. 
-This process typically requires expert-guided review of: 1) regional patterns in horizonation style, 2) morphologic property differences by groups of field-described designation, and, 3) patterns of horizonation and properties with depth. 
-The expert's experience is (mostly) preserved within the REGEX rules.
-However, there are usually cases where pattern matching along is not enough and manual adjustment of GHL on a horizon-by-horizon basis are needed.
+This process typically requires expert-guided review of: 1) regional patterns in horizonation style, 2) morphologic property differences by groups of field-described designation, and, 3) patterns of horizonation and properties with depth. We used a combination of field-described clay content, rock fragment volume, moist Munsell value, and horizon mid-point to evaluate GHL assignments and determine the final set of REGEX rules. Due to this iterative process, local experience with these soils and their properties are (mostly) preserved within the REGEX rules and corresponding GHL.
+It should be noted that there are some cases where pattern matching alone is not enough and manual adjustment of GHL on a horizon-by-horizon basis are needed.
 
 At present there aren't many ways in which this type of "micro-correlation" information can be preserved. The authors suggest that future studies maintain a record of orginal horizon designations, generalized horizon labels suitable for aggregation, and the rules used to apply these labels.
 A convenient, quantitative evaluation of GHL assignments can be performed using the silhouette width metric [@Rousseeuw1987]. This metric, commonly used to assess clustering labels, provides a simple metric that can be used to address the basic question of GHL assignment: "given a set of data and labels, how well do these labels split differences within the data?". A more detailed description of this approach has been documented in chapter (???).
@@ -372,9 +380,12 @@ where $B$ is an index of agreement between predicted probabilities, $\mathbf{p}$
 
 ## Generalized Horizon Labels
 
+A graphical representation of the association between field-described horizon designation and associated GHL is presented as a box and whisker plot in Figure 3. 
+
+
 ```{r fig-eval-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='Figure 3. Original horizons designations (x-axis), GHL assignments (colors), and associated ranges in depth.'}
 hz_lfc <- horizons(loafercreek)
-hz_ordered <- c('Oi', 'Ap', 'A', 'Ad', 'AB', 'ABt', 'BA', 'Bw', 'Bt1', 'B', 'Bt', 'Bt2', '2Bt2', 'Bt3', 'CBt', '2BCt', '2Bt3', 'C', '2CB', 'Bt4', '2Bt4', 'BCt', 'Cr', 'Crt', '2Crt', '2Cr', 'Rt', 'R', '2R')
+hz_ordered <- c('Oi', 'Ap', 'A', 'ABt', 'Ad', 'AB', 'BA', 'Bw', 'Bt1', 'B', 'Bt', 'Bt2', '2Bt2', 'Bt3', 'CBt', '2BCt', '2Bt3', 'C', '2CB', 'Bt4', '2Bt4', 'BCt', 'Cr', 'Crt', '2Crt', '2Cr', 'Rt', 'R', '2R')
 hz_lfc$hzname <- factor(hz_lfc$hzname, levels = hz_ordered)
 
 # Making group 
@@ -385,6 +396,11 @@ ggplot(data = hz_lfc) +
   guides(fill = guide_legend(title = "Generalized\nHorizon\nLabel")) +
   labs(x = "Original Horizon Designation", y = "Horizon Mid-Point Depth (cm)") +
   theme_bw()
+```
+
+
+```{r tbl-GHL-eval, echo=FALSE}
+kable(hz.eval$stats, col.names = c('GHL', 'Clay (%)', 'Horizon Mid-Point (cm)', 'Total RF Volume (%)', 'Moist Munsell Value', 'Sillhouette Width'), caption='Evaluation of GHL via field-described soil properties. Reported values are means and standard deviation, in parenthesis.')
 ```
 
 
@@ -434,8 +450,11 @@ p.1 + as.layer(xyplot(0:150 ~ shannon.h, type='l', lty=2, lwd=2, col='black'))
 
 ```{r tbl-ml-hz-boundaries, echo=FALSE, results='asis'}
 # print hz boundary tables
+a.ml$confidence <- NULL
+p.ml$confidence <- NULL
 hz_bnd_tbl <- cbind(a.ml, p.ml)
-names(hz_bnd_tbl) <- rep(c('Horizon', 'Top (cm)', 'Bottom (cm)', 'Confidence', 'Brier'), times = 2)
+# remove "confidence", this isn't well defined in the paper and not needed
+names(hz_bnd_tbl) <- rep(c('Horizon', 'Top (cm)', 'Bottom (cm)', 'Brier'), times = 2)
 kable(hz_bnd_tbl, digits = 2, caption = 'CAPTION ME')
 ```
 
