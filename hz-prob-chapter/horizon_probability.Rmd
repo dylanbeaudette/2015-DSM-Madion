@@ -329,7 +329,7 @@ The Official Series Description, or OSD [@OSD_reference] of the Loafercreek seri
 
 Once a set of GHL have been determined (in the case of the sample dataset: ```r c('Oi','A','BA','Bt1','Bt2','Bt3','Cr','R')```), it is neccessary to create and apply a set of rules that map the field-described designations to corrosponding GHL. When working with a set of pedons that have been described by a small number of individuals over a short period of time (i.e. consistency in both designation application and standards) it is possible to use a regular expression (REGEX) pattern matching to apply GHL. 
 This process typically requires expert-guided review of: 1) regional patterns in horizonation style, 2) morphologic property differences by groups of field-described designation, and, 3) patterns of horizonation and properties with depth. We used a combination of field-described clay content, rock fragment volume, moist Munsell value, and horizon mid-point to evaluate GHL assignments and determine the final set of REGEX rules. Due to this iterative process, local experience with these soils and their properties are (mostly) preserved within the REGEX rules and corresponding GHL.
-It should be noted that there are some cases where pattern matching alone is not enough and manual adjustment of GHL on a horizon-by-horizon basis are needed.
+It should be noted that there are some cases where pattern matching alone is not enough and manual adjustment of GHL on a horizon-by-horizon basis are needed. For simplicity, only REGEX-based assignment of GHL was used in this study.
 
 At present there aren't many ways in which this type of "micro-correlation" information can be preserved. The authors suggest that future studies maintain a record of orginal horizon designations, generalized horizon labels suitable for aggregation, and the rules used to apply these labels.
 A convenient, quantitative evaluation of GHL assignments can be performed using the silhouette width metric [@Rousseeuw1987]. This metric, commonly used to assess clustering labels, provides a simple metric that can be used to address the basic question of GHL assignment: "given a set of data and labels, how well do these labels split differences within the data?". A more detailed description of this approach has been documented in chapter (???).
@@ -380,7 +380,9 @@ where $B$ is an index of agreement between predicted probabilities, $\mathbf{p}$
 
 ## Generalized Horizon Labels
 
-A graphical representation of the association between field-described horizon designation and associated GHL is presented as a box and whisker plot in Figure 3. 
+A graphical representation of the association between field-described horizon designation and associated GHL is presented as a box and whisker plot in Figure 3. Assignment of GHL to the top (A) and bottom-most (Cr and R) genetic horizons by REGEX pattern matching resulted in the most internally-consistent groups of data. Transitional horizons near the surface (AB, BA, etc.) and lower Bt horizons (2Bt3, Bt4, BCt, etc.) were generally the most variable and thus difficult to place within a GHL by pattern matching.
+
+(not sure what else to add here... ideas?)
 
 
 ```{r fig-eval-horizonation, fig.width=10, fig.height=5, echo=FALSE, fig.cap='Figure 3. Original horizons designations (x-axis), GHL assignments (colors), and associated ranges in depth.'}
@@ -399,17 +401,16 @@ ggplot(data = hz_lfc) +
 ```
 
 
+
+
+
+
+
+
 ```{r tbl-GHL-eval, echo=FALSE}
 kable(hz.eval$stats, col.names = c('GHL', 'Clay (%)', 'Horizon Mid-Point (cm)', 'Total RF Volume (%)', 'Moist Munsell Value', 'Sillhouette Width'), caption='Evaluation of GHL via field-described soil properties. Reported values are means and standard deviation, in parenthesis.')
 ```
 
-
-```{r fig-generalize-hz-names, fig.width=10, fig.height=5, echo=FALSE, fig.cap='CAPTION ME'}
-# plot generalized horizons via color, sorted by GHL probabilities
-par(mar=c(0,0,0,2))
-plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, print.id=FALSE, name='', plot.order=h$order, cex.depth.axis=1)
-legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
-```
 
 ## Aggregate Representation of GHL
 
@@ -435,7 +436,7 @@ xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), 
 p.long.copy <- p.long 
 # larger values -> predictions are less consistently correct
 # merge BS with genhz labels
-lab.text <- sprintf("%.3f %s", p.bs$brier.score, p.bs$genhz)
+lab.text <- sprintf("%.2f %s", p.bs$brier.score, p.bs$genhz)
 p.long.copy$variable <- factor(p.long.copy$variable, labels=lab.text)
 
 p.1 <- xyplot(top ~ value, groups=variable, data=p.long.copy, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=1.75, title='Brier Scores'), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability | Shannon Entropy', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), asp=1.5, panel=function(...) {
@@ -486,20 +487,7 @@ xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.
 #
 ```
 
-```{r tbl-model-robustness, echo=FALSE}
-# cast to wide format
-d.res.wide <- cast(d.res, .id + top ~ variable, value='value')
-d.res.wide$bottom <- d.res.wide$top + 1
 
-# compute ML horizonation, by rep
-# consider weighting by model Dxy
-sim.ml <- ddply(d.res.wide, '.id', get.ml.hz, o.names=hz.names)
-
-# aggregate ML horizonation over reps
-res.robust <- ddply(sim.ml, 'hz', plyr::summarize, top=paste(round(quantile(top, probs=c(0.05, 0.5, 0.95))), collapse='-'), bottom=paste(round(quantile(bottom, probs=c(0.05, 0.5, 0.95))), collapse='-'), psuedo.brier=paste(round(quantile(pseudo.brier, probs=c(0.05, 0.5, 0.95)), 3), collapse='-'))
-
-kable(res.robust, digits = 2, caption = "CAPTION ME")
-```
 
 # Conclusions
 

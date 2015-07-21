@@ -30,6 +30,14 @@ Bt3|Cr   12.3512     0.2515   49.10
 Cr|R     15.1321     0.2652   57.05
 ```
 
+
+```{r fig-generalize-hz-names, fig.width=10, fig.height=5, echo=FALSE, fig.cap='Figure 4. Loafercreek sample dataset, with horizon colors defined by assigned generalized horizon label.'}
+# plot generalized horizons via color, sorted by GHL probabilities
+par(mar=c(0,0,0,2))
+plot(loafercreek, color='genhz.soil_color', divide.hz=FALSE, print.id=FALSE, name='', plot.order=h$order, cex.depth.axis=1)
+legend('bottom', legend=hz.names, col=cols, pch=15, bty='n', horiz=TRUE, cex=2)
+```
+
 ```{r tbl-generalize-hz-names-tbl, results='asis', echo=FALSE}
 # full cross-tab of GHL vs. original designations
 cross.tab <- table(loafercreek$genhz, loafercreek$hzname)
@@ -137,6 +145,22 @@ mdsplot +
   latticeExtra::layer(panel.abline(h=0, v=0, col='grey', lty=3)) + 
   latticeExtra::layer(panel.text(pedons.df$mds.1, pedons.df$mds.2, pedons.df$hzname, cex=0.85, font=2, pos=3)) +
   latticeExtra::layer(panel.text(pedons.df$mds.1, pedons.df$mds.2, pedons.df$pedon_id, cex=0.55, font=1, pos=1))
+```
+
+
+```{r tbl-model-robustness, echo=FALSE}
+# cast to wide format
+d.res.wide <- cast(d.res, .id + top ~ variable, value='value')
+d.res.wide$bottom <- d.res.wide$top + 1
+
+# compute ML horizonation, by rep
+# consider weighting by model Dxy
+sim.ml <- ddply(d.res.wide, '.id', get.ml.hz, o.names=hz.names)
+
+# aggregate ML horizonation over reps
+res.robust <- ddply(sim.ml, 'hz', plyr::summarize, top=paste(round(quantile(top, probs=c(0.05, 0.5, 0.95))), collapse='-'), bottom=paste(round(quantile(bottom, probs=c(0.05, 0.5, 0.95))), collapse='-'), psuedo.brier=paste(round(quantile(pseudo.brier, probs=c(0.05, 0.5, 0.95)), 3), collapse='-'))
+
+kable(res.robust, digits = 2, caption = "CAPTION ME")
 ```
 
 ## Brier Score Evaluation of ML Horizon Labels
