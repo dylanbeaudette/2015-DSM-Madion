@@ -3,14 +3,14 @@ title: "Aggregate Representation of Genetic Soil Horizons"
 author: "D.E. Beaudette, P. Roudier and J.M. Skovlin"
 fontsize: 11pt
 output:
+  word_document:
+    fig_caption: yes
+  pdf_document:
+    fig_caption: yes
   html_document:
     fig_caption: yes
     number_sections: yes
     theme: journal
-  pdf_document:
-    fig_caption: yes
-  word_document:
-    fig_caption: yes
 bibliography: bibliography.bib
 ---
 
