@@ -457,26 +457,13 @@ kable(hz_bnd_tbl, digits = 2, caption = 'Table 3. Most-likely GHL boundary depth
 
 ## Model Fit
 
-Tidy representation of model fit here.
+Tidy representation of model fit here. If we need this get it from the .md file.
 ```{r tbl-po-model, echo=FALSE, eval=FALSE, results='asis'}
 # we need to find a much cleaner way to report those results!
 # until then, I'll just hand-make a MD version of the model coef and SE below
 print(l.genhz)
 ```
 
-
-|Term       |Coef   |S.E.   |Wald Z |
-|:----------|:------|:------|:------|
-|y>=A       |2.2050 |0.2008  |10.98 |
-|y>=BA     |-1.6688 |0.1020 |-16.36 |
-|y>=Bt1    |-2.3032 |0.1064 |-21.66 |
-|y>=Bt2    |-6.4802 |0.1961 |-33.04 |
-|y>=Bt3   |-10.5553 |0.2542 |-41.52 |
-|y>=Cr    |-13.0341 |0.2656 |-49.08 |
-|y>=R     |-15.9055 |0.2785 |-57.12 |
-|hzdept     |0.2513 |0.0077 |32.78  |
-|hzdept'   |-0.3356 |0.0304 |-11.03 |
-|hzdept''   |0.6957 |0.0806   |8.63 |
 
 
 ```{r fig-model-fit-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'Figure 6. Scatterplotcomparison of empirical GHL probabilities and PO-LR estimated GHL probabilities. Solid lines represent1:1 agreement.'}
@@ -490,10 +477,20 @@ Predictions from the 250 models were then combined and visualized below.
 
 ```{r fig-model-robustness, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'Figure 7. Predicted GHL probability depth-functions from 250 iterations of model fitting, based on a reduced training dataset.'}
 # plot with transparency
-xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.025))), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1, tick.number=3)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
+p.stability <- xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.025))), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1, tick.number=3)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
 	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
 	panel.xyplot(...)
 })
+
+p.model <- xyplot(top ~ value | variable, data=p.long, subset=value > 0.01, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), as.table=TRUE, par.settings=list(plot.line=list(col='black', lwd=2, lty=2)), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1, tick.number=3)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), asp=1.5, panel=function(...) {
+  panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
+  panel.xyplot(...)
+})
+
+
+# combine model stability figure with predictions from full model
+print(p.stability + p.model)
+
 
 # plot model accuracy: not all models are equal! (in terms of quality)
 # plot(density(na.omit(res.mdi)), main='Model Discrimination Index (R2)')
