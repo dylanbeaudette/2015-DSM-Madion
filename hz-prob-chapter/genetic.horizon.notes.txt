@@ -1,0 +1,3 @@
+In a discussion about the difference between depth sequence designations and soil horizons, the 1975 Soil Taxonomy (Agricultural Handbook No. 436, p. 459) states, 
+
+“It is not absolutely necessary to name the various soil horizons in order to make a good description of a soil profile. Yet the usefulness of profile descriptions is greatly increased by the proper use of genetic designations, like A, B, and C. Such interpretations show the genetic relationships among the horizons within a profile...The genetic designations make possible useful comparisons among soils.”
