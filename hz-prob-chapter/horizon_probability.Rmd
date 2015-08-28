@@ -340,16 +340,19 @@ Aggregation of horizons as defined by GHL was performed using empirical probabil
 
 ```{r slice-and-fit-1, echo=FALSE, fig.width=10, fig.height=4, fig.cap='Figure 2. Demonstration of some Loafercreek soil profiles sliced into 1-cm chunks, colored by GHL, and associated probability estimates from the fitted PO-LR model.'}
 # graphical check: profiles 1:25, top n slices
+# press-ready version in PDF
+# pdf(file='press-ready-figures/figure-2.pdf', width=10, height=4)
 n.slices <- 50
 par(mar=c(0,0,1,2))
 plot(s[1:25, 1:n.slices], color='genhz.soil_color', name='', print.id=FALSE, n=32, cex.depth.axis=1)
-legend('top', legend=hz.names[1:6], col=cols[1:6], pch=15, bty='n', horiz=TRUE, cex=1.5, pt.cex=3)
+legend('top', legend=hz.names[1:6], col=cols[1:6], pch=15, bty='n', horiz=TRUE, cex=1.25, pt.cex=2)
 lines(27 + (7*p$Oi[1:n.slices]), p$top[1:n.slices], col=cols[1], lwd=2)
 lines(27 + (7*p$A[1:n.slices]), p$top[1:n.slices], col=cols[2], lwd=2)
 lines(27 + (7*p$BA[1:n.slices]), p$top[1:n.slices], col=cols[3], lwd=2)
 lines(27 + (7*p$Bt1[1:n.slices]), p$top[1:n.slices], col=cols[4], lwd=2)
 lines(27 + (7*p$Bt2[1:n.slices]), p$top[1:n.slices], col=cols[5], lwd=2)
 lines(27 + (7*p$Bt3[1:n.slices]), p$top[1:n.slices], col=cols[6], lwd=2)
+# dev.off()
 ```
 
 A sequence of morphologic soil horizon designations can be modeled as an ordinal-scale variable: categorical by definition and ordered along a logical gradient, depth. Within the set of GHL associated with our sample data, "Bt2" horizons always occur after "Bt1" horizons and before "Bt3" horizons. The proportional odds logistic regression model (cumulative link model with logit link) [@McCullagh1980] is a convenient framework for estimating the probability of encountering a GHL, as conditioned by depth. The proportional odds logistic regression (PO-LR) model can be defined as:
@@ -390,7 +393,8 @@ hz_lfc <- horizons(loafercreek)
 hz_ordered <- c('Oi', 'Ap', 'A', 'ABt', 'Ad', 'AB', 'BA', 'Bw', 'Bt1', 'B', 'Bt', 'Bt2', '2Bt2', 'Bt3', 'CBt', '2BCt', '2Bt3', 'C', '2CB', 'Bt4', '2Bt4', 'BCt', 'Cr', 'Crt', '2Crt', '2Cr', 'Rt', 'R', '2R')
 hz_lfc$hzname <- factor(hz_lfc$hzname, levels = hz_ordered)
 
-# Making group 
+# press-ready version in PDF
+# pdf(file='press-ready-figures/figure-3.pdf', width=10, height=5)
 ggplot(data = hz_lfc) +
   geom_boxplot(aes(x = hzname, y = mid, fill = genhz)) +
   scale_fill_manual(values = cols) +
@@ -398,6 +402,7 @@ ggplot(data = hz_lfc) +
   guides(fill = guide_legend(title = "Generalized\nHorizon\nLabel")) +
   labs(x = "Original Horizon Designation", y = "Horizon Mid-Point Depth (cm)") +
   theme_bw()
+# dev.off()
 ```
 
 The degree of overlap in GHL concepts can be expressed in terms of measured soil properties (in this case a limited set of field-described properties), summarized by GHL (Table 1). 
@@ -413,10 +418,14 @@ kable(hz.eval$stats, col.names = c('GHL', 'Clay (%)', 'Horizon Mid-Point (cm)', 
 
 ```{r fig-compare-genzh-probability-depth-functions, fig.width=10, fig.height=7, echo=FALSE, fig.cap = 'Figure 4. Comparison of empirical GHL probabilities, evaluated over 1cm depth slices, and predictions from the PO-LR model. Probabilities less than 0.01 have been removed for clarity.'}
 # compare slicing vs. PO-LR
-xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=2, title='GHL'), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1), layout.heights=list(strip=1.5)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(par.strip.text=list(cex=1.5), bg=grey(0.85)), asp=1.5, panel=function(...) {
+
+# press-ready version in PDF
+# pdf(file='press-ready-figures/figure-4.pdf', width=10, height=7)
+xyplot(top ~ value | which, groups=variable, data=g, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=1.5, title='GHL'), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1), layout.heights=list(strip=1.5)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(par.strip.text=list(cex=1.5), bg=grey(0.85)), asp=1.5, panel=function(...) {
   panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
   panel.xyplot(...)
 })
+# dev.off()
 ```
 
 
@@ -433,12 +442,15 @@ p.long.copy <- p.long
 lab.text <- sprintf("%.2f %s", p.bs$brier.score, p.bs$genhz)
 p.long.copy$variable <- factor(p.long.copy$variable, labels=lab.text)
 
-p.1 <- xyplot(top ~ value, groups=variable, data=p.long.copy, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=1.75, title='Brier Scores'), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability | Shannon Entropy', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), asp=1.5, panel=function(...) {
+p.1 <- xyplot(top ~ value, groups=variable, data=p.long.copy, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), auto.key=list(space='right', columns=1, points=FALSE, lines=TRUE, cex=1.5, title='Brier Scores'), as.table=TRUE, par.settings=list(superpose.line=list(col=cols, lwd=2, lty=1)), scales=list(cex=1.25, y=list(alternating=3, tick.number=10), x=list(alternating=1)), xlab=list('Probability | Shannon Entropy', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), asp=1.5, panel=function(...) {
   panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
   panel.xyplot(...)
 })
 
+# press-ready version in PDF
+# pdf(file='press-ready-figures/figure-5.pdf', width=10, height=7)
 p.1 + as.layer(xyplot(0:150 ~ shannon.h, type='l', lty=2, lwd=2, col='black'))
+# dev.off()
 ```
 
 ## ML Horizon boundaries
@@ -467,7 +479,11 @@ print(l.genhz)
 
 
 ```{r fig-model-fit-by-genhz, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'Figure 6. Scatterplotcomparison of empirical GHL probabilities and PO-LR estimated GHL probabilities. Solid lines represent1:1 agreement.'}
+
+# press-ready version in PDF
+# pdf(file='press-ready-figures/figure-6.pdf', width=10, height=5)
 xyplot(PO.logistic.regression ~ empirical.probabilities | variable, data=g.wide, type=c('p', 'g'), as.table=TRUE, xlab='Empirical GHL Probability', ylab='PO-LR Estimated GHL Probability', asp='iso', strip=strip.custom(bg=grey(0.85)), scales=list(alternating=3), par.settings=list(plot.symbol=list(col='black'))) + latticeExtra::layer(panel.abline(a=0, b=1))
+# dev.off()
 ```
 
 
@@ -477,19 +493,22 @@ Predictions from the 250 models were then combined and visualized below.
 
 ```{r fig-model-robustness, fig.width=10, fig.height=5, echo=FALSE, fig.cap = 'Figure 7. Predicted GHL probability depth-functions from 250 iterations of model fitting, based on a reduced training dataset.'}
 # plot with transparency
-p.stability <- xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.025))), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1, tick.number=3)), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
+p.stability <- xyplot(top ~ value | variable, data=d.res, type='l', ylim=c(155, -5), xlim=c(-0.1,1.1), auto.key=list(columns=3, points=FALSE, lines=TRUE), as.table=TRUE, par.settings=list(plot.line=list(lwd=1, lty=1, col=rgb(0, 0, 0.75, alpha=0.025))), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1, at=c(0, 0.5, 1), labels=c("0", "0.5", "1"))), xlab='Probability', ylab='Depth (cm)', strip=strip.custom(bg=grey(0.85)), panel=function(...) {
 	panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
 	panel.xyplot(...)
 })
 
-p.model <- xyplot(top ~ value | variable, data=p.long, subset=value > 0.01, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), as.table=TRUE, par.settings=list(plot.line=list(col='black', lwd=2, lty=2)), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1, tick.number=3)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), asp=1.5, panel=function(...) {
+p.model <- xyplot(top ~ value | variable, data=p.long, subset=value > 0.01, type='l', ylim=c(155, -5), xlim=c(-0.1,1.2), as.table=TRUE, par.settings=list(plot.line=list(col='black', lwd=2, lty=2)), layout=c(8,1), scales=list(y=list(alternating=3, tick.number=10), x=list(alternating=1, tick.number=3)), xlab=list('Probability', cex=1.25), ylab=list('Depth (cm)', cex=1.25), strip=strip.custom(bg=grey(0.85)), panel=function(...) {
   panel.abline(h=seq(0, 140, by=10), v=seq(0, 1, by=0.2), col=grey(0.8), lty=3)
   panel.xyplot(...)
 })
 
 
 # combine model stability figure with predictions from full model
+# press-ready version in PDF
+pdf(file='press-ready-figures/figure-7.pdf', width=10, height=5)
 print(p.stability + p.model)
+dev.off()
 
 
 # plot model accuracy: not all models are equal! (in terms of quality)
