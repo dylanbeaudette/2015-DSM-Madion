@@ -506,9 +506,9 @@ p.model <- xyplot(top ~ value | variable, data=p.long, subset=value > 0.01, type
 
 # combine model stability figure with predictions from full model
 # press-ready version in PDF
-pdf(file='press-ready-figures/figure-7.pdf', width=10, height=5)
+# pdf(file='press-ready-figures/figure-7.pdf', width=10, height=5)
 print(p.stability + p.model)
-dev.off()
+# dev.off()
 
 
 # plot model accuracy: not all models are equal! (in terms of quality)
